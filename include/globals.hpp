@@ -20,7 +20,7 @@ extern double horizontalOffset;
 extern const double pi;
 
 extern pros::ADIEncoder verticalEncoder;
-extern pros::ADIEncoder horizontalEncoder
+extern pros::ADIEncoder horizontalEncoder;
 
 
 #endif

@@ -9,11 +9,14 @@ class positionTracking {
         double angle = 0;
         double xtrans = 0, ytrans = 0;
         double xVec, yVec;
+        double angOrientation = 0;
 
     public:
-        positionTracking(int inertial, double vertEncoder, double horiEncoder) {
-            angle = inertial * pi / 180;
+        positionTracking(double oldAng, double newAng, double vertEncoder, double horiEncoder) {
+            angle = (newAng -  oldAng) * pi / 180 + angOrientation;
             
+            angOrientation = angle;
+
             xtrans = vertEncoder / angle + verticalOffset;
             ytrans = horiEncoder / angle + horizontalOffset;
 

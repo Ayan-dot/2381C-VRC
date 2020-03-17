@@ -1,12 +1,12 @@
 #include "main.h"
 #include "globals.hpp"
 
-class intakes {
+class Intakes {
     private:
         int intakeSetting = 0;
 
     public:
-        intakes(bool outtake, bool intake) {
+        Intakes(bool outtake, bool intake) {
             if(outtake) {
                intakeSetting = 1; 
             }
