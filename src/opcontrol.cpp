@@ -34,8 +34,8 @@ void printVector_tasks_fn(void *param) {
 
         positionTracking findPos(oldAngle, newAngle, angDiff, enDiff, enDiff1, oldX, oldY);
 
-        pros::lcd::set_text(0, std::to_string((int) findPos.returnX()));
-        pros::lcd::set_text(1, std::to_string((int) findPos.returnY()));
+        pros::lcd::set_text(0, "X Value" + std::to_string((int) findPos.returnX()));
+        pros::lcd::set_text(1, "Y value" + std::to_string((int) findPos.returnY()));
         oldX = findPos.returnX();
         oldY = findPos.returnY();
         
