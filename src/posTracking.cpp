@@ -26,21 +26,23 @@ class positionTracking {
     private:
         double angle = 0;
         double xtrans = 0, ytrans = 0;
-        double xVec, yVec;
-        double placeholder;
+        double xVec, yVec, rVec, polAng;
 
     public:
-        positionTracking(double oldAng, double newAng, double vertEncoder, double horiEncoder, double prevOrientation) {
-            angle = (newAng -  oldAng) * pi / 180 + prevOrientation;
+        positionTracking(double oldAng, double newAng, double angDiff, double vertEncoder, double horiEncoder, double oldX, double oldY) {
+            angle = (newAng) * pi / 180 ;
             
-            prevOrientation = angle;
-            placeholder = prevOrientation;
 
-            xtrans = vertEncoder / angle + verticalOffset;
-            ytrans = horiEncoder / angle + horizontalOffset;
+            xtrans = horiEncoder/ angDiff*(pi/180) + horizontalOffset;
+            ytrans = vertEncoder / angDiff*(pi/180) + verticalOffset;
 
-            xVec = 2 * sin(angle / 2 * xtrans);
-            yVec = 2 * sin(angle / 2 * ytrans);
+            xVec = 2 * sin(angDiff / 2)* xtrans;
+            yVec = 2 * sin(angDiff / 2)* ytrans; 
+            rVec = pow(pow(xVec, 2) + pow(yVec, 2) , 0.5);
+            polAng = atan(yVec/xVec) - (angDiff*(pi/360)+oldAng);
+            xVec = rVec*cos(polAng)+oldX;
+            yVec = rVec*sin(polAng)+oldY;
+
 
 
         }
@@ -54,7 +56,7 @@ class positionTracking {
         }
 
         double returnOrientation() {
-            return placeholder;
+            return angle;
         }
 
 };
