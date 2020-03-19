@@ -38,7 +38,7 @@ class drivePID {
     public:
         drivePID(double distance, double currentPosition) {
             
-            encDistance = (distance * 3600) / (2.75 * pi);
+            encDistance = (distance * 3600) / (3.75 * pi);
             voltage = drivebasePIDController->update(abs(encDistance), currentPosition);
 
             if (abs(rightBack.get_position()) > abs(encDistance)) {
@@ -129,6 +129,7 @@ void vector_tasks_fn(void *param) {
         // oldAngle = inertial.get_heading(); I dont believe this is needed, at least initially
         oldEnc = verticalEncoder.get_value();
         oldEnc1 = horizontalEncoder.get_value();
+        
         pros::delay(10);
 
         newAngle = inertial.get_heading();

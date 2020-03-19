@@ -32,11 +32,15 @@ class positionTracking {
         positionTracking(double oldAng, double newAng, double angDiff, double vertEncoder, double horiEncoder, double oldX, double oldY) {
             angle = (newAng) * pi / 180 ;
 
+            horiEncoder = horiEncoder / 3600 * 2.75 * pi;
+            vertEncoder = vertEncoder / 3600 * 3.75 * pi;
+
             if(angDiff != 0){
                 xtrans = horiEncoder/ angDiff * (pi / 180) + horizontalOffset;
                 ytrans = vertEncoder / angDiff * (pi / 180) + verticalOffset;
                 xVec = 2 * sin(angDiff / 2) * xtrans;
-                yVec = 2 * sin(angDiff / 2) * ytrans;}
+                yVec = 2 * sin(angDiff / 2) * ytrans;
+            }
             else { // yippee no math
                 xVec = horiEncoder;
                 yVec = vertEncoder;

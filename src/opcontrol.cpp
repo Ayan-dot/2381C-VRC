@@ -21,6 +21,7 @@ void printVector_tasks_fn(void *param) {
         // oldAngle = inertial.get_heading(); I dont believe this is needed, at least initially
         oldEnc = verticalEncoder.get_value();
         oldEnc1 = horizontalEncoder.get_value();
+        
         pros::delay(10);
 
         newAngle = inertial.get_heading();
