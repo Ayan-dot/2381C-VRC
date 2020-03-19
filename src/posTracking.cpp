@@ -43,11 +43,9 @@ class positionTracking {
             }
 
             rVec = pow(pow(xVec, 2) + pow(yVec, 2) , 0.5);
-            polAng = atan(yVec / xVec) - (angDiff*(pi / 360) + oldAng);
+            polAng = atan(yVec / xVec) - (angDiff * (pi / 360) + oldAng);
             xVec = rVec * cos(polAng) + oldX;
             yVec = rVec * sin(polAng) + oldY;
-
-
 
         }
 

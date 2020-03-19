@@ -20,8 +20,8 @@ std::array<double, 3> anglerPIDParams = {0.07, 0, 0};
 std::array<double, 3> drivebasePIDParams = {0.032, 0, 0};
 
 int maxSpeed = 12000;
-double verticalOffset = 5; // needs to be changed depending on vertical tracking wheel placement
-double horizontalOffset = 5;
+double verticalOffset = 0; // needs to be changed depending on vertical tracking wheel placement
+double horizontalOffset = 3.95;
 
 const double pi = 3.14159265358979323846;
 
