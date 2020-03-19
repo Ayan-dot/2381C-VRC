@@ -13,7 +13,7 @@ void vector_tasks_fn(void *param) {
     double oldX = 0, oldY = 0; // these values must be changed to reflect our coordinate system
 
     while(true) {
-        oldAngle = inertial.get_heading();
+        // oldAngle = inertial.get_heading(); I dont believe this is needed, at least initially 
         oldEnc = verticalEncoder.get_value();
 
         pros::delay(10);      
@@ -31,6 +31,6 @@ void vector_tasks_fn(void *param) {
         oldX = findPos.returnX();
         oldY = findPos.returnY();
 
-        angOrientation = findPos.returnOrientation();
+        oldAngle = findPos.returnOrientation();
     }
 }
