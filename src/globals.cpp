@@ -25,20 +25,6 @@ double horizontalOffset = 3.95;
 
 const double pi = 3.14159265358979323846;
 
-void initialize() {
-	pros::lcd::initialize();
-    
-    int time = pros::millis();
-    int iter = 0;
-
-    while (inertial.is_calibrating()) {
-        printf("IMU calibrating... %d\n", iter);
-        iter += 10;
-        pros::delay(10);
-    }
-
-}
-
 void disabled() {}
 
 void competition_initialize() {}
