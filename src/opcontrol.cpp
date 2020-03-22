@@ -20,7 +20,6 @@ void initialize() {
     
     printf("IMU is done calibrating (took %d ms)\n", iter - time);
     
-    // master.clear();
     
     // pros::Task intake_task(intake_tasks_fn, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT,"Intake Task");
     // pros::Task vector2_task(printVector_tasks_fn, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT,"Vector Task");
@@ -51,25 +50,21 @@ void printVector_tasks_fn( void *param) {
         
         
     }
+    pros::delay(10);
 }
+
+
 
 void opcontrol() {
-    while(true) {
-        printf("Inertial %f\n", inertial.get_rotation());
-        pros::delay(10);
-    }
-}
-
-void opcontrol2() {
     double newAngle = 0, oldAngle = 0, angDiff = 0;
     double newEnc = 0, oldEnc = 0, enDiff = 0, newEnc1 = 0, oldEnc1 = 0, enDiff1 = 0;
     double angOrientation = 0;
     double oldX = 0, oldY = 0; // these values must be changed to reflect our coordinate system
 
     while(true) {
-        // oldAngle = inertial.get_heading(); I dont believe this is needed, at least initially
-        oldEnc = verticalEncoder.get_value();
-        oldEnc1 = horizontalEncoder.get_value();
+        // oldAngle = inertial.get_heading();
+        oldEnc = (verticalEncoder.get_value()/360)*pi*3.25;
+        oldEnc1 = (horizontalEncoder.get_value()/360)*pi*2.75;
         
         pros::delay(10);
 
@@ -84,13 +79,10 @@ void opcontrol2() {
 
         positionTracking findPos(oldAngle, newAngle, angDiff, enDiff, enDiff1, oldX, oldY);
 
-        currentx = findPos.returnX();
-        currenty = findPos.returnY();
-
-        oldX = findPos.returnX();
-        oldY = findPos.returnY();
         
         oldAngle = findPos.returnOrientation();
+        oldX += findPos.returnX();
+        oldY += findPos.returnY();
 
         pros::delay(10);
         std::string d1 = std::to_string(verticalEncoder.get_value());
