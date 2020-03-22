@@ -39,9 +39,7 @@ void intake_tasks_fn(void *param)
 
 double currentx = 0, currenty = 0;
 
-void printVector_tasks_fn(void *param)
-{
-
+void drive_tasks_fn(void *param) {
     while (true)
     {
 
