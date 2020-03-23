@@ -32,30 +32,37 @@ class positionTracking
 private:
     double angle = 0;
     double displacement = 0;
+    double displacement2 = 0;
     double xVec = 0, yVec = 0;
     double sum = 0;
 
 public:
     positionTracking(double oldAng, double newAng, double angDiff, double vertEncoder, double horiEncoder, double oldX, double oldY)
     {
+         vertEncoder = -vertEncoder;
+         horiEncoder = -horiEncoder;
+
         angle = newAng * pi / 180.0;
 
         oldAng = oldAng * pi / 180.0;
+        
         angDiff = angDiff * pi / 180.0;
-
-        sum = oldAng + angDiff;
+        
         // parallel wheel portion
         if (angDiff != 0)
         {
-            displacement = 2 * sin(angDiff / 2) * (vertEncoder / angDiff);
-            // field centric;
-            xVec = displacement * cos(sum / 2.0);
-            yVec = displacement * sin(sum / 2.0);
+            displacement = 2.0 * sin(angDiff / 2.0) * (vertEncoder / angDiff);
+
+            // field centric
+            yVec = displacement * cos(angDiff / 2.0 + oldAng);
+            xVec = displacement * sin(angDiff / 2.0 + oldAng);
+            
             // back wheel portion
-            displacement = 2 * sin(angDiff / 2) * (horiEncoder / angDiff + horizontalOffset);
+            displacement2 = 2.0 * sin(angDiff / 2.0) * (horiEncoder / angDiff + horizontalOffset);
             //  field centric
-            xVec += displacement * cos(sum / 2.0);
-            yVec += displacement * -sin(sum / 2.0);
+            xVec += displacement2 * cos(angDiff / 2.0 + oldAng);
+            yVec += displacement2 * -sin(angDiff / 2.0 + oldAng);
+           
         }
         else
         {
@@ -63,15 +70,17 @@ public:
             xVec = displacement * cos(oldAng);
             yVec = displacement * sin(oldAng);
             
-            displacement = horiEncoder;
+            displacement2 = horiEncoder;
             
-            xVec += displacement * cos(oldAng);
-            yVec += displacement * -sin(oldAng);
+            xVec += displacement2 * cos(oldAng);
+            yVec += displacement2 * -sin(oldAng);
+            
         }
     }
 
     double returnX()
     {
+        
         return xVec;
     }
 
