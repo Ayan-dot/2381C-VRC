@@ -12,5 +12,19 @@ extern pros::Imu inertial;
 extern std::array<double, 3> anglerPIDParams;
 extern std::array<double, 3> drivebasePIDParams;
 
+extern int maxSpeed;
+
+extern double verticalOffset;
+extern double horizontalOffset;
+extern double horiToInch;
+extern double vertToInch;
+extern double imuToRad;
+
+extern const double pi;
+
+extern pros::ADIEncoder verticalEncoder;
+extern pros::ADIEncoder horizontalEncoder;
+
+
 #endif
 
