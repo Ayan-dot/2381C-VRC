@@ -36,43 +36,38 @@ private:
     double h = 0;
     double h2 = 0;
     double xplacehold = 0, yplacehold = 0;
-    
 
 public:
     positionTracking(double newAng, double lastAng, double currentX, double lastX, double currentY, double lastY)
     {
-         angle = newAng - lastAng;
-         if(angle!=0){
-         halfang = angle/2.0;
-         h = 2.0 * sin(halfang) * ((currentY - lastY)/angle);
-         h2 = 2.0 * sin(halfang)*(((currentX - lastX)/angle)+horizontalOffset);
+        angle = newAng - lastAng;
+        if (angle != 0)
+        {
+            halfang = angle / 2.0;
+            h = 2.0 * sin(halfang) * ((currentY - lastY) / angle);
+            h2 = 2.0 * sin(halfang) * (((currentX - lastX) / angle) + horizontalOffset);
+        }
+        else
+        {
+            h = currentY - lastY;
+            h2 = currentX - lastX;
+            halfang = 0;
+        }
 
-         }
-         else{
-             h = currentY-lastY;
-             h2 = currentX - lastX;
-             halfang = 0;
-         }
-         globalang = lastAng + halfang;
-         yplacehold += h*cos(globalang);
-         xplacehold += h*sin(globalang);
-         yplacehold += h2 * (-sin(globalang));
-         xplacehold += h2 * cos(globalang);
-
-
+        globalang = lastAng + halfang;
+        yplacehold += h * cos(globalang);
+        xplacehold += h * sin(globalang);
+        yplacehold += h2 * (-sin(globalang));
+        xplacehold += h2 * cos(globalang);
     }
 
     double returnX()
     {
-     return xplacehold;   
-        
+        return xplacehold;
     }
 
     double returnY()
     {
         return yplacehold;
     }
-    
-
-    
 };
