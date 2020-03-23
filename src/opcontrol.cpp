@@ -54,13 +54,11 @@ void drive_tasks_fn(void *param) {
 
 void opcontrol()
 {
-    double newAngle = 0, angDiff = 0;
-    double newEnc = 0, oldEnc = 0, enDiff = 0, newEnc1 = 0, oldEnc1 = 0, enDiff1 = 0;
-    double angOrientation = 0;
-    double oldX = 0, oldY = 0; // these values must be changed to reflect our coordinate system
-    double oldAngle = 0;
-   
-    while (true) {
+        double lastpos = 0, currentpos = 0;
+        double lastposH = 0, currentposH = 0;
+        double newAngle = 0, lastAngle = 0;
+        double globalX = 0, globalY = 0;
+     while (true) {
        
         leftFront.move(-1 * master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + 0.8 * master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X));
         leftBack.move(master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + -0.8 * master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X));
@@ -74,35 +72,29 @@ void opcontrol()
             {
                 pros::delay(10);
             }
-        }       
-        // oldAngle = inertial.get_heading();
-        oldEnc = (verticalEncoder.get_value() / 360.0) * pi * 3.25;
-        oldEnc1 = (horizontalEncoder.get_value() / 360.0) * pi * 2.75;
+        } 
 
-        pros::delay(10);
-
-        newAngle = inertial.get_heading();
-        newEnc = (verticalEncoder.get_value() / 360.0) * pi * 3.25;
-        newEnc1 = (horizontalEncoder.get_value() / 360.0) * pi * 2.75;
-
-        angDiff = newAngle - oldAngle;
-        enDiff =  newEnc - oldEnc;
-        enDiff1 = newEnc1 - oldEnc1;
-
-        positionTracking findPos(oldAngle, newAngle, angDiff, enDiff, enDiff1, oldX, oldY); 
+       
         
-        if(!isnan(findPos.returnX()) && !isnan(findPos.returnY())) { 
-            oldX += findPos.returnX();
-            oldY += findPos.returnY();
-            
-        }
-        oldAngle = findPos.returnOrientation()*180.0/pi;
-          
-        master.print(0, 0, "x: %f", oldX);
-        pros::delay(50);
-        master.print(1, 0, "y: %f", oldY);
-        pros::delay(50);
-        master.print(2, 0, "in: %f", inertial.get_heading());
+        currentpos = verticalEncoder.get_value()*vertToInch;
+        currentposH = horizontalEncoder.get_value()*horiToInch;
+        newAngle = inertial.get_heading()*imuToRad;
+        positionTracking robotPos(newAngle, lastAngle, currentposH, lastposH, currentpos, lastpos);
+        if(!isnan(robotPos.returnX()&&!isnan(robotPos.returnY()))){
+        globalX += robotPos.returnX();
+        globalY += robotPos.returnY();}
+        lastposH = currentposH;
+        lastpos = currentpos;
+        lastAngle = newAngle;
+        pros::lcd::print(0, "X: %f", globalX);
+        pros::lcd::print(0, "Y: %f", globalY);
+        pros::delay(10);
+        
+
+
+
+    
+        
             
     }
 }

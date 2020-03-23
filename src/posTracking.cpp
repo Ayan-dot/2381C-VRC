@@ -31,66 +31,48 @@ class positionTracking
 {
 private:
     double angle = 0;
-    double displacement = 0;
-    double displacement2 = 0;
-    double xVec = 0, yVec = 0;
-    double sum = 0;
+    double halfang = 0;
+    double globalang = 0;
+    double h = 0;
+    double h2 = 0;
+    double xplacehold = 0, yplacehold = 0;
+    
 
 public:
-    positionTracking(double oldAng, double newAng, double angDiff, double vertEncoder, double horiEncoder, double oldX, double oldY)
+    positionTracking(double newAng, double lastAng, double currentX, double lastX, double currentY, double lastY)
     {
-         vertEncoder = -vertEncoder;
-         horiEncoder = -horiEncoder;
+         angle = newAng - lastAng;
+         if(angle!=0){
+         halfang = angle/2.0;
+         h = 2.0 * sin(halfang) * ((currentY - lastY)/angle);
+         h2 = 2.0 * sin(halfang)*((currentX - lastX)/angle);
 
-        angle = newAng * pi / 180.0;
+         }
+         else{
+             h = currentY-lastY;
+             h2 = currentX - lastX;
+             halfang = 0;
+         }
+         globalang = lastAng + halfang;
+         yplacehold += h*cos(globalang);
+         xplacehold += h*sin(globalang);
+         yplacehold += h2 * (-sin(globalang));
+         xplacehold += h2 * cos(globalang);
 
-        oldAng = oldAng * pi / 180.0;
-        
-        angDiff = angDiff * pi / 180.0;
-        
-        // parallel wheel portion
-        if (angDiff != 0)
-        {
-            displacement = 2.0 * sin(angDiff / 2.0) * (vertEncoder / angDiff);
 
-            // field centric
-            yVec = displacement * cos(angDiff / 2.0 + oldAng);
-            xVec = displacement * sin(angDiff / 2.0 + oldAng);
-            
-            // back wheel portion
-            displacement2 = 2.0 * sin(angDiff / 2.0) * (horiEncoder / angDiff + horizontalOffset);
-            //  field centric
-            xVec += displacement2 * cos(angDiff / 2.0 + oldAng);
-            yVec += displacement2 * -sin(angDiff / 2.0 + oldAng);
-           
-        }
-        else
-        {
-            displacement = vertEncoder;
-            xVec = displacement * cos(oldAng);
-            yVec = displacement * sin(oldAng);
-            
-            displacement2 = horiEncoder;
-            
-            xVec += displacement2 * cos(oldAng);
-            yVec += displacement2 * -sin(oldAng);
-            
-        }
     }
 
     double returnX()
     {
+     return xplacehold;   
         
-        return xVec;
     }
 
     double returnY()
     {
-        return yVec;
+        return yplacehold;
     }
+    
 
-    double returnOrientation()
-    {
-        return angle;
-    }
+    
 };

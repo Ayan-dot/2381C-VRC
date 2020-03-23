@@ -16,6 +16,9 @@ extern int maxSpeed;
 
 extern double verticalOffset;
 extern double horizontalOffset;
+extern double horiToInch;
+extern double vertToInch;
+extern double imuToRad;
 
 extern const double pi;
 
