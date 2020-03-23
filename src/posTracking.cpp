@@ -45,7 +45,7 @@ public:
          if(angle!=0){
          halfang = angle/2.0;
          h = 2.0 * sin(halfang) * ((currentY - lastY)/angle);
-         h2 = 2.0 * sin(halfang)*((currentX - lastX)/angle);
+         h2 = 2.0 * sin(halfang)*(((currentX - lastX)/angle)+horizontalOffset);
 
          }
          else{
