@@ -78,7 +78,7 @@ void opcontrol()
         }
         currentpos = -verticalEncoder.get_value() * vertToInch;
         currentposH = -(horizontalEncoder.get_value() * horiToInch);
-        newAngle = inertial.get_rotation()* imuToRad;
+        newAngle = (inertial.get_rotation()) * imuToRad;
         positionTracking robotPos(newAngle, lastAngle, currentposH, lastposH, currentpos, lastpos);
         
         if (!isnan(robotPos.returnX()) || !isnan(robotPos.returnY()))
@@ -91,6 +91,7 @@ void opcontrol()
         lastAngle = newAngle;
         pros::lcd::print(0, "X: %f", globalX);
         pros::lcd::print(1, "Y: %f", globalY);
-        pros::delay(10);    
+        master.print(0,1, "I: %f", lastAngle);
+        pros::delay(10);      
     }
 }
