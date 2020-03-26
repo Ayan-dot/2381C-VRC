@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 // #include "main.h"
 // #include "posTracking.cpp"
 // #include "globals.hpp"
@@ -37,6 +38,33 @@
 //         double voltage = 0;
 //     public:
 //         drivePID(double distance, double currentPosition) {
+=======
+#include "main.h"
+#include "posTracking.cpp"
+#include "globals.hpp"
+#include <array>
+#include "pid.hpp"
+
+double currentx1 = 0;
+double currenty1 = 0;
+
+PID* anglerPIDController = new PID(
+    &anglerPIDParams[0],
+    &anglerPIDParams[1],
+    &anglerPIDParams[2]);
+
+PID* drivebasePIDController = new PID(
+    &drivebasePIDParams[0],
+    &drivebasePIDParams[1],
+    &drivebasePIDParams[2]);
+
+class drivePID {
+    private:
+        double encDistance = 0;
+        double voltage = 0;
+    public:
+        drivePID(double distance, double currentPosition) {
+>>>>>>> Stashed changes
             
 //             encDistance = (distance * 360) / (3.75 * pi);
 //             voltage = drivebasePIDController->update(abs(encDistance), currentPosition);
@@ -130,6 +158,7 @@
 //         oldEnc = verticalEncoder.get_value();
 //         oldEnc1 = horizontalEncoder.get_value();
         
+<<<<<<< Updated upstream
 //         pros::delay(50);
 
 //         newAngle = inertial.get_heading();
@@ -171,3 +200,36 @@
 
 //     motionPID(distance, inertial.get_heading(), FORWARD);
 // }
+=======
+        if (!isnan(robotPos.returnX()) || !isnan(robotPos.returnY()))
+        {
+            globalX += robotPos.returnX();
+            globalY += robotPos.returnY();
+        }
+        lastposH = currentposH;
+        lastpos = currentpos;
+        lastAngle = newAngle;
+        pros::lcd::print(0, "X: %f", globalX);
+        pros::lcd::print(1, "Y: %f", globalY);
+        pros::delay(10);
+    }
+}
+
+void autonomous() {
+    pros::Task intake_task(vector_tasks_fn, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT,"Print X and Y Task");
+
+}
+
+void combineAlgorithm(double targetX, double targetY, DIRECTION direction) {
+    motion moveTo(currentx1, currenty1, targetX, targetY);
+
+    double angle = moveTo.returnAngle();
+    double distance = moveTo.returnDistance();
+
+    if(angle != 0) {
+        turnPID(inertial.get_heading(), direction); //sample code direction left or right needs to be changed depending on situation
+    }
+
+    motionPID(distance, inertial.get_heading(), FORWARD);
+}
+>>>>>>> Stashed changes

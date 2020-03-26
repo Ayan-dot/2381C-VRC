@@ -4,16 +4,46 @@
 
 using namespace std;
 
+enum DIRECTION
+{
+  FORWARD,
+  REVERSE,
+  LEFT,
+  RIGHT,
+  LEFT_FORWARD,
+  LEFT_BACK,
+  RIGHT_FORWARD,
+  RIGHT_BACK,
+  TRANS_UP,
+  TRANS_DOWN
+};
+
 class motion
 {
 private:
     double desiredAngle = 0, distanceMove = 0;
+    DIRECTION turn;
+    double diffx = 0, diffy = 0;
 
 public:
     motion(double currentX, double currentY, double moveX, double moveY)
     {
-        desiredAngle = atan((moveY - currentY) / (moveX - currentX));
-        distanceMove = pow(pow((moveY - currentY), 2) + pow((moveX - currentX), 2), 0.5);
+        if(currentY > moveY) {
+            diffy = currentY - moveY;
+        }
+        else {
+            diffy = moveY - currentY;
+        }
+        
+        if(currentX > moveX) {
+            diffx = currentX - moveX;
+        }
+        else  {
+            diffy = moveY - currentY;
+        }
+
+        desiredAngle = atan((diffy) / (diffx));
+        distanceMove = pow(pow((diffy), 2) + pow((diffx), 2), 0.5);
     }
 
     double returnAngle()
