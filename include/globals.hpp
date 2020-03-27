@@ -11,6 +11,7 @@ extern pros::Imu inertial;
 
 extern std::array<double, 3> anglerPIDParams;
 extern std::array<double, 3> drivebasePIDParams;
+extern std::array<double, 3> turningPID;
 
 extern int maxSpeed;
 

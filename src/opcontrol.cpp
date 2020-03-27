@@ -4,29 +4,7 @@
 #include "posTracking.cpp"
 #include <cmath>
 
-void initialize()
-{
 
-    int time = pros::millis();
-    int iter = 0;
-    pros::lcd::initialize();
-
-    master.clear();
-
-    inertial.reset();
-
-    while (inertial.is_calibrating())
-    {
-        printf("IMU calibrating... %d\n", iter);
-        iter += 10;
-        pros::delay(10);
-    }
-
-    printf("IMU is done calibrating (took %d ms)\n", iter - time);
-
-    // pros::Task intake_task(intake_tasks_fn, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT,"Intake Task");
-    // pros::Task vector2_task(printVector_tasks_fn, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT,"Vector Task");
-}
 
 void intake_tasks_fn(void *param)
 {

@@ -28,21 +28,10 @@ private:
 public:
     motion(double currentX, double currentY, double moveX, double moveY)
     {
-        if(currentY > moveY) {
-            diffy = currentY - moveY;
-        }
-        else {
-            diffy = moveY - currentY;
-        }
-        
-        if(currentX > moveX) {
-            diffx = currentX - moveX;
-        }
-        else  {
-            diffy = moveY - currentY;
-        }
+        diffx = abs(moveX - currentX);
+        diffy = abs(moveY - currentY);
 
-        desiredAngle = atan((diffy) / (diffx));
+        desiredAngle = atan((diffy) / (diffx)) * 180 / pi;
         distanceMove = pow(pow((diffy), 2) + pow((diffx), 2), 0.5);
     }
 
