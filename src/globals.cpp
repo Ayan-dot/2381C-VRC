@@ -17,7 +17,8 @@ pros::ADIEncoder verticalEncoder('A','B', false);
 pros::ADIEncoder horizontalEncoder('C','D', false);
 
 std::array<double, 3> anglerPIDParams = {0.07, 0, 0};
-std::array<double, 3> drivebasePIDParams = {0.032, 0, 0};
+std::array<double, 3> drivebasePIDParams = {23, 0, 0};
+std::array<double, 3> turningPID = {160, 0, 170};
 
 int maxSpeed = 12000;
 double verticalOffset = 0; // needs to be changed depending on vertical tracking wheel placement
@@ -31,3 +32,25 @@ const double pi = 3.14159265358979323846;
 void disabled() {}
 
 void competition_initialize() {}
+
+void initialize()
+{
+
+    int time = pros::millis();
+    int iter = 0;
+    pros::lcd::initialize();
+
+    master.clear();
+
+    inertial.reset();
+
+    while (inertial.is_calibrating())
+    {
+        printf("IMU calibrating... %d\n", iter);
+        iter += 10;
+        pros::delay(10);
+    }
+
+    printf("IMU is done calibrating (took %d ms)\n", iter - time);
+
+}
