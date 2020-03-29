@@ -16,8 +16,6 @@ void intake_tasks_fn(void *param)
     }
 }
 
-double currentx = 0, currenty = 0;
-
 void drive_tasks_fn(void *param)
 {
     while (true)
@@ -33,11 +31,11 @@ void drive_tasks_fn(void *param)
 
 void opcontrol()
 {
-    double lastpos = 0, currentpos = 0;
-    double lastposH = 0, currentposH = 0;
-    double newAngle = 0, lastAngle = 0;
-    double globalX = 0, globalY = 0;
-    while (true)
+    double lastpos = 0, currentpos = 0; // variables to hold vertical tracking wheel encoder position, in intervals of 10 ms
+    double lastposH = 0, currentposH = 0; // horizontal counterparts of above variables
+    double newAngle = 0, lastAngle = 0; // angles taken by inertial sensor (IMU), in intervals of 10 ms
+    double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
+    while (true) // control loop 
     {
 
         leftFront.move(-1 * master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + 0.8 * master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X));
@@ -54,21 +52,38 @@ void opcontrol()
                 pros::delay(10);
             }
         }
+<<<<<<< Updated upstream
         currentpos = verticalEncoder.get_value() * vertToInch;
         currentposH = -(horizontalEncoder.get_value() * horiToInch);
         newAngle = inertial.get_rotation()* imuToRad;
         positionTracking robotPos(newAngle, lastAngle, currentposH, lastposH, currentpos, lastpos);
+=======
+        currentpos = -verticalEncoder.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
+        currentposH = -(horizontalEncoder.get_value() * horiToInch); // same function as above, horizontal counterpart
+        newAngle = (inertial.get_rotation()) * imuToRad; // gets inertial angle, converts to radians. Use of rotation as opposed to heading is to account for vector math with negative angles.
+        positionTracking robotPos(newAngle, lastAngle, currentposH, lastposH, currentpos, lastpos); // creates a Position tracking class, where math is done. 
+>>>>>>> Stashed changes
         
-        if (!isnan(robotPos.returnX()) || !isnan(robotPos.returnY()))
+        if (!isnan(robotPos.returnX()) || !isnan(robotPos.returnY())) // to avoid turning global coordinates into null values when inertial calibrates, conditional statement
         {
-            globalX += robotPos.returnX();
-            globalY += robotPos.returnY();
+            globalX += robotPos.returnX(); // adds the horizontal vector passed by the position tracking class to the global X coordinate
+            globalY += robotPos.returnY(); // same function as above, vertical counterpart
         }
+<<<<<<< Updated upstream
         lastposH = currentposH;
         lastpos = currentpos;
         lastAngle = newAngle;
         pros::lcd::print(0, "X: %f", globalX);
         pros::lcd::print(1, "Y: %f", globalY);
         pros::delay(10);
+=======
+        lastposH = currentposH; // sets the last values for the function as the current values, to continue the loop
+        lastpos = currentpos;  // ""
+        lastAngle = newAngle; // ""
+        pros::lcd::print(0, "X: %f", globalX); // prints X coord on brain
+        pros::lcd::print(1, "Y: %f", globalY); // prints Y coord on brain 
+        master.print(0,1, "I: %f", lastAngle); // prints angle on controller
+        pros::delay(10);      // runs loop every 10ms
+>>>>>>> Stashed changes
     }
 }

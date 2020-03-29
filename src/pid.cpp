@@ -29,6 +29,12 @@ double PID::update(double setpoint, double current_value)
   double integralError = *ki_ * error_sum_;
   double derivateError = *kd_ * errorDifference;
 
-  return proportionalError + integralError + derivateError;
+  double total = proportionalError + integralError + derivateError;
+
+  if(total > 8000) {
+    total = 6500;
+  }
+
+  return total;
 }
 
