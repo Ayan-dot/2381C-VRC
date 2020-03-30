@@ -131,7 +131,7 @@ void vector_tasks_fn(void *param) {
     double lastpos = 0, currentpos = 0; // variables to hold vertical tracking wheel encoder position, in intervals of 10 ms
     double lastposH = 0, currentposH = 0; // horizontal counterparts of above variables
     double newAngle = 0, lastAngle = 0; // angles taken by inertial sensor (IMU), in intervals of 10 ms
-    double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
+    // double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
     
     while (true) // control loop 
     {
@@ -188,7 +188,7 @@ void autonomous() {
 //combines turning and driving all into one function
 void combineAlgorithm(double targetX, double targetY, DIRECTION direction) {
     //calls the class getting it to calculate desired angle and driving distance
-    motion moveTo(currentx, currenty, targetX, targetY);
+    motion moveTo(globalX, globalY, targetX, targetY);
 
     //angle returned by class
     double angle = moveTo.returnAngle();

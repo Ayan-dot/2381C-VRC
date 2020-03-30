@@ -34,7 +34,7 @@ void opcontrol()
     double lastpos = 0, currentpos = 0; // variables to hold vertical tracking wheel encoder position, in intervals of 10 ms
     double lastposH = 0, currentposH = 0; // horizontal counterparts of above variables
     double newAngle = 0, lastAngle = 0; // angles taken by inertial sensor (IMU), in intervals of 10 ms
-    double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
+    // double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
     while (true) // control loop 
     {
 

@@ -26,6 +26,7 @@ double horizontalOffset = 0.5;
 double horiToInch = (pi*2.75)/360.0;
 double vertToInch = (pi*3.25)/360.0;
 double imuToRad = pi/180.0;
+double globalX = 0, globalY = 0;
 
 const double pi = 3.14159265358979323846;
 
