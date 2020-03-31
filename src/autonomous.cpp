@@ -12,10 +12,20 @@ PID* anglerPIDController = new PID(
     &anglerPIDParams[1],
     &anglerPIDParams[2]);
 
-PID* drivebasePIDController = new PID(
+PID* rightdrivebasePIDController = new PID(
     &drivebasePIDParams[0],
     &drivebasePIDParams[1],
     &drivebasePIDParams[2]);
+
+PID* leftdrivebasePIDController = new PID(
+    &drivebasePIDParams[0],
+    &drivebasePIDParams[1],
+    &drivebasePIDParams[2]);
+
+PID* adjustmentPIDController = new PID(
+    &adjustmentPIDParams[0],
+    &adjustmentPIDParams[1],
+    &adjustmentPIDParams[2]);
 
 PID* turningPIDController = new PID(
     &turningPID[0],
@@ -23,7 +33,7 @@ PID* turningPIDController = new PID(
     &turningPID[2]);
 
 //driving PID taking in 5 arguments, distance you need to drive, target destination for inertial, direction, target x and y destination
-void motionPID(double distance, double constInertial, DIRECTION direction) {
+void motionPID(double distance, DIRECTION direction, double leftadjustment, double rightadjustment) {
     int cofLB = 1, cofLF = 1, cofRB = 1, cofRF = 1;
 
     switch (direction) {
@@ -44,24 +54,26 @@ void motionPID(double distance, double constInertial, DIRECTION direction) {
         double encDistance = distance;
         
         //voltage output for pid
-        double voltage = drivebasePIDController->update(abs(encDistance), abs(verticalEncoder.get_value()));
+        double voltageL = leftdrivebasePIDController->update(abs(encDistance), abs(verticalEncoder.get_value())) + leftadjustment;
+        double voltageR = rightdrivebasePIDController->update(abs(encDistance), abs(verticalEncoder.get_value())) + rightadjustment;
 
         //sets voltage to 0 when distance is reached (exit condition)
 
         if(abs(verticalEncoder.get_value()) > abs(encDistance) - 20) {
             pros::lcd::set_text(5, "pid stoppped");
-            voltage = 0;
+            voltageL = 0;
+            voltageR = 0;
             return;
         }
 
-        pros::lcd::set_text(6, "voltage: " + std::to_string(voltage));
+        pros::lcd::set_text(6, "voltage: " + std::to_string(voltageR));
         master.print(2, 0, "VC: %f", abs(encDistance) - abs(verticalEncoder.get_value()));
        
         //gets motors to move certain speed
-        leftFront.move_voltage(voltage * cofLF);
-        leftBack.move_voltage(voltage * cofLB);
-        rightFront.move_voltage(voltage * cofRF);
-        rightBack.move_voltage(voltage * cofRB);
+        leftFront.move_voltage(voltageL * cofLF);
+        leftBack.move_voltage(voltageL * cofLB);
+        rightFront.move_voltage(voltageR * cofRF);
+        rightBack.move_voltage(voltageR * cofRB);
         
         pros::delay(10);
 
@@ -171,18 +183,21 @@ void autonomous() {
 
     pros::Task position_task(vector_tasks_fn, (void*)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT,"Print X and Y Task");
     // 846.21458975586392379449251804839‬ ticks = 24 inches
-    motionPID(846, 20, FORWARD);
-    //pros::delay(500);
-    //turnPID(270, LEFT);
-    pros::delay(500);
-    turnPID(180, RIGHT);
     
-    pros::delay(500);
-    turnPID(0, LEFT);
+
+    // motionPID(846, 20, FORWARD);
     
-    pros::delay(1000);
-    // motionPID(846,20, REVERSE);
-    pros::delay(10);
+    // //pros::delay(500);
+    // //turnPID(270, LEFT);
+    // pros::delay(500);
+    // turnPID(180, RIGHT);
+    
+    // pros::delay(500);
+    // turnPID(0, LEFT);
+    
+    // pros::delay(1000);
+    // // motionPID(846,20, REVERSE);
+    // pros::delay(10);
 }
 
 //combines turning and driving all into one function
@@ -204,5 +219,18 @@ void combineAlgorithm(double targetX, double targetY, DIRECTION direction) {
     
     //calls the driving PID to drive a certain distance
     distance = distance *(1.0/vertToInch);
-    motionPID(distance, inertial.get_heading(), FORWARD);
+    motionPID(distance, FORWARD,0,0);
+    while((targetX-globalX)>0.3||(targetY-globalY)>0.3){
+        courseCorrect(targetX, targetY, FORWARD);
+        pros::delay(10);
+    }
+}
+void courseCorrect(double targetX, double targetY , DIRECTION direction){
+    motion moveCourse(globalX, globalY, targetX, targetY);
+    double angle = moveCourse.returnAngle();
+    double distance = moveCourse.returnDistance();
+    turnCorrection turnCorrection(angle);
+    motionPID(distance, FORWARD, turnCorrection.returnL(), turnCorrection.returnR());
+    
+
 }

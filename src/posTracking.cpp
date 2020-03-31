@@ -90,3 +90,38 @@ public:
         return yplacehold;
     }
 };
+class turnCorrection
+{
+private:
+double factor = 0;
+double correction = 0;
+double L_adj = 0, R_adj = 0;
+
+PID* adjustmentPIDController = new PID(
+    &adjustmentPIDParams[0],
+    &adjustmentPIDParams[1],
+    &adjustmentPIDParams[2]);
+
+public: 
+    turnCorrection(double reqAng)
+    {
+    if(inertial.get_rotation!=reqAng){
+     correction = inertial.get_rotation - reqAng;
+        while(correction>0){
+        factor = adjustmentPIDController->update(correction,0);
+        R_adj = factor;   
+    }
+        while(correction<0){
+        factor = adjustmentPIDController->update(correction, 0);
+        L_adj = factor;
+        }
+
+}
+    }
+    double returnR(){
+        return R_adj;
+    }
+    double returnL(){
+        return L_adj;
+    }
+};
