@@ -38,14 +38,28 @@ void motionPID(double distance, double constInertial, DIRECTION direction) {
             break;
     }
 
+    //converts inches to ticks
+    //double encDistance = distance *(1.0/vertToInch);
+    double encDistance = distance;
+
+    double diff = encDistance;
+    double origin = 0;
+    double inverseDis, inverseEnc;
+
     while(true) {
-        //converts inches to ticks
-        //double encDistance = distance *(1.0/vertToInch);
-        double encDistance = distance;
+        
+        if(verticalEncoder.get_value() > distance) {
+            inverseDis = -encDistance;
+            inverseEnc = -verticalEncoder.get_value();
+        }
+        else {
+            inverseDis = encDistance;
+            inverseEnc = -verticalEncoder.get_value();
+        }
         
         //voltage output for pid
         
-        double voltage = drivebasePIDController->update(abs(encDistance), abs(verticalEncoder.get_value()));
+        double voltage = drivebasePIDController->update(inverseDis, inverseEnc);
 
         //sets voltage to 0 when distance is reached (exit condition)
 
