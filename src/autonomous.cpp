@@ -54,7 +54,7 @@ void motionPID(double distance, double constInertial, DIRECTION direction) {
         }
         else {
             inverseDis = encDistance;
-            inverseEnc = -verticalEncoder.get_value();
+            inverseEnc = verticalEncoder.get_value();
         }
         
         //voltage output for pid
