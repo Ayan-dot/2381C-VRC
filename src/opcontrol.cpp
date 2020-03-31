@@ -52,31 +52,16 @@ void opcontrol()
                 pros::delay(10);
             }
         }
-<<<<<<< Updated upstream
-        currentpos = verticalEncoder.get_value() * vertToInch;
-        currentposH = -(horizontalEncoder.get_value() * horiToInch);
-        newAngle = inertial.get_rotation()* imuToRad;
-        positionTracking robotPos(newAngle, lastAngle, currentposH, lastposH, currentpos, lastpos);
-=======
         currentpos = -verticalEncoder.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
         currentposH = -(horizontalEncoder.get_value() * horiToInch); // same function as above, horizontal counterpart
         newAngle = (inertial.get_rotation()) * imuToRad; // gets inertial angle, converts to radians. Use of rotation as opposed to heading is to account for vector math with negative angles.
         positionTracking robotPos(newAngle, lastAngle, currentposH, lastposH, currentpos, lastpos); // creates a Position tracking class, where math is done. 
->>>>>>> Stashed changes
         
         if (!isnan(robotPos.returnX()) || !isnan(robotPos.returnY())) // to avoid turning global coordinates into null values when inertial calibrates, conditional statement
         {
             globalX += robotPos.returnX(); // adds the horizontal vector passed by the position tracking class to the global X coordinate
             globalY += robotPos.returnY(); // same function as above, vertical counterpart
         }
-<<<<<<< Updated upstream
-        lastposH = currentposH;
-        lastpos = currentpos;
-        lastAngle = newAngle;
-        pros::lcd::print(0, "X: %f", globalX);
-        pros::lcd::print(1, "Y: %f", globalY);
-        pros::delay(10);
-=======
         lastposH = currentposH; // sets the last values for the function as the current values, to continue the loop
         lastpos = currentpos;  // ""
         lastAngle = newAngle; // ""
@@ -84,6 +69,5 @@ void opcontrol()
         pros::lcd::print(1, "Y: %f", globalY); // prints Y coord on brain 
         master.print(0,1, "I: %f", lastAngle); // prints angle on controller
         pros::delay(10);      // runs loop every 10ms
->>>>>>> Stashed changes
     }
 }

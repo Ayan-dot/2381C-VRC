@@ -17,11 +17,7 @@ pros::ADIEncoder verticalEncoder('A','B', false);
 pros::ADIEncoder horizontalEncoder('C','D', false);
 
 std::array<double, 3> anglerPIDParams = {0.07, 0, 0};
-<<<<<<< Updated upstream
-std::array<double, 3> drivebasePIDParams = {0.032, 0, 0};
-=======
 std::array<double, 3> drivebasePIDParams = {23, 0, 0};
->>>>>>> Stashed changes
 std::array<double, 3> turningPID = {0.032, 0, 0};
 
 int maxSpeed = 12000;
