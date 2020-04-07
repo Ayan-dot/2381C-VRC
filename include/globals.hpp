@@ -16,7 +16,8 @@ extern std::array<double, 3> adjustmentPIDParams;
 
 extern int maxSpeed;
 
-extern double verticalOffset;
+extern double verticalOffset1;
+extern double verticalOffset2;
 extern double horizontalOffset;
 extern double horiToInch;
 extern double vertToInch;
@@ -25,7 +26,8 @@ extern double globalX, globalY;
 
 extern const double pi;
 
-extern pros::ADIEncoder verticalEncoder;
+extern pros::ADIEncoder verticalEncoder1;
+extern pros::ADIEncoder verticalEncoder2;
 extern pros::ADIEncoder horizontalEncoder;
 
 

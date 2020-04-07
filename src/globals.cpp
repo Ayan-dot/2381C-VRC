@@ -13,7 +13,8 @@ pros::Motor leftIntake(10);
 pros::Motor rightIntake(15);
 pros::Motor lift(14);
 pros::Imu inertial(21);
-pros::ADIEncoder verticalEncoder('A','B', false);
+pros::ADIEncoder verticalEncoder1('A','B', false);
+pros::ADIEncoder verticalEncoder2('E','F', false);
 pros::ADIEncoder horizontalEncoder('C','D', false);
 
 std::array<double, 3> anglerPIDParams = {0.07, 0, 0};
@@ -22,7 +23,8 @@ std::array<double, 3> turningPID = {160, 0, 170};
 std::array<double, 3> adjustmentPIDParams = {2,0,0};
 
 int maxSpeed = 12000;
-double verticalOffset = 0; // needs to be changed depending on vertical tracking wheel placement
+double verticalOffset1 = 0; // needs to be changed depending on vertical tracking wheel placement
+double verticalOffset2 = 0;
 double horizontalOffset = 0.5;
 double horiToInch = (pi*2.75)/360.0;
 double vertToInch = (pi*3.25)/360.0;

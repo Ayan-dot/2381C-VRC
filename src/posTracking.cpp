@@ -57,18 +57,18 @@ private:
     double xplacehold = 0, yplacehold = 0;
 
 public:
-    positionTracking(double newAng, double lastAng, double currentX, double lastX, double currentY, double lastY)
+    positionTracking(double newAng, double lastAng, double currentX, double lastX, double currentYL, double lastYL, double currentYR, double lastYR)
     {
-        angle = newAng - lastAng;
+        angle = ((currentYR-lastYR)-(currentYL-lastYL))/(verticalOffset1+verticalOffset2);
         if (angle != 0)
         {
             halfang = angle / 2.0;
-            h = 2.0 * sin(halfang) * ((currentY - lastY) / angle);
+            h = 2.0 * sin(halfang) * ((currentYR - lastYR) / angle + verticalOffset2);
             h2 = 2.0 * sin(halfang) * (((currentX - lastX) / angle) + horizontalOffset);
         }
         else
         {
-            h = currentY - lastY;
+            h = currentYR - lastYR;
             h2 = currentX - lastX;
             halfang = 0;
         }
@@ -89,39 +89,42 @@ public:
     {
         return yplacehold;
     }
-};
-class turnCorrection
-{
-private:
-double factor = 0;
-double correction = 0;
-double L_adj = 0, R_adj = 0;
-
-PID* adjustmentPIDController = new PID(
-    &adjustmentPIDParams[0],
-    &adjustmentPIDParams[1],
-    &adjustmentPIDParams[2]);
-
-public: 
-    turnCorrection(double reqAng)
-    {
-    if(inertial.get_rotation!=reqAng){
-     correction = inertial.get_rotation - reqAng;
-        while(correction>0){
-        factor = adjustmentPIDController->update(correction,0);
-        R_adj = factor;   
-    }
-        while(correction<0){
-        factor = adjustmentPIDController->update(correction, 0);
-        L_adj = factor;
-        }
-
-}
-    }
-    double returnR(){
-        return R_adj;
-    }
-    double returnL(){
-        return L_adj;
+    double returnOrient(){
+        return globalang;
     }
 };
+// class turnCorrection
+// {
+// private:
+// double factor = 0;
+// double correction = 0;
+// double L_adj = 0, R_adj = 0;
+
+// PID* adjustmentPIDController = new PID(
+//     &adjustmentPIDParams[0],
+//     &adjustmentPIDParams[1],
+//     &adjustmentPIDParams[2]);
+
+// public: 
+//     turnCorrection(double reqAng)
+//     {
+//     if(inertial.get_rotation!=reqAng){
+//      correction = inertial.get_rotation - reqAng;
+//         while(correction>0){
+//         factor = adjustmentPIDController->update(correction,0);
+//         R_adj = factor;   
+//     }
+//         while(correction<0){
+//         factor = adjustmentPIDController->update(correction, 0);
+//         L_adj = factor;
+//         }
+
+// }
+//     }
+//     double returnR(){
+//         return R_adj;
+//     }
+//     double returnL(){
+//         return L_adj;
+//     }
+// };

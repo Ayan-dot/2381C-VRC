@@ -54,12 +54,12 @@ void motionPID(double distance, DIRECTION direction, double leftadjustment, doub
         double encDistance = distance;
         
         //voltage output for pid
-        double voltageL = leftdrivebasePIDController->update(abs(encDistance), abs(verticalEncoder.get_value())) + leftadjustment;
-        double voltageR = rightdrivebasePIDController->update(abs(encDistance), abs(verticalEncoder.get_value())) + rightadjustment;
+        double voltageL = leftdrivebasePIDController->update(abs(encDistance), abs(verticalEncoder1.get_value())) + leftadjustment;
+        double voltageR = rightdrivebasePIDController->update(abs(encDistance), abs(verticalEncoder2.get_value())) + rightadjustment;
 
         //sets voltage to 0 when distance is reached (exit condition)
 
-        if(abs(verticalEncoder.get_value()) > abs(encDistance) - 20) {
+        if(abs(verticalEncoder1.get_value()) > abs(encDistance) - 20) {
             pros::lcd::set_text(5, "pid stoppped");
             voltageL = 0;
             voltageR = 0;
@@ -67,7 +67,7 @@ void motionPID(double distance, DIRECTION direction, double leftadjustment, doub
         }
 
         pros::lcd::set_text(6, "voltage: " + std::to_string(voltageR));
-        master.print(2, 0, "VC: %f", abs(encDistance) - abs(verticalEncoder.get_value()));
+        master.print(2, 0, "VC: %f", abs(encDistance) - abs(verticalEncoder1.get_value()));
        
         //gets motors to move certain speed
         leftFront.move_voltage(voltageL * cofLF);
@@ -140,27 +140,30 @@ void turnPID(double constInertial, DIRECTION direction) {
 
 //ayan's odometry system in opcontrol
 void vector_tasks_fn(void *param) {
-    double lastpos = 0, currentpos = 0; // variables to hold vertical tracking wheel encoder position, in intervals of 10 ms
+    double lastposR = 0, currentposR = 0; // variables to hold right vertical tracking wheel encoder position, in intervals of 10 ms
+    double lastposL = 0, currentposL = 0; // variables to hold left vertical tracking wheel encoder position, in intervals of 10 ms
     double lastposH = 0, currentposH = 0; // horizontal counterparts of above variables
     double newAngle = 0, lastAngle = 0; // angles taken by inertial sensor (IMU), in intervals of 10 ms
     // double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
     
     while (true) // control loop 
     {
-        currentpos = -verticalEncoder.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
+        currentposR = -verticalEncoder2.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
+        currentposL = -verticalEncoder1.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
         currentposH = -(horizontalEncoder.get_value() * horiToInch); // same function as above, horizontal counterpart
         newAngle = (inertial.get_rotation()) * imuToRad; // gets inertial angle, converts to radians. Use of rotation as opposed to heading is to account for vector math with negative angles.
-        positionTracking robotPos(newAngle, lastAngle, currentposH, lastposH, currentpos, lastpos); // creates a Position tracking class, where math is done. 
+        positionTracking robotPos(newAngle, lastAngle, currentposH, lastposH, currentposL, lastposL, currentposR, lastposR); // creates a Position tracking class, where math is done. 
         
-        if (!isnan(robotPos.returnX()) || !isnan(robotPos.returnY())) // to avoid turning global coordinates into null values when inertial calibrates, conditional statement
+        if (!isnan(robotPos.returnX()) || !isnan(robotPos.returnY())) // to avoid turning global coordinates into null values when calculations are initializing, conditional statement 
         {
             globalX += robotPos.returnX(); // adds the horizontal vector passed by the position tracking class to the global X coordinate
             globalY += robotPos.returnY(); // same function as above, vertical counterpart
         }
         
         lastposH = currentposH; // sets the last values for the function as the current values, to continue the loop
-        lastpos = currentpos;  // ""
-        lastAngle = newAngle; // ""
+        lastposR = currentposR;
+        lastposL - currentposL;  
+        lastAngle = robotPos.returnOrient(); // ""
         
         pros::lcd::print(0, "X: %f", globalX); // prints X coord on brain
         pros::lcd::print(1, "Y: %f", globalY); // prints Y coord on brain 
@@ -221,16 +224,16 @@ void combineAlgorithm(double targetX, double targetY, DIRECTION direction) {
     distance = distance *(1.0/vertToInch);
     motionPID(distance, FORWARD,0,0);
     while((targetX-globalX)>0.3||(targetY-globalY)>0.3){
-        courseCorrect(targetX, targetY, FORWARD);
+        // courseCorrect(targetX, targetY, FORWARD);
         pros::delay(10);
     }
 }
-void courseCorrect(double targetX, double targetY , DIRECTION direction){
-    motion moveCourse(globalX, globalY, targetX, targetY);
-    double angle = moveCourse.returnAngle();
-    double distance = moveCourse.returnDistance();
-    turnCorrection turnCorrection(angle);
-    motionPID(distance, FORWARD, turnCorrection.returnL(), turnCorrection.returnR());
+// void courseCorrect(double targetX, double targetY , DIRECTION direction){
+//     motion moveCourse(globalX, globalY, targetX, targetY);
+//     double angle = moveCourse.returnAngle();
+//     double distance = moveCourse.returnDistance();
+//     // turnCorrection turnCorrection(angle);
+//     motionPID(distance, FORWARD, turnCorrection.returnL(), turnCorrection.returnR());
     
 
-}
+// }
