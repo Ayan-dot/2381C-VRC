@@ -4,8 +4,6 @@
 #include "posTracking.cpp"
 #include <cmath>
 
-
-
 void intake_tasks_fn(void *param)
 {
     while (true)
@@ -39,28 +37,18 @@ void opcontrol()
     while (true) // control loop 
     {
 
-        leftFront.move(-1 * master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + 0.8 * master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X));
-        leftBack.move(master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + -0.8 * master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X));
-        rightBack.move(-1 * master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + -0.8 * master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X));
-        rightFront.move(master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + 0.8 * master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X));
+        // master.print(0, 0, "Rot: %f", inertial.get_rotation());
+        leftFront = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+		leftBack = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+		rightFront = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
+		rightBack = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
+		pros::delay(20);
 
-        // custom reset button for imu
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X))
-        {
-            inertial.reset();
-            while (inertial.is_calibrating())
-            {
-                pros::delay(10);
-            }
-        }
-
-        master.print(0, 0, "Rot: %f", inertial.get_rotation());
-
-         currentposR = -verticalEncoder2.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
-        currentposL = -verticalEncoder1.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
-        currentposH = -(horizontalEncoder.get_value() * horiToInch); // same function as above, horizontal counterpart
-        newAngle = (inertial.get_rotation()) * imuToRad; // gets inertial angle, converts to radians. Use of rotation as opposed to heading is to account for vector math with negative angles.
-        positionTracking robotPos(newAngle, lastAngle, currentposH, lastposH, currentposL, lastposL, currentposR, lastposR); // creates a Position tracking class, where math is done. 
+        currentposR = verticalEncoder2.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
+        currentposL = verticalEncoder1.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
+        currentposH = (horizontalEncoder.get_value() * horiToInch); // same function as above, horizontal counterpart
+     
+        positionTracking robotPos(lastAngle, currentposH, lastposH, currentposL, lastposL, currentposR, lastposR); // creates a Position tracking class, where math is done. 
         
         if (!isnan(robotPos.returnX()) || !isnan(robotPos.returnY())) // to avoid turning global coordinates into null values when calculations are initializing, conditional statement 
         {
@@ -70,16 +58,23 @@ void opcontrol()
         
         lastposH = currentposH; // sets the last values for the function as the current values, to continue the loop
         lastposR = currentposR;
-        lastposL - currentposL;  
+        lastposL = currentposL;  
         lastAngle = robotPos.returnOrient(); // ""
         
-        pros::lcd::print(0, "X: %f", globalX); // prints X coord on brain
-        pros::lcd::print(1, "Y: %f", globalY); // prints Y coord on brain 
-        master.print(1,0, "I: %f", lastAngle); // prints angle on controller
+        // pros::lcd::print(0, "L: %f", verticalEncoder1.get_value()); // prints X coord on brain
+        // pros::lcd::print(1, "R: %f", verticalEncoder2.get_value()); // prints Y coord on brain 
+        // pros::lcd::print(2, "B: %f", horizontalEncoder.get_value());
+        pros::lcd::set_text(1, "X:" + std::to_string(globalX));
+        pros::lcd::set_text(2, "Y:" + std::to_string(globalY));
+        pros::lcd::set_text(6, "A:" + std::to_string(lastAngle));
+        pros::lcd::set_text(3, "L:" + std::to_string(verticalEncoder1.get_value()));
+        pros::lcd::set_text(4, "R:" + std::to_string(verticalEncoder2.get_value()));
+        pros::lcd::set_text(5, "B:" + std::to_string(horizontalEncoder.get_value()));
+        // prints angle on controller
         
-        pros::delay(50);
+        // 1000 ticks is 24 inches on 2.75
+       
 
-        master.print(0, 0, "Iner: %f", inertial.get_rotation());        
         pros::delay(10);      // runs loop every 10ms
     }
 }
