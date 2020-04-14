@@ -7,6 +7,11 @@
  const int DRIVE_MOTOR_RIGHT_FRONT = -9;
  const int DRIVE_MOTOR_RIGHT_BACK = -20;
 
+ pros::Motor left_front_motor(2);
+	pros::Motor left_back_motor(11);
+	pros::Motor right_front_motor(9);
+	pros::Motor right_back_motor(20);
+
 /**
  * A callback function for LLEMU's center button.
  *
@@ -76,7 +81,7 @@ void autonomous() {
 		.withSensors(
 			ADIEncoder{'E', 'F'},
 			ADIEncoder{'G', 'H', true},
-			ADIEncoder{'A', 'B', true}
+			ADIEncoder{'C', 'D', true}
 		)
 		.withDimensions(AbstractMotor::gearset::green, {{4_in, 10_in}, imev5GreenTPR})
 		.withOdometry({{2.75_in, 10_in, 0.75_in, 2.75_in}, quadEncoderTPR}, StateMode::CARTESIAN)
@@ -120,7 +125,7 @@ void opcontrol() {
 		.withSensors(
 			ADIEncoder{'E', 'F'},
 			ADIEncoder{'G', 'H', true},
-			ADIEncoder{'A', 'B', true}
+			ADIEncoder{'C', 'D', true}
 		)
 		.withDimensions(AbstractMotor::gearset::green, {{4_in, 10_in}, imev5GreenTPR})
 		.withOdometry({{2.75_in, 10_in, 0.75_in, 2.75_in}, quadEncoderTPR}, StateMode::CARTESIAN)
@@ -129,13 +134,21 @@ void opcontrol() {
 	chassis->setState({0_in, 0_in, 0_deg});
 	pros::delay(20);
 	while (true) {
+		left_front_motor = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+		left_back_motor = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+		right_front_motor = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
+		right_back_motor = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
+
 		// cout << state.str() << '\n';
 		double x1 = chassis->getState().x.convert(inch);
 		double y1 = chassis->getState().y.convert(inch);
 		double ang = chassis->getState().theta.convert(degree);
 		
 		// string state = chassis->getState().str();
-		cout << x1 << " " << y1 << " " << ang << '\n'; 
+		// pros::delay(50);
+		// pros::lcd::set_text(5, state);
+		
+		// cout << x1 << " " << y1 << " " << ang << '\n'; 
 		pros::delay(50);
 		master.print(0,0, "X: %lf", x1);
 		pros::delay(50);
