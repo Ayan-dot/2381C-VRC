@@ -48,14 +48,17 @@ void opcontrol()
         currentposL = verticalEncoder1.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
         currentposH = horizontalEncoder.get_value() * horiToInch; // same function as above, horizontal counterpart
      
-        positionTracking robotPos(lastAngle, currentposH, lastposH, currentposL, lastposL, currentposR, lastposR); // creates a Position tracking class, where math is done. 
+        positionTracking robotPos(lastAngle, currentposL, currentposR, currentposH, lastposL, lastposR, lastposH); // creates a Position tracking class, where math is done. 
         
         if (!isnan(robotPos.returnX()) || !isnan(robotPos.returnY())) // to avoid turning global coordinates into null values when calculations are initializing, conditional statement 
         {
             globalX += robotPos.returnX(); // adds the horizontal vector passed by the position tracking class to the global X coordinate
             globalY += robotPos.returnY(); // same function as above, vertical counterpart
         }
+        
         lastAngle = robotPos.returnOrient();
+        
+        
         lastposH = currentposH; // sets the last values for the function as the current values, to continue the loop
         lastposR = currentposR;
         lastposL = currentposL;  

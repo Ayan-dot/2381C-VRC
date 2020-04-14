@@ -56,22 +56,29 @@ private:
     double h = 0;
     double h2 = 0;
     double xplacehold = 0, yplacehold = 0;
+    double radiusRight, radiusBack, sinAngle;
 
 public:
-    positionTracking(double lastAng, double currentX, double lastX, double currentYL, double lastYL, double currentYR, double lastYR)
-    {
-        B = currentX - lastX;
-        L = currentYL - lastYL;
-        R = currentYR - lastYR;
+    positionTracking(double lastAng, double left, double right, double back, double prevLeft, double prevRight, double prevBack)
+    {   
+        L = left - prevLeft;
+        R = right - prevRight;
+        B = back - prevBack;
 
         angle = (L-R) / (verticalOffset1+verticalOffset2);
-        
             
         if (angle != 0)
         {
+            radiusRight = R / angle;
+
             halfang = angle / 2.0;
-            h = 2.0 * sin(halfang) * (((R) / angle) + verticalOffset2);              
-            h2 = 2.0 * sin(halfang) * (((B) / angle)+ horizontalOffset);
+            sinAngle = sin(halfang);
+
+            h = 2.0 * (sinAngle * (radiusRight + verticalOffset2));              
+            
+            radiusBack = B / angle;
+            
+            h2 = 2.0 * (sinAngle * (B + horizontalOffset));
         }
         else
         {
@@ -81,11 +88,14 @@ public:
         }
 
         globalang = lastAng + halfang;
+
+
         yplacehold += h * cos(globalang);
         xplacehold += h * sin(globalang);
         yplacehold += h2 * (-sin(globalang));
         xplacehold += h2 * cos(globalang);
-        globalang += halfang;
+        
+        globalang += angle;
     }
 
     double returnX()
