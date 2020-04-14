@@ -46,7 +46,7 @@ void opcontrol()
 
         currentposR = verticalEncoder2.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
         currentposL = verticalEncoder1.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
-        currentposH = (horizontalEncoder.get_value() * horiToInch); // same function as above, horizontal counterpart
+        currentposH = horizontalEncoder.get_value() * horiToInch; // same function as above, horizontal counterpart
      
         positionTracking robotPos(lastAngle, currentposH, lastposH, currentposL, lastposL, currentposR, lastposR); // creates a Position tracking class, where math is done. 
         

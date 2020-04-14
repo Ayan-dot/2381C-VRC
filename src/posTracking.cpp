@@ -50,6 +50,7 @@ class positionTracking
 {
 private:
     double angle = 0;
+    double L,R,B = 0;
     double halfang = 0;
     double globalang = 0;
     double h = 0;
@@ -59,18 +60,22 @@ private:
 public:
     positionTracking(double lastAng, double currentX, double lastX, double currentYL, double lastYL, double currentYR, double lastYR)
     {
-        angle = ((currentYL-lastYL)-(-(currentYR-lastYR))) / (verticalOffset1+verticalOffset2);
+        B = currentX - lastX;
+        L = currentYL - lastYL;
+        R = currentYR - lastYR;
+
+        angle = (L-R) / (verticalOffset1+verticalOffset2);
             
         if (angle != 0)
         {
             halfang = angle / 2.0;
-            h = 2.0 * sin(halfang) * (((currentYL - lastYL) / angle) + verticalOffset1);
-            h2 = 2.0 * sin(halfang) * (((currentX - lastX) / angle) + horizontalOffset);
+            h = 2.0 * sin(halfang) * (((R) / angle) + verticalOffset2);
+            h2 = 2.0 * sin(halfang) * (((B) / angle) + horizontalOffset);
         }
         else
         {
-            h = currentYL - lastYL;
-            h2 = currentX - lastX;
+            h = R;
+            h2 = B;
             halfang = 0;
         }
 
