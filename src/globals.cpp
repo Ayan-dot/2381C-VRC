@@ -19,9 +19,9 @@ std::array<double, 3> turningPID = {160, 0, 170};
 std::array<double, 3> adjustmentPIDParams = {2,0,0};
 
 int maxSpeed = 12000;
-double verticalOffset1 = 5.2; // needs to be changed depending on vertical tracking wheel placement
-double verticalOffset2 = 5.2;
-double horizontalOffset = 0.75;
+double verticalOffset1 = 5.0; // needs to be changed depending on vertical tracking wheel placement
+double verticalOffset2 = 5.0;
+double horizontalOffset = 0.765;
 double horiToInch = (pi*2.75)/360.0;
 double vertToInch = (pi*2.75)/360.0;
 double imuToRad = pi/180.0;

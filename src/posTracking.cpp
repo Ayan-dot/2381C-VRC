@@ -65,12 +65,13 @@ public:
         R = currentYR - lastYR;
 
         angle = (L-R) / (verticalOffset1+verticalOffset2);
+        
             
         if (angle != 0)
         {
             halfang = angle / 2.0;
-            h = 2.0 * sin(halfang) * (((R) / angle) + verticalOffset2);
-            h2 = 2.0 * sin(halfang) * (((B) / angle) + horizontalOffset);
+            h = 2.0 * sin(halfang) * (((R) / angle) + verticalOffset2);              
+            h2 = 2.0 * sin(halfang) * (((B) / angle)+ horizontalOffset);
         }
         else
         {
@@ -84,7 +85,7 @@ public:
         xplacehold += h * sin(globalang);
         yplacehold += h2 * (-sin(globalang));
         xplacehold += h2 * cos(globalang);
-        globalang = lastAng + angle;
+        globalang += halfang;
     }
 
     double returnX()

@@ -55,11 +55,11 @@ void opcontrol()
             globalX += robotPos.returnX(); // adds the horizontal vector passed by the position tracking class to the global X coordinate
             globalY += robotPos.returnY(); // same function as above, vertical counterpart
         }
-        
+        lastAngle = robotPos.returnOrient();
         lastposH = currentposH; // sets the last values for the function as the current values, to continue the loop
         lastposR = currentposR;
         lastposL = currentposL;  
-        lastAngle = robotPos.returnOrient(); // ""
+         // ""
         
         // pros::lcd::print(0, "L: %f", verticalEncoder1.get_value()); // prints X coord on brain
         // pros::lcd::print(1, "R: %f", verticalEncoder2.get_value()); // prints Y coord on brain 
