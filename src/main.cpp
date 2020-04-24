@@ -8,9 +8,9 @@
  const int DRIVE_MOTOR_RIGHT_BACK = -20;
 
  pros::Motor left_front_motor(2);
-	pros::Motor left_back_motor(11);
-	pros::Motor right_front_motor(9);
-	pros::Motor right_back_motor(20);
+ pros::Motor left_back_motor(11);
+ pros::Motor right_front_motor(9);
+ pros::Motor right_back_motor(20);
 
 /**
  * A callback function for LLEMU's center button.
