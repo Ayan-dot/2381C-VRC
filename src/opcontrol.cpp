@@ -34,6 +34,8 @@ void opcontrol()
     double lastposH = 0, currentposH = 0; // horizontal counterparts of above variables
     double newAngle = 0, lastAngle = 0; // angles taken by inertial sensor (IMU), in intervals of 10 ms
     // double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
+    // wait for imu to calibrate
+    pros::delay(3000);
     while (true) // control loop
     {
 
@@ -42,7 +44,7 @@ void opcontrol()
         leftBack = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) - master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
         rightFront = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
         rightBack = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) - master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
-		      pros::delay(20);
+		    //pros::delay(20);
 
         currentposR = verticalEncoder2.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
         currentposL = verticalEncoder1.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
@@ -55,7 +57,11 @@ void opcontrol()
             globalX += robotPos.returnX(); // adds the horizontal vector passed by the position tracking class to the global X coordinate
             globalY += robotPos.returnY(); // same function as above, vertical counterpart
         }
-        lastAngle = robotPos.returnOrient();
+        // since we are doing inertial averaging, lastAngle is modified
+        // perform a weighted average
+        double trackingWheelWeight = 0.5;
+        double imuWeight = 0.5;
+        lastAngle = robotPos.returnOrient() * trackingWheelWeight + inertial.get_rotation() * (pi / 180.0) * imuWeight;
         lastposH = currentposH; // sets the last values for the function as the current values, to continue the loop
         lastposR = currentposR;
         lastposL = currentposL;
@@ -70,11 +76,12 @@ void opcontrol()
         pros::lcd::set_text(3, "L:" + std::to_string(verticalEncoder1.get_value()));
         pros::lcd::set_text(4, "R:" + std::to_string(verticalEncoder2.get_value()));
         pros::lcd::set_text(5, "B:" + std::to_string(horizontalEncoder.get_value()));
+        pros::lcd::set_text(7, "I: " + std::to_string(inertial.get_rotation()));
         // prints angle on controller
 
         // 1000 ticks is 24 inches on 2.75
 
 
-        pros::delay(10);      // runs loop every 10ms
+        pros::delay(20);      // runs loop every 10ms
     }
 }
