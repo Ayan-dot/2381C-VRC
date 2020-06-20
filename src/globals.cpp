@@ -29,6 +29,10 @@ double globalX = 0, globalY = 0;
 
 const double pi = 3.14159265358979323846;
 
+lv_obj_t *blue;
+lv_obj_t *red;
+lv_obj_t *tabview;
+
 void disabled() {}
 
 void competition_initialize() {}

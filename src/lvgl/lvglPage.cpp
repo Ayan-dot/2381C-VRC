@@ -5,7 +5,7 @@
 
 using namespace std;
 
-lv_theme_t *th = lv_theme_material_init(200, NULL);
+
 lv_obj_t * scr = lv_obj_create(NULL, NULL);
 
 
@@ -35,8 +35,10 @@ lv_obj_t * createSlide(lv_obj_t * parent, const char * label2, int16_t max, lv_c
     return slide;
 }
 
-odomBoi::odomBoi() {
+odomBoi::odomBoi(int hue) {
     
+    lv_theme_t *th = lv_theme_material_init(hue, NULL);
+
     lv_theme_set_current(th);
 
     tabview = lv_tabview_create(lv_scr_act(), NULL);
@@ -223,9 +225,6 @@ lv_coord_t min(lv_coord_t x, lv_coord_t y) {
 void initialize()
 {
 
-    
-    
-    
     int time = pros::millis();
     int iter = 0;
    

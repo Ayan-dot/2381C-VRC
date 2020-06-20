@@ -5,6 +5,7 @@
 #include <cmath>
 #include "autoSelect/selection.h"
 #include "lvgl/lvglPage.hpp"
+#include "lvgl/callback.hpp"
 
 
 void intake_tasks_fn(void *param)
@@ -34,8 +35,11 @@ void drive_tasks_fn(void *param)
 
 void opcontrol()
 {
-    odomBoi init();
-    init.reset();
+    odomBoi init(250);
+
+    variables::initAuton(3, btnMap);
+
+    //init.reset();
     
     double lastposR = 0, currentposR = 0; // variables to hold right vertical tracking wheel encoder position, in intervals of 10 ms
     double lastposL = 0, currentposL = 0; // variables to hold left vertical tracking wheel encoder position, in intervals of 10 ms

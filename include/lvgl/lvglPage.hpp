@@ -7,7 +7,7 @@
 class odomBoi {
     public:
         
-        odomBoi();
+        odomBoi(int hue);
         
         void setData(double x, double y, double theta);
 
