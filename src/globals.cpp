@@ -4,14 +4,18 @@
 #include "pid.hpp"
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
-pros::Motor leftBack(20);
-pros::Motor leftFront(1);
-pros::Motor rightBack(11);
-pros::Motor rightFront(2);
-pros::Imu inertial(9);
-pros::ADIEncoder verticalEncoder1('A','B', true);
-pros::ADIEncoder verticalEncoder2('C','D', true);
-pros::ADIEncoder horizontalEncoder('E','F', true);
+pros::Motor leftBack(2);
+pros::Motor leftFront(12);
+pros::Motor rightBack(9);
+pros::Motor rightFront(19);
+pros::Motor leftIntake(15);
+pros::Motor rightIntake(16);
+pros::Motor indexer(3);
+pros::Motor shooter(17);
+pros::Imu inertial(1);
+pros::ADIEncoder verticalEncoder1('E','F', false);
+pros::ADIEncoder verticalEncoder2('A','B', false);
+pros::ADIEncoder horizontalEncoder('C','D', true);
 
 std::array<double, 3> anglerPIDParams = {0.07, 0, 0};
 std::array<double, 3> drivebasePIDParams = {23, 0, 0};
@@ -19,9 +23,9 @@ std::array<double, 3> turningPID = {160, 0, 170};
 std::array<double, 3> adjustmentPIDParams = {2,0,0};
 
 int maxSpeed = 12000;
-double verticalOffset1 = 7.185; // needs to be changed depending on vertical tracking wheel placement
-double verticalOffset2 = 7.185;
-double horizontalOffset = 7.25;
+double verticalOffset1 = 6.1675; // needs to be changed depending on vertical tracking wheel placement
+double verticalOffset2 = 6.1675;
+double horizontalOffset = 6.8075;
 double horiToInch = (pi*2.75)/360.0;
 double vertToInch = (pi*2.75)/360.0;
 double imuToRad = pi/180.0;

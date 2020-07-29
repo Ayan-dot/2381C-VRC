@@ -33,6 +33,9 @@ void opcontrol()
     double lastposL = 0, currentposL = 0; // variables to hold left vertical tracking wheel encoder position, in intervals of 10 ms
     double lastposH = 0, currentposH = 0; // horizontal counterparts of above variables
     double newAngle = 0, lastAngle = 0; // angles taken by inertial sensor (IMU), in intervals of 10 ms
+
+    double k = 3.0;
+
     // double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
     // wait for imu to calibrate
     pros::delay(3000);
@@ -59,9 +62,12 @@ void opcontrol()
         }
         // since we are doing inertial averaging, lastAngle is modified
         // perform a weighted average
-        double trackingWheelWeight = 0.5;
-        double imuWeight = 0.5;
-        lastAngle = robotPos.returnOrient() * trackingWheelWeight + inertial.get_rotation() * (pi / 180.0) * imuWeight;
+        //double trackingWheelWeight = 1.0 - min((abs(lastAngle) / k), 0.9);
+        //double imuWeight = min((abs(lastAngle) / k), 0.9);
+        double trackingWheelWeight = 0.01;
+        double imuWeight = 0.99;
+        double imuScaling = 0.9965;
+        lastAngle = robotPos.returnOrient() * trackingWheelWeight + inertial.get_rotation() * (pi / 180.0) * imuWeight * imuScaling;
         lastposH = currentposH; // sets the last values for the function as the current values, to continue the loop
         lastposR = currentposR;
         lastposL = currentposL;
@@ -76,11 +82,67 @@ void opcontrol()
         pros::lcd::set_text(3, "L:" + std::to_string(verticalEncoder1.get_value()));
         pros::lcd::set_text(4, "R:" + std::to_string(verticalEncoder2.get_value()));
         pros::lcd::set_text(5, "B:" + std::to_string(horizontalEncoder.get_value()));
-        pros::lcd::set_text(7, "I: " + std::to_string(inertial.get_rotation()));
+        pros::lcd::set_text(7, "I: " + std::to_string(inertial.get_rotation() * imuScaling));
         // prints angle on controller
 
         // 1000 ticks is 24 inches on 2.75
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+          // intake
+          leftIntake.move_velocity(200);
+          rightIntake.move_velocity(-200);
+        }
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+          leftIntake.move_velocity(-200);
+          rightIntake.move_velocity(200);
+        }
+        if (!master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) && !master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+          leftIntake.move_velocity(-0);
+          rightIntake.move_velocity(-0);
+        }
 
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+          // intake
+          indexer.move_velocity(-200);
+        }
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+          indexer.move_velocity(200);
+        }
+
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+          indexer.move_velocity(-200);
+          shooter.move_velocity(200);
+        }
+
+        if (!master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && !master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+          indexer.move_velocity(0);
+        }
+
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) && master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+          rightIntake.move_velocity(0);
+          leftIntake.move_velocity(0);
+          shooter.move_velocity(-200);
+        }
+
+        if (!master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) && !master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+          rightIntake.move_velocity(0);
+          leftIntake.move_velocity(0);
+        }
+
+        if ((!master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) || !master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) && (!master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) || !master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))) {
+          shooter.move_velocity(0);
+        }
+
+
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+          int iter = 0;
+          inertial.reset();
+          while (inertial.is_calibrating()) {
+            pros::lcd::set_text(7, "IMU calibrating ...");
+            iter += 10;
+            pros::delay(10);
+          }
+          lastAngle = robotPos.returnOrient();
+        }
 
         pros::delay(20);      // runs loop every 10ms
     }

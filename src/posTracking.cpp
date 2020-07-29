@@ -65,12 +65,14 @@ public:
         R = currentYR - lastYR;
 
         angle = (L-R) / (verticalOffset1+verticalOffset2);
-        
-            
+        // arc length formula: r (theta) = s
+        // theta = s / r
+        //angle = B / horizontalOffset;
+
         if (angle != 0)
         {
             halfang = angle / 2.0;
-            h = 2.0 * sin(halfang) * (((R) / angle) + verticalOffset2);              
+            h = 2.0 * sin(halfang) * (((R) / angle) + verticalOffset2);
             h2 = 2.0 * sin(halfang) * (((B) / angle)+ horizontalOffset);
         }
         else
@@ -113,14 +115,14 @@ public:
 //     &adjustmentPIDParams[1],
 //     &adjustmentPIDParams[2]);
 
-// public: 
+// public:
 //     turnCorrection(double reqAng)
 //     {
 //     if(inertial.get_rotation!=reqAng){
 //      correction = inertial.get_rotation - reqAng;
 //         while(correction>0){
 //         factor = adjustmentPIDController->update(correction,0);
-//         R_adj = factor;   
+//         R_adj = factor;
 //     }
 //         while(correction<0){
 //         factor = adjustmentPIDController->update(correction, 0);

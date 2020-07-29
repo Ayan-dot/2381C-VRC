@@ -5,7 +5,7 @@
 
 extern pros::Controller master;
 extern pros::Motor leftBack, leftFront, rightBack, rightFront;
-extern pros::Motor leftIntake, rightIntake;
+extern pros::Motor leftIntake, rightIntake, indexer, shooter;
 extern pros::Motor lift;
 extern pros::Imu inertial;
 
@@ -32,4 +32,3 @@ extern pros::ADIEncoder horizontalEncoder;
 
 
 #endif
-
