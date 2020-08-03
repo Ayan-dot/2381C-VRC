@@ -293,6 +293,11 @@
                 "version": "4.0.3"
             }
         },
-        "upload_options": {}
+        "upload_options": {
+            "compress_bin": true,
+            "description": "Created with PROS",
+            "remote_name": "2020 Testing for Robotics",
+            "slot": 1
+        }
     }
 }
