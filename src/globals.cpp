@@ -18,12 +18,16 @@ pros::ADIEncoder verticalEncoder2('A','B', false);
 pros::ADIEncoder horizontalEncoder('C','D', true);
 pros::ADIAnalogIn line_tracker('G');
 std::array<double, 3> anglerPIDParams = {0.07, 0, 0};
-std::array<double, 3> drivebasePIDParams = {23, 0, 0};
+std::array<double, 3> drivebasePIDParams = {20, 0, 30};
 std::array<double, 3> turningPID = {160, 0, 170};
 std::array<double, 3> adjustmentPIDParams = {2,0,0};
 
 int maxSpeed = 12000;
-int INDEX_THRESHOLD = 2600; // needs to be changed depending on ambient lighting conditions
+int INDEX_THRESHOLD = 2700; // needs to be changed depending on ambient lighting conditions
+const double EPS = 1e-8;
+double accelerationTime = 500; // time in milliseconds given to accelerate
+double ANGLE_Kp = 150.0; // angle correction coefficient to help make sure the robot looks straight when moving straight, countering veering
+double STRAFE_Kp = 2000.0; // side-side correction cofficient to help make sure that the robot moves straight by shifting it side to side if it veers to one side back on track
 double verticalOffset1 = 6.1675; // needs to be changed depending on vertical tracking wheel placement
 double verticalOffset2 = 6.1675;
 double horizontalOffset = 6.8075;

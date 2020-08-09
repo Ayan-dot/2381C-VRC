@@ -16,6 +16,11 @@ extern std::array<double, 3> adjustmentPIDParams;
 
 extern int maxSpeed;
 extern int INDEX_THRESHOLD;
+extern double ANGLE_Kp;
+extern double STRAFE_Kp;
+extern double accelerationTime;
+extern const double EPS;
+//extern int coastVoltage;
 
 extern double verticalOffset1;
 extern double verticalOffset2;

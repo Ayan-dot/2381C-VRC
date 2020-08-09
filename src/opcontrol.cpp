@@ -49,6 +49,10 @@ void opcontrol()
         rightBack = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) - master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
 		    //pros::delay(20);
 
+        // ODOMETRY PROCEDURE //
+        /*
+        * Featuring imu averaging (more like imu domination)
+        */
         currentposR = verticalEncoder2.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
         currentposL = verticalEncoder1.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
         currentposH = horizontalEncoder.get_value() * horiToInch; // same function as above, horizontal counterpart
@@ -123,7 +127,7 @@ void opcontrol()
           if (line_tracker.get_value() > INDEX_THRESHOLD) {
             // we do not have a ball properly indexed yet
             indexer.move_velocity(-200);
-            shooter.move_velocity(50);
+            shooter.move_velocity(10);
           } else {
             shooter.move_velocity(0);
             indexer.move_velocity(-200);
@@ -138,7 +142,7 @@ void opcontrol()
         // R2 - fires balls
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
           // shoots indexed ball
-          shooter.move_velocity(200);
+          shooter.move_velocity(180);
         } else {
           if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && line_tracker.get_value() > INDEX_THRESHOLD) {
 

@@ -31,18 +31,35 @@ double PID::update(double setpoint, double current_value)
 
   double total = proportionalError + integralError + derivateError;
 
-  if(total > 8000) {
-    total = 6500;
+  // set a maximum threshold for the motor voltage
+  if (abs((int)total) > 8000) {
+    if (total < 0) {
+      total = -7500;
+    } else {
+      total = 7500;
+    }
   }
 
-  if(total < -6500) {
-    total = -6500;
-  }
+  // // set a minimum threshold too
+  // if (abs((int)total) < 3000) {
+  //   if (total < 0) {
+  //     total = -2000;
+  //   } else {
+  //     total = 2000;
+  //   }
+  // }
 
-  if(total > -3000 && total < 0) {
-    total = -3000;
-  }
+  // if(total > 8000) {
+  //   total = 6500;
+  // }
+  //
+  // if(total < -6500) {
+  //   total = -6500;
+  // }
+  //
+  // if(total > -3000 && total < 0) {
+  //   total = -3000;
+  // }
 
   return total;
 }
-
