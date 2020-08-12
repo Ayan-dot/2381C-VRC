@@ -17,26 +17,26 @@ pros::ADIEncoder verticalEncoder1('E','F', false);
 pros::ADIEncoder verticalEncoder2('A','B', false);
 pros::ADIEncoder horizontalEncoder('C','D', true);
 pros::ADIAnalogIn line_tracker('G');
-std::array<double, 3> anglerPIDParams = {0.07, 0, 0};
-std::array<double, 3> drivebasePIDParams = {20, 0, 30};
-std::array<double, 3> turningPID = {160, 0, 170};
-std::array<double, 3> adjustmentPIDParams = {2,0,0};
+std::array<long double, 3> anglerPIDParams = {0, 0, 0};
+std::array<long double, 3> drivebasePIDParams = {52, 0, 90};
+std::array<long double, 3> turningPID = {10000, 0, 0};
+std::array<long double, 3> strafePIDParams = {52, 5, 150};
 
 int maxSpeed = 12000;
 int INDEX_THRESHOLD = 2700; // needs to be changed depending on ambient lighting conditions
-const double EPS = 1e-8;
-double accelerationTime = 500; // time in milliseconds given to accelerate
-double ANGLE_Kp = 150.0; // angle correction coefficient to help make sure the robot looks straight when moving straight, countering veering
-double STRAFE_Kp = 2000.0; // side-side correction cofficient to help make sure that the robot moves straight by shifting it side to side if it veers to one side back on track
-double verticalOffset1 = 6.1675; // needs to be changed depending on vertical tracking wheel placement
-double verticalOffset2 = 6.1675;
-double horizontalOffset = 6.8075;
-double horiToInch = (pi*2.75)/360.0;
-double vertToInch = (pi*2.75)/360.0;
-double imuToRad = pi/180.0;
-double globalX = 0, globalY = 0;
+const long double EPS = 1e-8;
+long double accelerationTime = 750; // time in milliseconds given to accelerate
+long double ANGLE_Kp = 150.0; // angle correction coefficient to help make sure the robot looks straight when moving straight, countering veering
+long double STRAFE_Kp = 2000.0; // side-side correction cofficient to help make sure that the robot moves straight by shifting it side to side if it veers to one side back on track
+long double verticalOffset1 = 6.1675; // needs to be changed depending on vertical tracking wheel placement
+long double verticalOffset2 = 6.1675;
+long double horizontalOffset = 6.8075;
+long double horiToInch = (pi*2.75)/360.0;
+long double vertToInch = (pi*2.75)/360.0;
+long double imuToRad = pi/180.0;
+long double globalX = 0, globalY = 0;
 
-const double pi = 3.14159265358979323846;
+const long double pi = asin(1) * 2.0;
 
 void disabled() {}
 

@@ -21,12 +21,12 @@ enum DIRECTION
 class motion
 {
 private:
-    double desiredAngle = 0, distanceMove = 0;
+    long double desiredAngle = 0, distanceMove = 0;
     DIRECTION turn;
-    double diffx = 0, diffy = 0;
+    long double diffx = 0, diffy = 0;
 
 public:
-    motion(double currentX, double currentY, double moveX, double moveY)
+    motion(long double currentX, long double currentY, long double moveX, long double moveY)
     {
         diffx = moveX - currentX;
         diffy = moveY - currentY;
@@ -35,12 +35,12 @@ public:
         distanceMove = pow(pow((diffy), 2) + pow((diffx), 2), 0.5);
     }
 
-    double returnAngle()
+    long double returnAngle()
     {
         return desiredAngle;
     }
 
-    double returnDistance()
+    long double returnDistance()
     {
         return distanceMove;
     }
@@ -49,16 +49,16 @@ public:
 class positionTracking
 {
 private:
-    double angle = 0;
-    double L,R,B = 0;
-    double halfang = 0;
-    double globalang = 0;
-    double h = 0;
-    double h2 = 0;
-    double xplacehold = 0, yplacehold = 0;
+    long double angle = 0;
+    long double L,R,B = 0;
+    long double halfang = 0;
+    long double globalang = 0;
+    long double h = 0;
+    long double h2 = 0;
+    long double xplacehold = 0, yplacehold = 0;
 
 public:
-    positionTracking(double lastAng, double currentX, double lastX, double currentYL, double lastYL, double currentYR, double lastYR)
+    positionTracking(long double lastAng, long double currentX, long double lastX, long double currentYL, long double lastYL, long double currentYR, long double lastYR)
     {
         B = currentX - lastX;
         L = currentYL - lastYL;
@@ -90,25 +90,25 @@ public:
         globalang += halfang;
     }
 
-    double returnX()
+    long double returnX()
     {
         return xplacehold;
     }
 
-    double returnY()
+    long double returnY()
     {
         return yplacehold;
     }
-    double returnOrient(){
+    long double returnOrient(){
         return globalang;
     }
 };
 // class turnCorrection
 // {
 // private:
-// double factor = 0;
-// double correction = 0;
-// double L_adj = 0, R_adj = 0;
+// long double factor = 0;
+// long double correction = 0;
+// long double L_adj = 0, R_adj = 0;
 
 // PID* adjustmentPIDController = new PID(
 //     &adjustmentPIDParams[0],
@@ -116,7 +116,7 @@ public:
 //     &adjustmentPIDParams[2]);
 
 // public:
-//     turnCorrection(double reqAng)
+//     turnCorrection(long double reqAng)
 //     {
 //     if(inertial.get_rotation!=reqAng){
 //      correction = inertial.get_rotation - reqAng;
@@ -131,10 +131,10 @@ public:
 
 // }
 //     }
-//     double returnR(){
+//     long double returnR(){
 //         return R_adj;
 //     }
-//     double returnL(){
+//     long double returnL(){
 //         return L_adj;
 //     }
 // };

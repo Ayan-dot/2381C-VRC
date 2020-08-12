@@ -29,14 +29,14 @@ void drive_tasks_fn(void *param)
 
 void opcontrol()
 {
-    double lastposR = 0, currentposR = 0; // variables to hold right vertical tracking wheel encoder position, in intervals of 10 ms
-    double lastposL = 0, currentposL = 0; // variables to hold left vertical tracking wheel encoder position, in intervals of 10 ms
-    double lastposH = 0, currentposH = 0; // horizontal counterparts of above variables
-    double newAngle = 0, lastAngle = 0; // angles taken by inertial sensor (IMU), in intervals of 10 ms
+    long double lastposR = 0, currentposR = 0; // variables to hold right vertical tracking wheel encoder position, in intervals of 10 ms
+    long double lastposL = 0, currentposL = 0; // variables to hold left vertical tracking wheel encoder position, in intervals of 10 ms
+    long double lastposH = 0, currentposH = 0; // horizontal counterparts of above variables
+    long double newAngle = 0, lastAngle = 0; // angles taken by inertial sensor (IMU), in intervals of 10 ms
 
-    double k = 3.0;
+    long double k = 3.0;
 
-    // double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
+    // long double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
     // wait for imu to calibrate
     pros::delay(3000);
     while (true) // control loop
@@ -66,11 +66,11 @@ void opcontrol()
         }
         // since we are doing inertial averaging, lastAngle is modified
         // perform a weighted average
-        //double trackingWheelWeight = 1.0 - min((abs(lastAngle) / k), 0.9);
-        //double imuWeight = min((abs(lastAngle) / k), 0.9);
-        double trackingWheelWeight = 0.01;
-        double imuWeight = 0.99;
-        double imuScaling = 0.9965;
+        //long double trackingWheelWeight = 1.0 - min((abs(lastAngle) / k), 0.9);
+        //long double imuWeight = min((abs(lastAngle) / k), 0.9);
+        long double trackingWheelWeight = 0.01;
+        long double imuWeight = 0.99;
+        long double imuScaling = 0.9965;
         lastAngle = robotPos.returnOrient() * trackingWheelWeight + inertial.get_rotation() * (pi / 180.0) * imuWeight * imuScaling;
         lastposH = currentposH; // sets the last values for the function as the current values, to continue the loop
         lastposR = currentposR;
