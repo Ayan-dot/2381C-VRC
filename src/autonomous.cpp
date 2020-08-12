@@ -1,239 +1,256 @@
-// #include "main.h"
-// #include "posTracking.cpp"
-// #include "globals.hpp"
-// #include <array>
-// #include "pid.hpp"
+#include "main.h"
+#include "posTracking.cpp"
+#include "globals.hpp"
+#include <array>
+#include "pid.hpp"
 
-// double currentx = 0, currenty = 0;
+long double currentx = 0, currenty = 0;
 
-// //initation of array pointer values
-// PID* anglerPIDController = new PID(
-//     &anglerPIDParams[0],
-//     &anglerPIDParams[1],
-//     &anglerPIDParams[2]);
+//initation of array pointer values
+PID* rightdrivebasePIDController = new PID(
+    &drivebasePIDParams[0],
+    &drivebasePIDParams[1],
+    &drivebasePIDParams[2]);
 
-// PID* rightdrivebasePIDController = new PID(
-//     &drivebasePIDParams[0],
-//     &drivebasePIDParams[1],
-//     &drivebasePIDParams[2]);
+PID* leftdrivebasePIDController = new PID(
+    &drivebasePIDParams[0],
+    &drivebasePIDParams[1],
+    &drivebasePIDParams[2]);
 
-// PID* leftdrivebasePIDController = new PID(
-//     &drivebasePIDParams[0],
-//     &drivebasePIDParams[1],
-//     &drivebasePIDParams[2]);
+PID* strafePIDController = new PID(
+    &strafePIDParams[0],
+    &strafePIDParams[1],
+    &strafePIDParams[2]);
 
-// PID* adjustmentPIDController = new PID(
-//     &adjustmentPIDParams[0],
-//     &adjustmentPIDParams[1],
-//     &adjustmentPIDParams[2]);
+PID* turningPIDController = new PID(
+    &turningPID[0],
+    &turningPID[1],
+    &turningPID[2]);
 
-// PID* turningPIDController = new PID(
-//     &turningPID[0],
-//     &turningPID[1],
-//     &turningPID[2]);
+PID* pointTurnPIDController = new PID(
+    &pointTurnPIDParams[0],
+    &pointTurnPIDParams[1],
+    &pointTurnPIDParams[2]);
 
-// //driving PID taking in 5 arguments, distance you need to drive, target destination for inertial, direction, target x and y destination
-// void motionPID(double distance, DIRECTION direction, double leftadjustment, double rightadjustment) {
-//     int cofLB = 1, cofLF = 1, cofRB = 1, cofRF = 1;
+// ODOM TASK
+// make the global information on location and heading GLOBAL in this file
+long double lastposR, currentposR, lastposL, currentposL, lastposH, currentposH, newAngle, lastAngle;
 
-//     switch (direction) {
-//         case FORWARD:
-//             cofRB = -1;
-//             cofLF = -1;
-//             break;
+void vector_tasks_fn(void *param) {
+    lastposR = 0, currentposR = 0; // variables to hold right vertical tracking wheel encoder position, in intervals of 10 ms
+    lastposL = 0, currentposL = 0; // variables to hold left vertical tracking wheel encoder position, in intervals of 10 ms
+    lastposH = 0, currentposH = 0; // horizontal counterparts of above variables
+    newAngle = 0, lastAngle = 0; // angles taken by inertial sensor (IMU), in intervals of 20 ms
+    // long double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
 
-//         case REVERSE:
-//             cofRF = -1;
-//             cofLB = -1;
-//             break;
-//     }
+    while (true) // control loop
+    {
+        // ODOMETRY PROCEDURE //
+        /*
+        * Featuring imu averaging (more like imu domination)
+        */
+        currentposR = verticalEncoder2.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
+        currentposL = verticalEncoder1.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
+        currentposH = horizontalEncoder.get_value() * horiToInch; // same function as above, horizontal counterpart
 
-//     while(true) {
-//         //converts inches to ticks
-//         //double encDistance = distance *(1.0/vertToInch);
-//         double encDistance = distance;
-        
-//         //voltage output for pid
-//         double voltageL = leftdrivebasePIDController->update(abs(encDistance), abs(verticalEncoder1.get_value())) + leftadjustment;
-//         double voltageR = rightdrivebasePIDController->update(abs(encDistance), abs(verticalEncoder2.get_value())) + rightadjustment;
+        positionTracking robotPos(lastAngle, currentposH, lastposH, currentposL, lastposL, currentposR, lastposR); // creates a Position tracking class, where math is done.
 
-//         //sets voltage to 0 when distance is reached (exit condition)
+        if (!isnan(robotPos.returnX()) || !isnan(robotPos.returnY())) // to avoid turning global coordinates into null values when calculations are initializing, conditional statement
+        {
+            globalX += robotPos.returnX(); // adds the horizontal vector passed by the position tracking class to the global X coordinate
+            globalY += robotPos.returnY(); // same function as above, vertical counterpart
+        }
+        // since we are doing inertial averaging, lastAngle is modified
+        // perform a weighted average
+        //long double trackingWheelWeight = 1.0 - min((abs(lastAngle) / k), 0.9);
+        //long double imuWeight = min((abs(lastAngle) / k), 0.9);
+        long double trackingWheelWeight = 0.01;
+        long double imuWeight = 0.99;
+        long double imuScaling = 0.9965;
+        lastAngle = robotPos.returnOrient() * trackingWheelWeight + inertial.get_rotation() * (pi / 180.0) * imuWeight * imuScaling;
+        lastposH = currentposH; // sets the last values for the function as the current values, to continue the loop
+        lastposR = currentposR;
+        lastposL = currentposL;
+        // end of odom procedure
 
-//         if(abs(verticalEncoder1.get_value()) > abs(encDistance) - 20) {
-//             pros::lcd::set_text(5, "pid stoppped");
-//             voltageL = 0;
-//             voltageR = 0;
-//             return;
-//         }
+        pros::lcd::print(0, "X: %f", globalX); // prints X coord on brain
+        pros::lcd::print(1, "Y: %f", globalY); // prints Y coord on brain
+        pros::lcd::print(2, "I: %f", lastAngle); // prints angle on controller
+        pros::lcd::print(3, "Iner: %f", inertial.get_rotation());
+        pros::delay(20);      // runs loop every 10ms
+    }
+}
 
-//         pros::lcd::set_text(6, "voltage: " + std::to_string(voltageR));
-//         master.print(2, 0, "VC: %f", abs(encDistance) - abs(verticalEncoder1.get_value()));
-       
-//         //gets motors to move certain speed
-//         leftFront.move_voltage(voltageL * cofLF);
-//         leftBack.move_voltage(voltageL * cofLB);
-//         rightFront.move_voltage(voltageR * cofRF);
-//         rightBack.move_voltage(voltageR * cofRB);
-        
-//         pros::delay(10);
+// motion translation PROCEDURES
+void translationPID(long double x1, long double y1, long double x2, long double y2, long double heading, int time, int timeAllocated) {
+  //////////////////////////////////////////////////////////////////
+  /* Moves the Robot from point x1 and y1 (where it is right now) */
+  /* to x2 and y2, while maintaining a constant heading           */
+  //////////////////////////////////////////////////////////////////
 
-//     }
-// }
+  // Step 1, using x1, y1, x2, y2, and heading, let us calculate the STANDARD FORM equation of the lines
+  // this can be done by simply finding a second pair of coordinates, as two points define a line
+  const long double l = 10000.0; // how far away in euclidean distance the second point we want is, can be any arbirary number
 
-// //pid function made for turning: it takes in 2 arguments, the angle you want to turn to and the direction in which you are turning
-// void turnPID(double constInertial, DIRECTION direction) {
-//     //coefficients that direct the direction of rotation for the motors
-//     int cofLB = 1, cofLF = 1, cofRB = 1, cofRF = 1;
-//     // verticalEncoder.reset(); // ?
-//     double original = inertial.get_rotation();
-//     //switch case changes motor rotation depending on direction you want to turn
-//     switch(direction) {
-//         case RIGHT:
-//             cofRB = -1;
-//             cofLB = -1;
-//             break;
+  // [ROBOT POSITION POINT] the first line is defined by x1 and y1, and the heading
+  long double x1Other = x1 + l * sin(heading);
+  long double y1Other = y1 + l * cos(heading);
 
-//         case LEFT:
-//             cofRF = -1;
-//             cofLF = -1;
-//             break;
-//     }
+  // [ROBOT DESTINATION POINT] the second line is defined by x1 and y2, and the heading rotated by 90 degrees, or pi/2 radians
+  long double x2Other = x2 + l * sin(heading + pi / 2.0);
+  long double y2Other = y2 + l * cos(heading + pi / 2.0);
 
-//     //while loop initiating the PID function
-//     while(true) {
-//         //calls the PID class passing two arguments, 
-//         double voltage, negative;
-//         // debug: print out the voltage
-//         printf("Voltage: %lf\n", voltage);
-//         printf("Inertial: %lf\n", inertial.get_rotation());
+  // With the above sets of new coordinates, we can define the STANDARD FORM of both lines
 
-//         //gets motors to move
-//         leftFront.move_voltage(voltage * cofLF);
-//         leftBack.move_voltage(voltage * cofLB);
-//         rightFront.move_voltage(voltage * cofRF);
-//         rightBack.move_voltage(voltage * cofRB);
-        
-//         //checks the inertial sensor reading at an error of +- 2 degrees and exits function once destination reached
-        
+  // [ROBOT POSITION LINE PARALLEL TO HEADING]
+  long double A1 = y1 - y1Other; // reversed because we have to assign negative sign to either numerator or denominator
+  long double B1 = x1Other - x1;
+  long double C1 = -(A1 * x1 + B1 * y1);
 
-//         if (abs(inertial.get_rotation()) >= abs(constInertial) - 0.5 && abs(inertial.get_rotation()) <= abs(constInertial) + 0.5) {
-//             printf("TURNING STOPPED\n");
-//             voltage = 0;
-//             return;
-//         }
-//         else {
-            
-//             if(constInertial < original) {
-//                 negative = -inertial.get_rotation();
-//             }
-//             else {
-//                 negative = inertial.get_rotation();
-//             }
-            
-//             voltage = turningPIDController->update(abs(constInertial), negative);   
-//         }
+  // [ROBOT DESTINATION LINE PERPENDICULAR TO HEADING]
+  long double A2 = y2 - y2Other;
+  long double B2 = x2Other - x2;
+  long double C2 = -(A2 * x2 + B2 * y2);
 
-//         pros::delay(10);
-//     }
+  // with the STANDARD FORM equations for both lines, let us calculate the intersection point of the two
+  // let (x, y) denote the coordinate intersection of the two lines, represented in STANDARD FORM
+  long double x = (B1*C2-B2*C1)/(B2*A1-B1*A2);
+  long double y = (A1*C2-A2*C1)/(A2*B1-A1*B2);
+  cout << "VARS: " << x1 << ' ' << y1 << ' ' << x1Other << ' ' << y1Other << ' ' << x2 << ' ' << y2 << ' ' << x2Other << ' ' << y2Other << ' ' << x <<  ' ' << y << '\n';
 
-// }                                  
+  // since Euclidean distance is always a positive value, we must know the direction in which the error is
+  // to do this, we need to define another line
+  // LINE: going through x1, y1, heading rotated 90 degrees anticlockwise
 
-// //ayan's odometry system in opcontrol
-// void vector_tasks_fn(void *param) {
-//     double lastposR = 0, currentposR = 0; // variables to hold right vertical tracking wheel encoder position, in intervals of 10 ms
-//     double lastposL = 0, currentposL = 0; // variables to hold left vertical tracking wheel encoder position, in intervals of 10 ms
-//     double lastposH = 0, currentposH = 0; // horizontal counterparts of above variables
-//     double newAngle = 0, lastAngle = 0; // angles taken by inertial sensor (IMU), in intervals of 10 ms
-//     // double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
-    
-//     while (true) // control loop 
-//     {
-//         currentposR = -verticalEncoder2.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
-//         currentposL = -verticalEncoder1.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
-//         currentposH = -(horizontalEncoder.get_value() * horiToInch); // same function as above, horizontal counterpart
-//         newAngle = (inertial.get_rotation()) * imuToRad; // gets inertial angle, converts to radians. Use of rotation as opposed to heading is to account for vector math with negative angles.
-//         positionTracking robotPos(newAngle, lastAngle, currentposH, lastposH, currentposL, lastposL, currentposR, lastposR); // creates a Position tracking class, where math is done. 
-        
-//         if (!isnan(robotPos.returnX()) || !isnan(robotPos.returnY())) // to avoid turning global coordinates into null values when calculations are initializing, conditional statement 
-//         {
-//             globalX += robotPos.returnX(); // adds the horizontal vector passed by the position tracking class to the global X coordinate
-//             globalY += robotPos.returnY(); // same function as above, vertical counterpart
-//         }
-        
-//         lastposH = currentposH; // sets the last values for the function as the current values, to continue the loop
-//         lastposR = currentposR;
-//         lastposL - currentposL;  
-//         lastAngle = robotPos.returnOrient(); // ""
-        
-//         pros::lcd::print(0, "X: %f", globalX); // prints X coord on brain
-//         pros::lcd::print(1, "Y: %f", globalY); // prints Y coord on brain 
-//         master.print(1,0, "I: %f", lastAngle); // prints angle on controller
-        
-//         pros::delay(50);
+  // Define another point on 1
+  long double x3Other = x1 + l * sin(heading - pi / 2.0);
+  long double y3Other = y1 + l * cos(heading - pi / 2.0);
 
-//         master.print(0, 0, "Iner: %f", inertial.get_rotation());        
-//         pros::delay(10);      // runs loop every 10ms
-//     }
-// }
+  // With this information, we can now determine the signage of the vertical and horizontal components (relative to heading)
+  int horizontalSign = 1;
+  int verticalSign = 1;
 
-// void autonomous() {
-    // calibrate imu
-    // inertial.reset();
-    // while (inertial.is_calibrating())
-    // {
-    //     pros::delay(10);
-    // }
+  // determine the relative direction of the horizontal component
+  //long double d1 = (x - x1) * (y1Other - y1) - (y - y1) * (x1Other - x1);
+  long double d1 = (x2 - x1) * (y1Other - y1) - (y2 - y1) * (x1Other - x1);
+  if (d1 < 0) horizontalSign = -1;
+  cout << "D1: " << d1 << '\n';
 
-    //pros::Task position_task(vector_tasks_fn, (void*)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT,"Print X and Y Task");
-    // 846.21458975586392379449251804839‬ ticks = 24 inches
-    
+  // ^ for the vertical component
+  long double d2 = (x - x1) * (y3Other - y1) - (y - y1) * (x3Other - x1);
+  //long double d2 = (x2 - x3Other) * (y1 - y3Other) - (y2 - y3Other) * (x1 - x3Other);
+  if (d2 < 0) verticalSign = -1;
+  cout << "D2: " << d2 << '\n';
 
-    // motionPID(846, 20, FORWARD);
-    
-    // //pros::delay(500);
-    // //turnPID(270, LEFT);
-    // pros::delay(500);
-    // turnPID(180, RIGHT);
-    
-    // pros::delay(500);
-    // turnPID(0, LEFT);
-    
-    // pros::delay(1000);
-    // // motionPID(846,20, REVERSE);
-    // pros::delay(10);
-//}
+  // With the intersection point and direction, we can now calculate the Euclidean distance forwards relative the the robotics direction
+  // and horizontally relative to the robot heading to get our x and y compoenents for our overall translation vector
+  long double yComponent = abs(sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1))) * verticalSign;
+  long double xComponent = abs(sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2))) * horizontalSign;
+  cout << "COMPONENT VECTORS: " << yComponent << ' ' << xComponent << '\n';
 
-// //combines turning and driving all into one function
-// void combineAlgorithm(double targetX, double targetY, DIRECTION direction) {
-//     //calls the class getting it to calculate desired angle and driving distance
-//     motion moveTo(globalX, globalY, targetX, targetY);
+   // To send this information to the motors, we pass the original encoder position, and the original encoder position
+   // plus their respective local components for the PID loop
+   long double leftDest = verticalEncoder1.get_value() + yComponent * (360 / (2.75 * pi));
+   long double rightDest = verticalEncoder2.get_value() + yComponent * (360 / (2.75 * pi));
+   long double horizontalDest = horizontalEncoder.get_value() + xComponent * (360 / (2.75 * pi));
+   cout << "DESTINATIONS: " << leftDest << ' ' << rightDest << ' ' << horizontalDest << '\n';
 
-//     //angle returned by class
-//     double angle = moveTo.returnAngle();
-    
-//     //distance returned by class
-//     double distance = moveTo.returnDistance();
+   while (true) {
+     // [Y COMPONENT] Forward Backward (relative to heading) voltage output
+     long double yVoltageLeft = leftdrivebasePIDController->update(leftDest, verticalEncoder1.get_value(), 250);
+     long double yVoltageRight = rightdrivebasePIDController->update(rightDest, verticalEncoder2.get_value(), 250);
+     cout << "FB Volt: " << yVoltageLeft << ' ' << yVoltageRight << '\n';
 
-//     //acounts for margin of error, there is no point turning such a small degree
-//     if(!(angle < 0.5)) {
-//         //calls the turning function
-//         turnPID(inertial.get_heading(), direction); 
-//     }
-    
-//     //calls the driving PID to drive a certain distance
-//     distance = distance *(1.0/vertToInch);
-//     motionPID(distance, FORWARD,0,0);
-//     while((targetX-globalX)>0.3||(targetY-globalY)>0.3){
-//         // courseCorrect(targetX, targetY, FORWARD);
-//         pros::delay(10);
-//     }
-// }
-// void courseCorrect(double targetX, double targetY , DIRECTION direction){
-//     motion moveCourse(globalX, globalY, targetX, targetY);
-//     double angle = moveCourse.returnAngle();
-//     double distance = moveCourse.returnDistance();
-//     // turnCorrection turnCorrection(angle);
-//     motionPID(distance, FORWARD, turnCorrection.returnL(), turnCorrection.returnR());
-    
+     // [X COMPONENT] Side to side (relative to heading) voltage output
+     long double xVoltage = strafePIDController->update(horizontalDest, horizontalEncoder.get_value(), 250);
+     cout << "H Volt: " << xVoltage << '\n';
+     pros::lcd::set_text(5, "xVolt: " + to_string(xVoltage));
+     pros::lcd::set_text(6, "hDest: " + to_string(horizontalDest));
+     pros::lcd::set_text(7, "hEnc: " + std::to_string(horizontalEncoder.get_value()));
 
-// }
+     // [ANGLE] Heading correction voltage output
+     long double angleVoltageLeft = turningPIDController->update(heading, lastAngle, -1);
+     long double angleVoltageRight = -turningPIDController->update(heading, lastAngle, -1);
+     cout << "Ang Volt: " << angleVoltageLeft << ' ' << angleVoltageRight << '\n';
+
+     // to allow for a smoother acceleration gradient, time is considered in scaling the voltage outputs
+     // so we limit speed the robot can travel in the first accelerationTime ms of acceleration
+     long double currentTime = pros::millis() - time;
+     long double coefTime = 1.0;
+     if (currentTime < accelerationTime) {
+       coefTime = sqrt(currentTime) / sqrt(accelerationTime);
+     }
+
+     // NOTE: On the robot, LEFT SIDE MOTORS are POSITIVE POWER FORWARDS MVMT, and RIGHT SIDE MOTORS are NEGATIVE POWER FORWARDS MVMT
+     long double finalVoltageLeftFront = (yVoltageLeft + xVoltage + angleVoltageLeft) * coefTime;
+     long double finalVoltageLeftBack = (yVoltageLeft - xVoltage + angleVoltageLeft) * coefTime;
+     long double finalVoltageRightFront = -(yVoltageRight - xVoltage + angleVoltageRight) * coefTime;
+     long double finalVoltageRightBack = -(yVoltageRight + xVoltage + angleVoltageRight) * coefTime;
+     cout << "FINAL OUTPUT: " << finalVoltageLeftFront << ' ' << finalVoltageLeftBack << ' ' << finalVoltageRightFront << ' ' << finalVoltageRightBack << '\n';
+
+     // Stop the robot when the maximum allowed time is reached
+     if (pros::millis() - time >= timeAllocated) {
+       cout << "PID STOPPED" << '\n';
+       leftFront.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+       rightFront.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+       leftBack.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+       rightBack.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+
+       leftFront.move_velocity(0);
+       rightFront.move_velocity(0);
+       leftBack.move_velocity(0);
+       rightBack.move_velocity(0);
+       return;
+     }
+
+     // SEND IT! (the voltage to the drive motors)
+     leftFront.move_voltage(finalVoltageLeftFront);
+     leftBack.move_voltage(finalVoltageLeftBack);
+     rightFront.move_voltage(finalVoltageRightFront);
+     rightBack.move_voltage(finalVoltageRightBack);
+
+     pros::delay(20);
+   }
+   return;
+}
+
+//pid function made for turning: it takes in 2 arguments, the angle you want to turn to and the direction in which you are turning
+void turnPID(long double targetAngle, int time, int timeAllocated) {
+    //while loop initiating the PID function
+    while(true) {
+        // [ANGLE] Heading correction voltage output
+        long double angleVoltageLeft = pointTurnPIDController->update(targetAngle, lastAngle, -1);
+        long double angleVoltageRight = pointTurnPIDController->update(targetAngle, lastAngle, -1);
+        pros::lcd::set_text(5, "Ang: " + to_string(lastAngle));
+        leftFront.move_voltage(angleVoltageLeft);
+        leftBack.move_voltage(angleVoltageLeft);
+        rightFront.move_voltage(angleVoltageRight);
+        rightBack.move_voltage(angleVoltageRight);
+        if (pros::millis() - time > timeAllocated) {
+          cout << "PID STOPPED" << '\n';
+          leftFront.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+          rightFront.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+          leftBack.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+          rightBack.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+
+          leftFront.move_velocity(0);
+          rightFront.move_velocity(0);
+          leftBack.move_velocity(0);
+          rightBack.move_velocity(0);
+          return;
+        }
+        pros::delay(20);
+    }
+
+}
+
+void autonomous() {
+    // wait for imu to calibrate
+    pros::delay(3000);
+    pros::Task position_task(vector_tasks_fn, (void*)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT,"Print X and Y Task");
+    //846.21458975586392379449251804839‬ ticks = 24 inches
+    translationPID(0.0, 0.0, 0.0, 96.0, lastAngle, pros::millis(), 5000);
+    turnPID(pi/4.0, pros::millis(), 3000);
+    translationPID(globalX, globalY, 0.0, 0.0, lastAngle, pros::millis(), 5000);
+    pros::delay(20);
+}
