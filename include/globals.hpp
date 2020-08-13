@@ -6,7 +6,6 @@
 extern pros::Controller master;
 extern pros::Motor leftBack, leftFront, rightBack, rightFront;
 extern pros::Motor leftIntake, rightIntake, indexer, shooter;
-extern pros::Motor lift;
 extern pros::Imu inertial;
 
 extern std::array<long double, 3> pointTurnPIDParams;
@@ -35,7 +34,7 @@ extern const long double pi;
 extern pros::ADIEncoder verticalEncoder1;
 extern pros::ADIEncoder verticalEncoder2;
 extern pros::ADIEncoder horizontalEncoder;
-extern pros::ADIAnalogIn line_tracker;
-
+extern pros::ADIAnalogIn line_tracker1;
+extern pros::ADIAnalogIn line_tracker2;
 
 #endif

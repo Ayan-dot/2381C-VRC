@@ -4,29 +4,6 @@
 #include "posTracking.cpp"
 #include <cmath>
 
-void intake_tasks_fn(void *param)
-{
-    while (true)
-    {
-        Intakes run(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1), master.get_digital(pros::E_CONTROLLER_DIGITAL_L2));
-        rightIntake.move_voltage(run.rightSpeed());
-        leftIntake.move_voltage(run.leftSpeed());
-    }
-}
-
-void drive_tasks_fn(void *param)
-{
-    while (true)
-    {
-
-      leftFront = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
-      leftBack = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) - master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
-      rightFront = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
-      rightBack = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) - master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
-    }
-    pros::delay(10);
-}
-
 void opcontrol()
 {
     long double lastposR = 0, currentposR = 0; // variables to hold right vertical tracking wheel encoder position, in intervals of 10 ms
@@ -75,11 +52,7 @@ void opcontrol()
         lastposH = currentposH; // sets the last values for the function as the current values, to continue the loop
         lastposR = currentposR;
         lastposL = currentposL;
-         // ""
 
-        // pros::lcd::print(0, "L: %f", verticalEncoder1.get_value()); // prints X coord on brain
-        // pros::lcd::print(1, "R: %f", verticalEncoder2.get_value()); // prints Y coord on brain
-        // pros::lcd::print(2, "B: %f", horizontalEncoder.get_value());
         pros::lcd::set_text(1, "X:" + std::to_string(globalX));
         pros::lcd::set_text(2, "Y:" + std::to_string(globalY));
         pros::lcd::set_text(6, "A:" + std::to_string(lastAngle));
@@ -87,7 +60,7 @@ void opcontrol()
         pros::lcd::set_text(4, "R:" + std::to_string(verticalEncoder2.get_value()));
         pros::lcd::set_text(5, "B:" + std::to_string(horizontalEncoder.get_value()));
         pros::lcd::set_text(7, "I: " + std::to_string(inertial.get_rotation() * imuScaling));
-        // prints angle on controller
+
 
         // INTAKE CONTROLS //
         /*
@@ -123,16 +96,16 @@ void opcontrol()
         shooter.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
         // we know the ball is indexed if the line tracker reports <= INDEX_THRESHOLD
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-          std::cout << line_tracker.get_value() << '\n';
-          if (line_tracker.get_value() > INDEX_THRESHOLD) {
+          if (line_tracker1.get_value() > INDEX_THRESHOLD) {
             // we do not have a ball properly indexed yet
             indexer.move_velocity(-200);
             shooter.move_velocity(10);
           } else {
             shooter.move_velocity(0);
-            indexer.move_velocity(-200);
+            if (line_tracker2.get_value() > INDEX_THRESHOLD) {
+              indexer.move_velocity(-200);
+            }
           }
-
         } else {
           indexer.move_velocity(0);
           shooter.move_velocity(0);
@@ -144,7 +117,7 @@ void opcontrol()
           // shoots indexed ball
           shooter.move_velocity(180);
         } else {
-          if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && line_tracker.get_value() > INDEX_THRESHOLD) {
+          if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && line_tracker1.get_value() > INDEX_THRESHOLD) {
 
           } else
             shooter.move_velocity(0);

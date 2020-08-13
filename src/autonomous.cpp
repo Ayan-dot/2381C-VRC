@@ -81,16 +81,48 @@ void vector_tasks_fn(void *param) {
     }
 }
 
+void intakeIndexingProcedure(bool runIntakes, bool runIndexer) {
+  if (runIntakes) {
+    leftIntake.move_velocity(200);
+    rightIntake.move_velocity(-200);
+  }
+  if (runIndexer) {
+    if (line_tracker1.get_value() > INDEX_THRESHOLD) {
+      // we do not have a ball properly indexed yet
+      indexer.move_velocity(-200);
+      shooter.move_velocity(10);
+    } else {
+      shooter.move_velocity(0);
+      if (line_tracker2.get_value() > INDEX_THRESHOLD) {
+        indexer.move_velocity(-200);
+      } else {
+        indexer.move_velocity(0);
+      }
+    }
+  }
+  return;
+}
+
+void shootingProcedure() {
+  shooter.move_velocity(180);
+  pros::delay(750);
+  shooter.move_velocity(0);
+  return;
+}
+
 // motion translation PROCEDURES
-void translationPID(long double x1, long double y1, long double x2, long double y2, long double heading, int time, int timeAllocated) {
+void translationPID(long double x2, long double y2, long double heading, int time, int timeAllocated, bool runIntakes, bool runIndexer) {
   //////////////////////////////////////////////////////////////////
   /* Moves the Robot from point x1 and y1 (where it is right now) */
   /* to x2 and y2, while maintaining a constant heading           */
   //////////////////////////////////////////////////////////////////
 
+  long double x1 = globalX;
+  long double y1 = globalY;
+
   // Step 1, using x1, y1, x2, y2, and heading, let us calculate the STANDARD FORM equation of the lines
   // this can be done by simply finding a second pair of coordinates, as two points define a line
-  const long double l = 10000.0; // how far away in euclidean distance the second point we want is, can be any arbirary number
+  const long double l = 100.0; // how far away in euclidean distance the second point we want is, can be any arbirary number
 
   // [ROBOT POSITION POINT] the first line is defined by x1 and y1, and the heading
   long double x1Other = x1 + l * sin(heading);
@@ -156,6 +188,16 @@ void translationPID(long double x1, long double y1, long double x2, long double 
    cout << "DESTINATIONS: " << leftDest << ' ' << rightDest << ' ' << horizontalDest << '\n';
 
    while (true) {
+     // Run the intaking indexing procedure if commanded to do so
+     if (runIntakes || runIndexer) {
+       intakeIndexingProcedure(runIntakes, runIndexer);
+     } else {
+       leftIntake.move_velocity(0);
+       rightIntake.move_velocity(0);
+       indexer.move_velocity(0);
+       shooter.move_velocity(0);
+     }
+
      // [Y COMPONENT] Forward Backward (relative to heading) voltage output
      long double yVoltageLeft = leftdrivebasePIDController->update(leftDest, verticalEncoder1.get_value(), 250);
      long double yVoltageRight = rightdrivebasePIDController->update(rightDest, verticalEncoder2.get_value(), 250);
@@ -164,9 +206,9 @@ void translationPID(long double x1, long double y1, long double x2, long double 
      // [X COMPONENT] Side to side (relative to heading) voltage output
      long double xVoltage = strafePIDController->update(horizontalDest, horizontalEncoder.get_value(), 250);
      cout << "H Volt: " << xVoltage << '\n';
-     pros::lcd::set_text(5, "xVolt: " + to_string(xVoltage));
-     pros::lcd::set_text(6, "hDest: " + to_string(horizontalDest));
-     pros::lcd::set_text(7, "hEnc: " + std::to_string(horizontalEncoder.get_value()));
+     pros::lcd::set_text(5, "lDest: " + to_string(leftDest));
+     pros::lcd::set_text(6, "rDest: " + to_string(rightDest));
+     pros::lcd::set_text(7, "hDest: " + to_string(horizontalDest));
 
      // [ANGLE] Heading correction voltage output
      long double angleVoltageLeft = turningPIDController->update(heading, lastAngle, -1);
@@ -200,6 +242,12 @@ void translationPID(long double x1, long double y1, long double x2, long double 
        rightFront.move_velocity(0);
        leftBack.move_velocity(0);
        rightBack.move_velocity(0);
+
+       // stop the indexing and intakes if need be
+       leftIntake.move_velocity(0);
+       rightIntake.move_velocity(0);
+       indexer.move_velocity(0);
+       shooter.move_velocity(0);
        return;
      }
 
@@ -245,12 +293,26 @@ void turnPID(long double targetAngle, int time, int timeAllocated) {
 }
 
 void autonomous() {
-    // wait for imu to calibrate
     pros::delay(3000);
     pros::Task position_task(vector_tasks_fn, (void*)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT,"Print X and Y Task");
     //846.21458975586392379449251804839‬ ticks = 24 inches
-    translationPID(0.0, 0.0, 0.0, 96.0, lastAngle, pros::millis(), 5000);
-    turnPID(pi/4.0, pros::millis(), 3000);
-    translationPID(globalX, globalY, 0.0, 0.0, lastAngle, pros::millis(), 5000);
+
+    // RED HOME ROW AUTON
+    translationPID(30.0, 0.0, lastAngle, pros::millis(), 2000, false, false);
+    turnPID(-pi/4.0, pros::millis(), 750);
+    translationPID(11.0, 19.0, lastAngle, pros::millis(), 2000, true, true);
+    translationPID(8.5, 21.5, lastAngle, pros::millis(), 750, false, false);
+    shootingProcedure();
+    translationPID(24.0, -33.0, lastAngle, pros::millis(), 3500, false, false);
+    turnPID(-pi/2.0, pros::millis(), 750);
+    translationPID(11.0, -32.0, lastAngle, pros::millis(), 1500, false, true);
+    shootingProcedure();
+    translationPID(24.0, -73, lastAngle, pros::millis(), 3500, false, false);
+    turnPID(-(3.0*pi)/4.0, pros::millis(), 750);
+    translationPID(11.0, -85, lastAngle, pros::millis(), 1500, true, true);
+    translationPID(8.5, -87.5, lastAngle, pros::millis(), 750, true, true);
+    shootingProcedure();
+
+    //pros::lcd::set_text(5, "DONE!");
     pros::delay(20);
 }

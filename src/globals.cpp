@@ -16,7 +16,8 @@ pros::Imu inertial(1);
 pros::ADIEncoder verticalEncoder1('E','F', false);
 pros::ADIEncoder verticalEncoder2('A','B', false);
 pros::ADIEncoder horizontalEncoder('C','D', true);
-pros::ADIAnalogIn line_tracker('G');
+pros::ADIAnalogIn line_tracker1('G');
+pros::ADIAnalogIn line_tracker2('H');
 std::array<long double, 3> pointTurnPIDParams = {8000, 0, 40};
 std::array<long double, 3> drivebasePIDParams = {52, 2, 180};
 std::array<long double, 3> turningPID = {10000, 0, 0};
@@ -40,7 +41,9 @@ const long double pi = asin(1) * 2.0;
 
 void disabled() {}
 
-void competition_initialize() {}
+void competition_initialize() {
+  initialize();
+}
 
 
 void initialize()
@@ -54,8 +57,8 @@ void initialize()
     inertial.reset();
     while (inertial.is_calibrating()) {
       pros::lcd::set_text(7, "IMU calibrating ...");
-      iter += 10;
-      pros::delay(10);
+      iter += 20;
+      pros::delay(20);
     }
     // should print about 2000 ms
     pros::lcd::set_text(7, "IMU is done calibrating (took %d ms)\n" + std::to_string(iter - time));
