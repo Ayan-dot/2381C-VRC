@@ -81,6 +81,26 @@ void vector_tasks_fn(void *param) {
     }
 }
 
+void deploy() {
+  leftFront.move_velocity(150);
+  leftBack.move_velocity(150);
+  rightFront.move_velocity(-150);
+  rightBack.move_velocity(-150);
+  shooter.move_velocity(200);
+  pros::delay(90);
+  leftFront.move_velocity(-150);
+  leftBack.move_velocity(-150);
+  rightFront.move_velocity(150);
+  rightBack.move_velocity(150);
+  shooter.move_velocity(-200);
+  pros::delay(110);
+  leftFront.move_velocity(0);
+  leftBack.move_velocity(0);
+  rightFront.move_velocity(0);
+  rightBack.move_velocity(0);
+  shooter.move_velocity(0);
+}
+
 void intakeIndexingProcedure(bool runIntakes, bool runIndexer) {
   if (runIntakes) {
     leftIntake.move_velocity(200);
@@ -105,7 +125,7 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer) {
 
 void shootingProcedure() {
   shooter.move_velocity(180);
-  pros::delay(750);
+  pros::delay(500);
   shooter.move_velocity(0);
   return;
 }
@@ -298,19 +318,21 @@ void autonomous() {
     //846.21458975586392379449251804839‬ ticks = 24 inches
 
     // RED HOME ROW AUTON
-    translationPID(30.0, 0.0, lastAngle, pros::millis(), 2000, false, false);
-    turnPID(-pi/4.0, pros::millis(), 750);
-    translationPID(11.0, 19.0, lastAngle, pros::millis(), 2000, true, true);
-    translationPID(8.5, 21.5, lastAngle, pros::millis(), 750, false, false);
+    deploy();
+    pros::delay(50);
+    translationPID(31.5, 0.0, lastAngle, pros::millis(), 1500, false, false);
+    turnPID(-pi/4.0, pros::millis(), 600);
+    translationPID(11.0, 19.0, lastAngle, pros::millis(), 1000, true, true);
+    translationPID(8.5, 21.5, lastAngle, pros::millis(), 500, false, false);
     shootingProcedure();
-    translationPID(24.0, -33.0, lastAngle, pros::millis(), 3500, false, false);
-    turnPID(-pi/2.0, pros::millis(), 750);
-    translationPID(11.0, -32.0, lastAngle, pros::millis(), 1500, false, true);
+    translationPID(24.0, -33.0, lastAngle, pros::millis(), 2750, true, true);
+    turnPID(-pi/2.0, pros::millis(), 600);
+    translationPID(11.0, -32.0, lastAngle, pros::millis(), 1000, false, false);
     shootingProcedure();
-    translationPID(24.0, -73, lastAngle, pros::millis(), 3500, false, false);
-    turnPID(-(3.0*pi)/4.0, pros::millis(), 750);
-    translationPID(11.0, -85, lastAngle, pros::millis(), 1500, true, true);
-    translationPID(8.5, -87.5, lastAngle, pros::millis(), 750, true, true);
+    translationPID(24.0, -73, lastAngle, pros::millis(), 2000, false, false);
+    turnPID(-(3.0*pi)/4.0, pros::millis(), 600);
+    translationPID(11.0, -85, lastAngle, pros::millis(), 1000, true, true);
+    translationPID(8.5, -87.5, lastAngle, pros::millis(), 500, true, true);
     shootingProcedure();
 
     //pros::lcd::set_text(5, "DONE!");
