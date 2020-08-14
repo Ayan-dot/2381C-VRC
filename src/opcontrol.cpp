@@ -1,6 +1,5 @@
 #include "main.h"
 #include "globals.hpp"
-#include "robot/intakes.cpp"
 #include "posTracking.hpp"
 #include <cmath>
 #include "autoSelect/selection.h"
@@ -25,7 +24,7 @@ void opcontrol()
         
         odomBoi init(250);
 
-        variables::initAuton(3, btnMap);
+        variables::initAuton(1, btnMap);
        
         // master.print(0, 0, "Rot: %f", inertial.get_rotation());
         leftFront = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);

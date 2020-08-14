@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-static const char *btnMap[] = {"Left", "Right", "Skills", "Default", ""};
+static const char *btnMap[] = {"Left", "Right", "Skills", ""};
 
 
 

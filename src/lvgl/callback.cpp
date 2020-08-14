@@ -8,28 +8,32 @@ namespace variables {
 	int auton = 0;
 	int autonCount = 0;
 
-	int tabWatcher() {
+	void tabWatcher() {
 		int activeTab = lv_tabview_get_tab_act(tabview);
-		while(1){
-			int currentTab = lv_tabview_get_tab_act(tabview);
+		
+		if(activeTab < 2) {
+			while(1){
+				int currentTab = lv_tabview_get_tab_act(tabview);
 
-			if(currentTab != activeTab){
-				activeTab = currentTab;
-				if(activeTab == 0){
-					if(auton == 0) auton = 1;
-					auton = abs(auton);
-					lv_btnm_set_toggle(red, true, abs(auton)-1);
-				}else if(activeTab == 1){
-					if(auton == 0) auton = -1;
-					auton = -abs(auton);
-					lv_btnm_set_toggle(blue, true, abs(auton)-1);
-				}else{
-					auton = 0;
+				if(currentTab != activeTab){
+					activeTab = currentTab;
+					if(activeTab == 0){
+						if(auton == 0) auton = 1;
+						auton = abs(auton);
+						lv_btnm_set_toggle(red, true, abs(auton)-1);
+					}else if(activeTab == 1){
+						if(auton == 0) auton = -1;
+						auton = -abs(auton);
+						lv_btnm_set_toggle(blue, true, abs(auton)-1);
+					}else{
+						auton = 0;
+					}
 				}
-			}
 
-			pros::delay(20);
+				pros::delay(20);
+			}
 		}
+			
 	}
 
 lv_res_t blueAction(lv_obj_t *btnm, const char *txt)
