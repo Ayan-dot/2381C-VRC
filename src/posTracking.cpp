@@ -1,8 +1,6 @@
 #include "main.h"
-#include "globals.hpp"
 #include <cmath>
-
-using namespace std;
+#include "posTracking.hpp"
 
 enum DIRECTION
 {
@@ -34,7 +32,7 @@ public:
         desiredAngle = atan2(diffy, diffx) * 180 / pi;
         distanceMove = pow(pow((diffy), 2) + pow((diffx), 2), 0.5);
     }
-
+  
     long double returnAngle()
     {
         return desiredAngle;
@@ -65,6 +63,7 @@ public:
         R = currentYR - lastYR;
 
         angle = (L-R) / (verticalOffset1+verticalOffset2);
+
         // arc length formula: r (theta) = s
         // theta = s / r
         //angle = B / horizontalOffset;
@@ -73,6 +72,7 @@ public:
         {
             halfang = angle / 2.0;
             h = 2.0 * sin(halfang) * (((R) / angle) + verticalOffset2);
+  
             h2 = 2.0 * sin(halfang) * (((B) / angle)+ horizontalOffset);
         }
         else
@@ -99,16 +99,18 @@ public:
     {
         return yplacehold;
     }
-    long double returnOrient(){
+    
+  long double returnOrient(){
         return globalang;
     }
 };
 // class turnCorrection
+
 // {
 // private:
-// long double factor = 0;
-// long double correction = 0;
-// long double L_adj = 0, R_adj = 0;
+// double factor = 0;
+// double correction = 0;
+// double L_adj = 0, R_adj = 0;
 
 // PID* adjustmentPIDController = new PID(
 //     &adjustmentPIDParams[0],
@@ -117,6 +119,7 @@ public:
 
 // public:
 //     turnCorrection(long double reqAng)
+
 //     {
 //     if(inertial.get_rotation!=reqAng){
 //      correction = inertial.get_rotation - reqAng;
@@ -138,3 +141,11 @@ public:
 //         return L_adj;
 //     }
 // };
+//     double returnR(){
+//         return R_adj;
+//     }
+//     double returnL(){
+//         return L_adj;
+//     }
+// };
+

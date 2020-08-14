@@ -1,8 +1,9 @@
 #include "main.h"
-#include "posTracking.cpp"
+#include "posTracking.hpp"
 #include "globals.hpp"
 #include <array>
 #include "pid.hpp"
+#include "lvgl/callback.hpp"
 
 long double currentx = 0, currenty = 0;
 
@@ -312,7 +313,7 @@ void turnPID(long double targetAngle, int time, int timeAllocated) {
 
 }
 
-void autonomous() {
+void redHomeAuton() {
     pros::delay(3000);
     pros::Task position_task(vector_tasks_fn, (void*)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT,"Print X and Y Task");
     //846.21458975586392379449251804839‬ ticks = 24 inches
@@ -338,3 +339,11 @@ void autonomous() {
     //pros::lcd::set_text(5, "DONE!");
     pros::delay(20);
 }
+
+void autonomous() {
+    
+    if(variables::auton == 1)
+    {
+    }
+}
+

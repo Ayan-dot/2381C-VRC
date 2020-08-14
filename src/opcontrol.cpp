@@ -1,8 +1,11 @@
 #include "main.h"
 #include "globals.hpp"
 #include "robot/intakes.cpp"
-#include "posTracking.cpp"
+#include "posTracking.hpp"
 #include <cmath>
+#include "autoSelect/selection.h"
+#include "lvgl/lvglPage.hpp"
+#include "lvgl/callback.hpp"
 
 void opcontrol()
 {
@@ -16,9 +19,14 @@ void opcontrol()
     // long double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
     // wait for imu to calibrate
     pros::delay(3000);
+    
     while (true) // control loop
     {
+        
+        odomBoi init(250);
 
+        variables::initAuton(3, btnMap);
+       
         // master.print(0, 0, "Rot: %f", inertial.get_rotation());
         leftFront = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
         leftBack = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) - master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
@@ -60,7 +68,6 @@ void opcontrol()
         pros::lcd::set_text(4, "R:" + std::to_string(verticalEncoder2.get_value()));
         pros::lcd::set_text(5, "B:" + std::to_string(horizontalEncoder.get_value()));
         pros::lcd::set_text(7, "I: " + std::to_string(inertial.get_rotation() * imuScaling));
-
 
         // INTAKE CONTROLS //
         /*

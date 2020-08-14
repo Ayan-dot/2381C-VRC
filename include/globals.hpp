@@ -31,6 +31,15 @@ extern long double globalX, globalY;
 
 extern const long double pi;
 
+extern std::array<double, 3> anglerPIDParams;
+extern std::array<double, 3> turningPID;
+extern std::array<double, 3> adjustmentPIDParams;
+
+extern lv_obj_t *blue;
+extern lv_obj_t *red;
+
+extern lv_obj_t *tabview;
+
 extern pros::ADIEncoder verticalEncoder1;
 extern pros::ADIEncoder verticalEncoder2;
 extern pros::ADIEncoder horizontalEncoder;
