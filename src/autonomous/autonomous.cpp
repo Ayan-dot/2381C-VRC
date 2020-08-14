@@ -342,8 +342,36 @@ void redHomeAuton() {
 
 void autonomous() {
     
+    //left red
     if(variables::auton == 1)
     {
+
+    }
+    //right red
+    if(variables::auton == 2) {
+
+    }
+    //skills red
+    if(variables::auton == 3)
+    {
+    }
+    if(variables::auton == 4) {
+      
+    }
+    //left blue
+    if(variables::auton == -1)
+    {
+    }
+    //right blue
+    if(variables::auton == -2) {
+      
+    }
+    //skills blue
+    if(variables::auton == -3)
+    {
+    }
+    if(variables::auton == -4) {
+      
     }
 }
 

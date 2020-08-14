@@ -31,9 +31,9 @@ extern long double globalX, globalY;
 
 extern const long double pi;
 
-extern std::array<double, 3> anglerPIDParams;
-extern std::array<double, 3> turningPID;
-extern std::array<double, 3> adjustmentPIDParams;
+extern std::array<long double, 3> anglerPIDParams;
+extern std::array<long double, 3> turningPID;
+extern std::array< long double, 3> adjustmentPIDParams;
 
 extern lv_obj_t *blue;
 extern lv_obj_t *red;

@@ -19,11 +19,11 @@ enum DIRECTION
 
 class motion {
     public:
-        motion(double currentX, double currentY, double moveX, double moveY);
+        motion(long double currentX, long double currentY, long double moveX, long double moveY);
 
-        double returnAngle();
+        long double returnAngle();
 
-        double returnDistance();
+        long double returnDistance();
 
     private:
         double desiredAngle = 0, distanceMove = 0;
@@ -34,13 +34,13 @@ class motion {
 
 class positionTracking {
     public:
-        positionTracking(double lastAng, double currentX, double lastX, double currentYL, double lastYL, double currentYR, double lastYR);
+        positionTracking(long double lastAng, long double currentX, long double lastX, long double currentYL, long double lastYL, long double currentYR, long double lastYR);
 
-        double returnX();
+        long double returnX();
 
-        double returnY();
+        long double returnY();
 
-        double returnOrient();
+        long double returnOrient();
 
     private:
         double angle = 0;

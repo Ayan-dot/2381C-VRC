@@ -2,29 +2,11 @@
 #include <cmath>
 #include "posTracking.hpp"
 
-enum DIRECTION
-{
-  FORWARD,
-  REVERSE,
-  LEFT,
-  RIGHT,
-  LEFT_FORWARD,
-  LEFT_BACK,
-  RIGHT_FORWARD,
-  RIGHT_BACK,
-  TRANS_UP,
-  TRANS_DOWN
-};
+    // long double desiredAngle = 0, distanceMove = 0;
+    // DIRECTION turn;
+    // long double diffx = 0, diffy = 0;
 
-class motion
-{
-private:
-    long double desiredAngle = 0, distanceMove = 0;
-    DIRECTION turn;
-    long double diffx = 0, diffy = 0;
-
-public:
-    motion(long double currentX, long double currentY, long double moveX, long double moveY)
+    motion::motion(long double currentX, long double currentY, long double moveX, long double moveY)
     {
         diffx = moveX - currentX;
         diffy = moveY - currentY;
@@ -32,31 +14,19 @@ public:
         desiredAngle = atan2(diffy, diffx) * 180 / pi;
         distanceMove = pow(pow((diffy), 2) + pow((diffx), 2), 0.5);
     }
-  
-    long double returnAngle()
+
+    long double motion::returnAngle()
     {
         return desiredAngle;
     }
 
-    long double returnDistance()
+    long double motion::returnDistance()
     {
         return distanceMove;
     }
-};
 
-class positionTracking
-{
-private:
-    long double angle = 0;
-    long double L,R,B = 0;
-    long double halfang = 0;
-    long double globalang = 0;
-    long double h = 0;
-    long double h2 = 0;
-    long double xplacehold = 0, yplacehold = 0;
 
-public:
-    positionTracking(long double lastAng, long double currentX, long double lastX, long double currentYL, long double lastYL, long double currentYR, long double lastYR)
+    positionTracking::positionTracking(long double lastAng, long double currentX, long double lastX, long double currentYL, long double lastYL, long double currentYR, long double lastYR)
     {
         B = currentX - lastX;
         L = currentYL - lastYL;
@@ -72,7 +42,7 @@ public:
         {
             halfang = angle / 2.0;
             h = 2.0 * sin(halfang) * (((R) / angle) + verticalOffset2);
-  
+
             h2 = 2.0 * sin(halfang) * (((B) / angle)+ horizontalOffset);
         }
         else
@@ -90,20 +60,19 @@ public:
         globalang += halfang;
     }
 
-    long double returnX()
+    long double positionTracking::returnX()
     {
         return xplacehold;
     }
 
-    long double returnY()
+    long double positionTracking::returnY()
     {
         return yplacehold;
     }
-    
-  long double returnOrient(){
+
+  long double positionTracking::returnOrient(){
         return globalang;
-    }
-};
+  }
 // class turnCorrection
 
 // {
@@ -148,4 +117,3 @@ public:
 //         return L_adj;
 //     }
 // };
-
