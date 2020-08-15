@@ -1,6 +1,5 @@
 #include "main.h"
 #include "globals.hpp"
-#include "robot/intakes.cpp"
 #include "posTracking.cpp"
 #include <cmath>
 

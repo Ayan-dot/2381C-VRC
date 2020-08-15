@@ -40,26 +40,5 @@ long double PID::update(long double setpoint, long double current_value, long do
     }
   }
 
-  // // set a minimum threshold too
-  // if (abs((int)total) < 3000) {
-  //   if (total < 0) {
-  //     total = -2000;
-  //   } else {
-  //     total = 2000;
-  //   }
-  // }
-
-  // if(total > 8000) {
-  //   total = 6500;
-  // }
-  //
-  // if(total < -6500) {
-  //   total = -6500;
-  // }
-  //
-  // if(total > -3000 && total < 0) {
-  //   total = -3000;
-  // }
-
   return total;
 }

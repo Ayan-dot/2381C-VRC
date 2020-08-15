@@ -103,38 +103,3 @@ public:
         return globalang;
     }
 };
-// class turnCorrection
-// {
-// private:
-// long double factor = 0;
-// long double correction = 0;
-// long double L_adj = 0, R_adj = 0;
-
-// PID* adjustmentPIDController = new PID(
-//     &adjustmentPIDParams[0],
-//     &adjustmentPIDParams[1],
-//     &adjustmentPIDParams[2]);
-
-// public:
-//     turnCorrection(long double reqAng)
-//     {
-//     if(inertial.get_rotation!=reqAng){
-//      correction = inertial.get_rotation - reqAng;
-//         while(correction>0){
-//         factor = adjustmentPIDController->update(correction,0);
-//         R_adj = factor;
-//     }
-//         while(correction<0){
-//         factor = adjustmentPIDController->update(correction, 0);
-//         L_adj = factor;
-//         }
-
-// }
-//     }
-//     long double returnR(){
-//         return R_adj;
-//     }
-//     long double returnL(){
-//         return L_adj;
-//     }
-// };
