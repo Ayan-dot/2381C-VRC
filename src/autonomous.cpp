@@ -86,7 +86,7 @@ void deploy() {
   leftBack.move_velocity(150);
   rightFront.move_velocity(-150);
   rightBack.move_velocity(-150);
-  shooter.move_velocity(200);
+  shooter.move_velocity(180);
   pros::delay(90);
   leftFront.move_velocity(-150);
   leftBack.move_velocity(-150);
@@ -110,7 +110,7 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer) {
     if (line_tracker1.get_value() > INDEX_THRESHOLD) {
       // we do not have a ball properly indexed yet
       indexer.move_velocity(-200);
-      shooter.move_velocity(10);
+      shooter.move_velocity(25);
     } else {
       shooter.move_velocity(0);
       if (line_tracker2.get_value() > INDEX_THRESHOLD) {
@@ -320,20 +320,30 @@ void autonomous() {
     // RED HOME ROW AUTON
     deploy();
     pros::delay(50);
-    translationPID(31.5, 0.0, lastAngle, pros::millis(), 1500, false, false);
+    translationPID(33, 0.0, lastAngle, pros::millis(), 1500, false, false);
     turnPID(-pi/4.0, pros::millis(), 600);
-    translationPID(11.0, 19.0, lastAngle, pros::millis(), 1000, true, true);
-    translationPID(8.5, 21.5, lastAngle, pros::millis(), 500, false, false);
+    translationPID(11.0, 19.0, lastAngle, pros::millis(), 1000, true, false);
+    translationPID(8, 22, lastAngle, pros::millis(), 500, false, false);
     shootingProcedure();
     translationPID(24.0, -33.0, lastAngle, pros::millis(), 2750, true, true);
     turnPID(-pi/2.0, pros::millis(), 600);
     translationPID(11.0, -32.0, lastAngle, pros::millis(), 1000, false, false);
     shootingProcedure();
-    translationPID(24.0, -73, lastAngle, pros::millis(), 2000, false, false);
+    translationPID(24.0, -70, lastAngle, pros::millis(), 2000, false, false);
     turnPID(-(3.0*pi)/4.0, pros::millis(), 600);
     translationPID(11.0, -85, lastAngle, pros::millis(), 1000, true, true);
     translationPID(8.5, -87.5, lastAngle, pros::millis(), 500, true, true);
     shootingProcedure();
+
+    // // endof, rest of the commands below are for testing
+    // translationPID(11.0, -85, lastAngle, pros::millis(), 1000, false, false);
+    // turnPID(0.0, pros::millis(), 1500);
+    // translationPID(24.0, 19.0, lastAngle, pros::millis(), 5000, false, false);
+
+    // turnPID(pi/2.0, pros::millis(), 1200);
+    // turnPID(-pi/2.0, pros::millis(), 1200);
+    // turnPID(0, pros::millis(), 1200);
+    //translationPID(-24.0, 24.0, pi/2.0, pros::millis(), 2500, false, false);
 
     //pros::lcd::set_text(5, "DONE!");
     pros::delay(20);

@@ -114,7 +114,7 @@ void opcontrol()
         // R2 - fires balls
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
           // shoots indexed ball
-          shooter.move_velocity(180);
+          shooter.move_velocity(130);
         } else {
           if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && line_tracker1.get_value() > INDEX_THRESHOLD) {
 

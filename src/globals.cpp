@@ -18,7 +18,7 @@ pros::ADIEncoder verticalEncoder2('A','B', false);
 pros::ADIEncoder horizontalEncoder('C','D', true);
 pros::ADIAnalogIn line_tracker1('G');
 pros::ADIAnalogIn line_tracker2('H');
-std::array<long double, 3> pointTurnPIDParams = {8000, 0, 40};
+std::array<long double, 3> pointTurnPIDParams = {8000, 0, 8000};
 std::array<long double, 3> drivebasePIDParams = {52, 2, 180};
 std::array<long double, 3> turningPID = {10000, 0, 0};
 std::array<long double, 3> strafePIDParams = {20, 0.01, 90};
