@@ -31,14 +31,14 @@ long double PID::update(long double setpoint, long double current_value, long do
 
   long double total = proportionalError + integralError + derivativeError;
 
-  // set a maximum threshold for the motor voltage
-  if (abs((int)total) > 9000) {
-    if (total < 0) {
-      total = -9000;
-    } else {
-      total = 9000;
-    }
-  }
+  // // set a maximum threshold for the motor voltage
+  // if (abs((int)total) > 9000) {
+  //   if (total < 0) {
+  //     total = -9000;
+  //   } else {
+  //     total = 9000;
+  //   }
+  // }
 
   return total;
 }

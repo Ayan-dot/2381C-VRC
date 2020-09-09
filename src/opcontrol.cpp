@@ -14,7 +14,7 @@ void opcontrol()
 
     // long double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
     // wait for imu to calibrate
-    pros::delay(3000);
+    //pros::delay(3000);
     while (true) // control loop
     {
 
@@ -126,8 +126,7 @@ void opcontrol()
         // L1 + L2
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) && master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
           shooter.move_velocity(-150);
-          leftIntake.move_velocity(0);
-          rightIntake.move_velocity(0);
+
         }
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {

@@ -4,10 +4,10 @@
 #include "pid.hpp"
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
-pros::Motor leftBack(2);
-pros::Motor leftFront(12);
+pros::Motor leftBack(19);
+pros::Motor leftFront(18);
 pros::Motor rightBack(9);
-pros::Motor rightFront(19);
+pros::Motor rightFront(8);
 pros::Motor leftIntake(15);
 pros::Motor rightIntake(16);
 pros::Motor indexer(3);
@@ -21,7 +21,8 @@ pros::ADIAnalogIn line_tracker2('H');
 std::array<long double, 3> pointTurnPIDParams = {8000, 0, 8000};
 std::array<long double, 3> drivebasePIDParams = {52, 2, 180};
 std::array<long double, 3> turningPID = {10000, 0, 0};
-std::array<long double, 3> strafePIDParams = {20, 0.01, 90};
+std::array<long double, 3> strafePIDParams = {52, 2, 180};
+// 20, 0.01, 90
 
 int maxSpeed = 12000;
 int INDEX_THRESHOLD = 2700; // needs to be changed depending on ambient lighting conditions
@@ -54,12 +55,12 @@ void initialize()
 
     pros::lcd::initialize();
 
-    inertial.reset();
-    while (inertial.is_calibrating()) {
-      pros::lcd::set_text(7, "IMU calibrating ...");
-      iter += 20;
-      pros::delay(20);
-    }
+    // inertial.reset();
+    // while (inertial.is_calibrating()) {
+    //   pros::lcd::set_text(7, "IMU calibrating ...");
+    //   iter += 20;
+    //   pros::delay(20);
+    // }
     // should print about 2000 ms
     pros::lcd::set_text(7, "IMU is done calibrating (took %d ms)\n" + std::to_string(iter - time));
 

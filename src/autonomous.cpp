@@ -5,6 +5,7 @@
 #include "pid.hpp"
 
 long double currentx = 0, currenty = 0;
+const long double MAX_VOLTAGE = 10000;
 
 //initation of array pointer values
 PID* rightdrivebasePIDController = new PID(
@@ -101,10 +102,10 @@ void deploy() {
   shooter.move_velocity(0);
 }
 
-void intakeIndexingProcedure(bool runIntakes, bool runIndexer) {
-  if (runIntakes) {
-    leftIntake.move_velocity(200);
-    rightIntake.move_velocity(-200);
+void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBackwards) {
+  if (runIntakes || runIntakesBackwards) {
+    leftIntake.move_velocity((runIntakes ? 200 : -200));
+    rightIntake.move_velocity((runIntakes? -200 : 200));
   }
   if (runIndexer) {
     if (line_tracker1.get_value() > INDEX_THRESHOLD) {
@@ -131,92 +132,97 @@ void shootingProcedure() {
 }
 
 // motion translation PROCEDURES
-void translationPID(long double x2, long double y2, long double heading, int time, int timeAllocated, bool runIntakes, bool runIndexer) {
-  //////////////////////////////////////////////////////////////////
-  /* Moves the Robot from point x1 and y1 (where it is right now) */
-  /* to x2 and y2, while maintaining a constant heading           */
-  //////////////////////////////////////////////////////////////////
-
-  long double x1 = globalX;
-  long double y1 = globalY;
-
-  // Step 1, using x1, y1, x2, y2, and heading, let us calculate the STANDARD FORM equation of the lines
-  // this can be done by simply finding a second pair of coordinates, as two points define a line
-  const long double l = 100.0; // how far away in euclidean distance the second point we want is, can be any arbirary number
-
-  // [ROBOT POSITION POINT] the first line is defined by x1 and y1, and the heading
-  long double x1Other = x1 + l * sin(heading);
-  long double y1Other = y1 + l * cos(heading);
-
-  // [ROBOT DESTINATION POINT] the second line is defined by x1 and y2, and the heading rotated by 90 degrees, or pi/2 radians
-  long double x2Other = x2 + l * sin(heading + pi / 2.0);
-  long double y2Other = y2 + l * cos(heading + pi / 2.0);
-
-  // With the above sets of new coordinates, we can define the STANDARD FORM of both lines
-
-  // [ROBOT POSITION LINE PARALLEL TO HEADING]
-  long double A1 = y1 - y1Other; // reversed because we have to assign negative sign to either numerator or denominator
-  long double B1 = x1Other - x1;
-  long double C1 = -(A1 * x1 + B1 * y1);
-
-  // [ROBOT DESTINATION LINE PERPENDICULAR TO HEADING]
-  long double A2 = y2 - y2Other;
-  long double B2 = x2Other - x2;
-  long double C2 = -(A2 * x2 + B2 * y2);
-
-  // with the STANDARD FORM equations for both lines, let us calculate the intersection point of the two
-  // let (x, y) denote the coordinate intersection of the two lines, represented in STANDARD FORM
-  long double x = (B1*C2-B2*C1)/(B2*A1-B1*A2);
-  long double y = (A1*C2-A2*C1)/(A2*B1-A1*B2);
-  cout << "VARS: " << x1 << ' ' << y1 << ' ' << x1Other << ' ' << y1Other << ' ' << x2 << ' ' << y2 << ' ' << x2Other << ' ' << y2Other << ' ' << x <<  ' ' << y << '\n';
-
-  // since Euclidean distance is always a positive value, we must know the direction in which the error is
-  // to do this, we need to define another line
-  // LINE: going through x1, y1, heading rotated 90 degrees anticlockwise
-
-  // Define another point on 1
-  long double x3Other = x1 + l * sin(heading - pi / 2.0);
-  long double y3Other = y1 + l * cos(heading - pi / 2.0);
-
-  // With this information, we can now determine the signage of the vertical and horizontal components (relative to heading)
-  int horizontalSign = 1;
-  int verticalSign = 1;
-
-  // determine the relative direction of the horizontal component
-  //long double d1 = (x - x1) * (y1Other - y1) - (y - y1) * (x1Other - x1);
-  long double d1 = (x2 - x1) * (y1Other - y1) - (y2 - y1) * (x1Other - x1);
-  if (d1 < 0) horizontalSign = -1;
-  cout << "D1: " << d1 << '\n';
-
-  // ^ for the vertical component
-  long double d2 = (x - x1) * (y3Other - y1) - (y - y1) * (x3Other - x1);
-  //long double d2 = (x2 - x3Other) * (y1 - y3Other) - (y2 - y3Other) * (x1 - x3Other);
-  if (d2 < 0) verticalSign = -1;
-  cout << "D2: " << d2 << '\n';
-
-  // With the intersection point and direction, we can now calculate the Euclidean distance forwards relative the the robotics direction
-  // and horizontally relative to the robot heading to get our x and y compoenents for our overall translation vector
-  long double yComponent = abs(sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1))) * verticalSign;
-  long double xComponent = abs(sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2))) * horizontalSign;
-  cout << "COMPONENT VECTORS: " << yComponent << ' ' << xComponent << '\n';
-
-   // To send this information to the motors, we pass the original encoder position, and the original encoder position
-   // plus their respective local components for the PID loop
-   long double leftDest = verticalEncoder1.get_value() + yComponent * (360 / (2.75 * pi));
-   long double rightDest = verticalEncoder2.get_value() + yComponent * (360 / (2.75 * pi));
-   long double horizontalDest = horizontalEncoder.get_value() + xComponent * (360 / (2.75 * pi));
-   cout << "DESTINATIONS: " << leftDest << ' ' << rightDest << ' ' << horizontalDest << '\n';
-
+void translationPID(long double x2, long double y2, long double heading, int time, int timeAllocated, bool runIntakes, bool runIndexer, bool runIntakesBackwards) {
    while (true) {
      // Run the intaking indexing procedure if commanded to do so
-     if (runIntakes || runIndexer) {
-       intakeIndexingProcedure(runIntakes, runIndexer);
+     if (runIntakes || runIndexer || runIntakesBackwards) {
+       intakeIndexingProcedure(runIntakes, runIndexer, runIntakesBackwards);
      } else {
        leftIntake.move_velocity(0);
        rightIntake.move_velocity(0);
        indexer.move_velocity(0);
        shooter.move_velocity(0);
      }
+     //////////////////////////////////////////////////////////////////
+     /* Moves the Robot from point x1 and y1 (where it is right now) */
+     /* to x2 and y2, while maintaining a constant heading           */
+     //////////////////////////////////////////////////////////////////
+
+     // UPDATE: translation PID now accounts for turning while strafing
+
+     /**********/
+     /** MATH **/
+     /**********/
+
+     long double x1 = globalX;
+     long double y1 = globalY;
+
+     // Step 1, using x1, y1, x2, y2, and heading, let us calculate the STANDARD FORM equation of the lines
+     // this can be done by simply finding a second pair of coordinates, as two points define a line
+     const long double l = 100.0; // how far away in euclidean distance the second point we want is, can be any arbirary number
+
+     // [ROBOT POSITION POINT] the first line is defined by x1 and y1, and the heading
+     long double x1Other = x1 + l * sin(lastAngle);
+     long double y1Other = y1 + l * cos(lastAngle);
+
+     // [ROBOT POSITION LINE PARALLEL TO HEADING]
+     long double A1 = y1 - y1Other; // reversed because we have to assign negative sign to either numerator or denominator
+     long double B1 = x1Other - x1;
+     long double C1 = -(A1 * x1 + B1 * y1);
+
+     // [ROBOT DESTINATION LINE PERPENDICULAR PREVIOUS LINE]
+     long double A2 = B1;
+     long double B2 = -A1;
+     long double C2 = -(A2 * x2 + B2 * y2);
+
+     // with the STANDARD FORM equations for both lines, let us calculate the intersection point of the two
+     // let (x, y) denote the coordinate intersection of the two lines, represented in STANDARD FORM
+     long double x = (B1 * C2 - B2 * C1) / (B2 * A1 - B1 * A2);
+     long double y = (A1 * C2 - A2 * C1) / (A2 * B1 - A1 * B2);
+     //cout << "VARS: " << x1 << ' ' << y1 << ' ' << x1Other << ' ' << y1Other << ' ' << x2 << ' ' << y2 << ' ' << x2Other << ' ' << y2Other << ' ' << x <<  ' ' << y << '\n';
+
+     // since Euclidean distance is always a positive value, we must know the direction in which the error is
+     // to do this, we need to define another line
+     // LINE: going through x1, y1, heading rotated 90 degrees anticlockwise
+
+     // Define another point on 1
+     long double x3Other = x1 + l * sin(heading - pi / 2.0);
+     long double y3Other = y1 + l * cos(heading - pi / 2.0);
+
+     // With this information, we can now determine the signage of the vertical and horizontal components (relative to heading)
+     int horizontalSign = 1;
+     int verticalSign = 1;
+
+     // determine the relative direction of the horizontal component
+     //long double d1 = (x - x1) * (y1Other - y1) - (y - y1) * (x1Other - x1);
+     long double d1 = (x2 - x1) * (y1Other - y1) - (y2 - y1) * (x1Other - x1);
+     // long double d1 = (x2 - x) * (y - y1) - (y2 - y) * (x - x1);
+     if (d1 < 0) horizontalSign = -1;
+     cout << "D1: " << d1 << '\n';
+
+     // ^ for the vertical component
+     long double d2 = (x - x1) * (y3Other - y1) - (y - y1) * (x3Other - x1);
+     //long double d2 = (x2 - x3Other) * (y1 - y3Other) - (y2 - y3Other) * (x1 - x3Other);
+     //long double d2 = (x - x3Other) * (y3Other - y1) - (y - y3Other) * (x3Other - x1);
+     if (d2 < 0) verticalSign = -1;
+     cout << "D2: " << d2 << '\n';
+
+     // With the intersection point and direction, we can now calculate the Euclidean distance forwards relative the the robotics direction
+     // and horizontally relative to the robot heading to get our x and y compoenents for our overall translation vector
+     long double yComponent = abs(sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1))) * verticalSign;
+     long double xComponent = abs(sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2))) * horizontalSign;
+     cout << "COMPONENT VECTORS: " << yComponent << ' ' << xComponent << '\n';
+
+      // To send this information to the motors, we pass the original encoder position, and the original encoder position
+      // plus their respective local components for the PID loop
+      long double leftDest = verticalEncoder1.get_value() + yComponent * (360 / (2.75 * pi));
+      long double rightDest = verticalEncoder2.get_value() + yComponent * (360 / (2.75 * pi));
+      long double horizontalDest = horizontalEncoder.get_value() + xComponent * (360 / (2.75 * pi));
+      cout << "DESTINATIONS: " << leftDest << ' ' << rightDest << ' ' << horizontalDest << '\n';
+
+      /*********/
+      /** PID **/
+      /*********/
 
      // [Y COMPONENT] Forward Backward (relative to heading) voltage output
      long double yVoltageLeft = leftdrivebasePIDController->update(leftDest, verticalEncoder1.get_value(), 250);
@@ -248,6 +254,17 @@ void translationPID(long double x2, long double y2, long double heading, int tim
      long double finalVoltageLeftBack = (yVoltageLeft - xVoltage + angleVoltageLeft) * coefTime;
      long double finalVoltageRightFront = -(yVoltageRight - xVoltage + angleVoltageRight) * coefTime;
      long double finalVoltageRightBack = -(yVoltageRight + xVoltage + angleVoltageRight) * coefTime;
+
+     // As we do not want to send voltages higher than MAX_VOLTAGE to the motors, scale all of the motors accordingly
+     long double maxOutput = max({finalVoltageLeftFront, finalVoltageLeftBack, finalVoltageRightFront, finalVoltageRightBack});
+     if (maxOutput > MAX_VOLTAGE) {
+       long double scaling = MAX_VOLTAGE / maxOutput; // scale down all of the motor outputs by a fraction >= 0 < 1 such that the max voltage does not exceed MAX_VOLTAGE
+       finalVoltageLeftFront *= scaling;
+       finalVoltageLeftBack *= scaling;
+       finalVoltageRightFront *= scaling;
+       finalVoltageRightBack *= scaling;
+     }
+
      cout << "FINAL OUTPUT: " << finalVoltageLeftFront << ' ' << finalVoltageLeftBack << ' ' << finalVoltageRightFront << ' ' << finalVoltageRightBack << '\n';
 
      // Stop the robot when the maximum allowed time is reached
@@ -318,22 +335,34 @@ void autonomous() {
     //846.21458975586392379449251804839‬ ticks = 24 inches
 
     // RED HOME ROW AUTON
-    deploy();
-    pros::delay(50);
-    translationPID(33, 0.0, lastAngle, pros::millis(), 1500, false, false);
-    turnPID(-pi/4.0, pros::millis(), 600);
-    translationPID(11.0, 19.0, lastAngle, pros::millis(), 1000, true, false);
-    translationPID(8, 22, lastAngle, pros::millis(), 500, false, false);
-    shootingProcedure();
-    translationPID(24.0, -33.0, lastAngle, pros::millis(), 2750, true, true);
-    turnPID(-pi/2.0, pros::millis(), 600);
-    translationPID(11.0, -32.0, lastAngle, pros::millis(), 1000, false, false);
-    shootingProcedure();
-    translationPID(24.0, -70, lastAngle, pros::millis(), 2000, false, false);
-    turnPID(-(3.0*pi)/4.0, pros::millis(), 600);
-    translationPID(11.0, -85, lastAngle, pros::millis(), 1000, true, true);
-    translationPID(8.5, -87.5, lastAngle, pros::millis(), 500, true, true);
-    shootingProcedure();
+    // deploy();
+    // pros::delay(50);
+    // translationPID(0.0, 12.0, lastAngle, pros::millis(), 1500, true, true, false);
+    // turnPID(-3*pi/4.0, pros::millis(), 600);
+    // translationPID(-20.0, 9.0, lastAngle, pros::millis(), 1000, true, true, false);
+    // shootingProcedure();
+    // translationPID(-19.0, 14.0, lastAngle, pros::millis(), 2750, false, false, true);
+    // turnPID(-pi/2, pros::millis(), 600);
+    // translationPID(-12.0, 30.0, lastAngle, pros::millis(), 1000, false, false, false);
+    // translationPID(-23.0, 25.0, lastAngle, pros::millis(), 1000, false, false, false);
+    // translationPID(-21.0, 25.0, lastAngle, pros::millis(), 1000, true, true, false);
+    // translationPID(-12.0, 24.0, lastAngle, pros::millis(), 1000, false, false, false);
+    // turnPID(0.0, pros::millis(), 600);
+    // translationPID(-12.0, 63.0, lastAngle, pros::millis(), 1000, true, true, false);
+    // turnPID(-pi/3.0, pros::millis(), 600);
+    // translationPID(-15.0, 63.0, lastAngle, pros::millis(), 1000, true, true, false);
+    // shootingProcedure();
+
+    translationPID(0.0, 24.0, lastAngle, pros::millis(), 3000, false, false, false);
+
+
+
+    // shootingProcedure();
+    // translationPID(24.0, -70, lastAngle, pros::millis(), 2000, false, false);
+    // turnPID(-(3.0*pi)/4.0, pros::millis(), 600);
+    // translationPID(11.0, -85, lastAngle, pros::millis(), 1000, true, true);
+    // translationPID(8.5, -87.5, lastAngle, pros::millis(), 500, true, true);
+    // shootingProcedure();
 
     // // endof, rest of the commands below are for testing
     // translationPID(11.0, -85, lastAngle, pros::millis(), 1000, false, false);
