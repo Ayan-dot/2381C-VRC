@@ -4,15 +4,15 @@
 #include "pid.hpp"
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
-pros::Motor leftBack(19);
-pros::Motor leftFront(18);
-pros::Motor rightBack(9);
-pros::Motor rightFront(8);
+pros::Motor leftBack(1);
+pros::Motor leftFront(20);
+pros::Motor rightBack(10);
+pros::Motor rightFront(11);
 pros::Motor leftIntake(15);
 pros::Motor rightIntake(16);
-pros::Motor indexer(3);
-pros::Motor shooter(17);
-pros::Imu inertial(1);
+pros::Motor indexer(17);
+pros::Motor shooter(14);
+pros::Imu inertial(21);
 pros::ADIEncoder verticalEncoder1('E','F', false);
 pros::ADIEncoder verticalEncoder2('A','B', false);
 pros::ADIEncoder horizontalEncoder('C','D', true);

@@ -354,8 +354,7 @@ void autonomous() {
     // shootingProcedure();
 
     translationPID(0.0, 24.0, lastAngle, pros::millis(), 3000, false, false, false);
-
-
+    translationPID(24.0, 24.0, lastAngle, pros::millis(), 3000, false, false, false);
 
     // shootingProcedure();
     // translationPID(24.0, -70, lastAngle, pros::millis(), 2000, false, false);

@@ -70,64 +70,69 @@ void opcontrol()
         */
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
           // intake
-          leftIntake.move_velocity(200);
-          rightIntake.move_velocity(-200);
-        }
-        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
           leftIntake.move_velocity(-200);
           rightIntake.move_velocity(200);
+        }
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+          leftIntake.move_velocity(200);
+          rightIntake.move_velocity(-200);
         }
         else {
           leftIntake.move_velocity(-0);
           rightIntake.move_velocity(-0);
         }
 
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)) {
-          leftIntake.move_velocity(200);
-        }
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
-          rightIntake.move_velocity(-200);
-        }
-
-        // INDEXING CONTROLS //
-        // R1 - indexes the first ball to shooting bay, and indexes the remaining accordingly
-
-        shooter.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-        // we know the ball is indexed if the line tracker reports <= INDEX_THRESHOLD
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-          if (line_tracker1.get_value() > INDEX_THRESHOLD) {
-            // we do not have a ball properly indexed yet
-            indexer.move_velocity(-200);
-            shooter.move_velocity(10);
-          } else {
-            shooter.move_velocity(0);
-            if (line_tracker2.get_value() > INDEX_THRESHOLD) {
-              indexer.move_velocity(-200);
-            }
-          }
+          indexer.move_velocity(-200);
+          shooter.move_velocity(200);
+        } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+          shooter.move_velocity(-200);
+          indexer.move_velocity(200);
         } else {
-          indexer.move_velocity(0);
           shooter.move_velocity(0);
+          indexer.move_velocity(0);
+          shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
         }
 
-        // SHOOTING CONTROLS //
-        // R2 - fires balls
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-          // shoots indexed ball
-          shooter.move_velocity(130);
-        } else {
-          if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && line_tracker1.get_value() > INDEX_THRESHOLD) {
-
-          } else
-            shooter.move_velocity(0);
-        }
-
-        // DISCARDING CONTROLS //
-        // L1 + L2
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) && master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
-          shooter.move_velocity(-150);
-
-        }
+        // // INDEXING CONTROLS //
+        // // R1 - indexes the first ball to shooting bay, and indexes the remaining accordingly
+        //
+        // shooter.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        // // we know the ball is indexed if the line tracker reports <= INDEX_THRESHOLD
+        // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+        //   if (line_tracker1.get_value() > INDEX_THRESHOLD) {
+        //     // we do not have a ball properly indexed yet
+        //     indexer.move_velocity(-200);
+        //     shooter.move_velocity(10);
+        //   } else {
+        //     shooter.move_velocity(0);
+        //     if (line_tracker2.get_value() > INDEX_THRESHOLD) {
+        //       indexer.move_velocity(-200);
+        //     }
+        //   }
+        // } else {
+        //   indexer.move_velocity(0);
+        //   shooter.move_velocity(0);
+        // }
+        //
+        // // SHOOTING CONTROLS //
+        // // R2 - fires balls
+        // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+        //   // shoots indexed ball
+        //   shooter.move_velocity(130);
+        // } else {
+        //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && line_tracker1.get_value() > INDEX_THRESHOLD) {
+        //
+        //   } else
+        //     shooter.move_velocity(0);
+        // }
+        //
+        // // DISCARDING CONTROLS //
+        // // L1 + L2
+        // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) && master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+        //   shooter.move_velocity(-150);
+        //
+        // }
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
           int iter = 0;
