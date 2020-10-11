@@ -3,7 +3,7 @@
 #include <string>
 
 //selector configuration
-#define HUE 300
+#define HUE 260
 #define DEFAULT 1
 #define AUTONS "Left ", "Right ", "No program"
 

@@ -334,37 +334,39 @@ void turnPID(long double targetAngle, int time, int timeAllocated) {
 
 void autonomous() {
     
+    while(true) {
      //Left red
-    if(selector::auton == 1)
-    {
+      if(selector::auton == 1)
+      {
 
-    }
-    //right red
-    if(selector::auton == 2) {
+      }
+      //right red
+      if(selector::auton == 2) {
 
-    }
-    
-    //do nothing
-    if(selector::auton == 3) {
+      }
       
-    }
-    //left blue
-    if(selector::auton == -1)
-    {
-    }
-    //right blue
-    if(selector::auton == -2) {
-      
-    }
-    // do nothing
-    if(selector::auton == -3)
-    {
+      //do nothing
+      if(selector::auton == 3) {
+        
+      }
+      //left blue
+      if(selector::auton == -1)
+      {
+      }
+      //right blue
+      if(selector::auton == -2) {
+        
+      }
+      // do nothing
+      if(selector::auton == -3)
+      {
 
-    }
+      }
 
-    //skills
-    if(selector::auton == 0) {
-      
+      //skills
+      if(selector::auton == 0) {
+        
+      }
     }
     
     // pros::delay(3000);

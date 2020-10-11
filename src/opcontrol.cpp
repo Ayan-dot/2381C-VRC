@@ -3,9 +3,11 @@
 #include <cmath>
 #include "posTracking.cpp"
 #include <cmath>
+#include "autoSelect/selection.h"
 
 void opcontrol()
 {
+    
     long double lastposR = 0, currentposR = 0; // variables to hold right vertical tracking wheel encoder position, in intervals of 10 ms
     long double lastposL = 0, currentposL = 0; // variables to hold left vertical tracking wheel encoder position, in intervals of 10 ms
     long double lastposH = 0, currentposH = 0; // horizontal counterparts of above variables
@@ -18,7 +20,40 @@ void opcontrol()
     //pros::delay(3000);
     while (true) // control loop
     {
+        if(selector::auton == 1)
+    {
+      cout << "1";
+    }
+    //right red
+    if(selector::auton == 2) {
+      cout << "2";
+    }
+    
+    //do nothing
+    if(selector::auton == 3) {
+      cout << "3";
+    }
+    //left blue
+    if(selector::auton == -1)
+    {
+      cout << "4";
+    }
+    //right blue
+    if(selector::auton == -2) {
+      cout << "5";
+    }
+    // do nothing
+    if(selector::auton == -3)
+    {
+        cout << "6";
+    }
 
+    //skills
+    if(selector::auton == 0) {
+      cout << "7";
+    }
+        
+        //cout << "please run";
         // master.print(0, 0, "Rot: %f", inertial.get_rotation());
         leftFront = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
         leftBack = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) - master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
