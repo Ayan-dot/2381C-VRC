@@ -10,7 +10,7 @@ class odomBoi {
         odomBoi(int hue);
         
         void setData(double x, double y, double theta);
-
+        void consoleBoi(std::string text);
         void reset();
 
     private:
@@ -26,6 +26,8 @@ class odomBoi {
         lv_obj_t *image;
 
         lv_obj_t *odomF;
+
+        lv_obj_t *consoleLog;
 
         
 

@@ -1,9 +1,12 @@
+#include "display/lv_core/lv_obj.h"
+#include "display/lv_core/lv_style.h"
 #include "main.h"
 #include "posTracking.hpp"
 #include "globals.hpp"
 #include <array>
 #include "pid.hpp"
 #include "lvgl/callback.hpp"
+#include "lvgl/lvglPage.hpp"
 
 long double currentx = 0, currenty = 0;
 
@@ -374,4 +377,3 @@ void autonomous() {
       
     }
 }
-

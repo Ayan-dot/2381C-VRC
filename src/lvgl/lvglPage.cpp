@@ -45,9 +45,9 @@ odomBoi::odomBoi(int hue) {
 
     red = lv_tabview_add_tab(tabview, "Red");
     blue = lv_tabview_add_tab(tabview, "Blue");
-     image = lv_tabview_add_tab(tabview, "Image");
+    image = lv_tabview_add_tab(tabview, "Image");
 
-    //deviceTab = lv_tabview_add_tab(tabview, "Devices");
+    odomF = lv_tabview_add_tab(tabview, "Console");
 
 
     // lv_slider_set_action(createSlide(deviceTab, "Left Front", 200, -30, 0, -20, -5, 250, 30), slider_action);
@@ -58,60 +58,60 @@ odomBoi::odomBoi(int hue) {
 
     // createSlide(deviceTab, "Right Back", 200, -30, 150, -20, -5, 250, 30);
 
-    odomF = lv_tabview_add_tab(tabview, "Odom");
+    // odomF = lv_tabview_add_tab(tabview, "Odom");
 
 
 
-    lv_obj_t* field = lv_obj_create(odomF, NULL);
-    fieldDim = min(lv_obj_get_width(odomF), lv_obj_get_height(odomF));
+    // lv_obj_t* field = lv_obj_create(odomF, NULL);
+    // fieldDim = min(lv_obj_get_width(odomF), lv_obj_get_height(odomF));
 
-    fieldDim = fieldDim - 22;
-    lv_obj_set_size(field, fieldDim, fieldDim);
-    lv_obj_align(field, NULL, LV_ALIGN_IN_RIGHT_MID, -40, 0);
+    // fieldDim = fieldDim - 22;
+    // lv_obj_set_size(field, fieldDim, fieldDim);
+    // lv_obj_align(field, NULL, LV_ALIGN_IN_RIGHT_MID, -40, 0);
 
-    lv_style_copy(&greyT, &lv_style_plain);
-    greyT.body.main_color = LV_COLOR_HEX(0x828F8F);
-    greyT.body.grad_color = LV_COLOR_HEX(0x828F8F);
-    greyT.body.border.width = 1;
-    greyT.body.radius = 0;
-    greyT.body.border.color = LV_COLOR_WHITE;
+    // lv_style_copy(&greyT, &lv_style_plain);
+    // greyT.body.main_color = LV_COLOR_HEX(0x828F8F);
+    // greyT.body.grad_color = LV_COLOR_HEX(0x828F8F);
+    // greyT.body.border.width = 1;
+    // greyT.body.radius = 0;
+    // greyT.body.border.color = LV_COLOR_WHITE;
 
-    lv_style_copy(&redT, &greyT);
-    redT.body.main_color = LV_COLOR_RED;
-    redT.body.grad_color = LV_COLOR_RED;
-    lv_style_copy(&blueT, &greyT);
-    blueT.body.main_color = LV_COLOR_BLUE;
-    blueT.body.grad_color = LV_COLOR_BLUE;
+    // lv_style_copy(&redT, &greyT);
+    // redT.body.main_color = LV_COLOR_RED;
+    // redT.body.grad_color = LV_COLOR_RED;
+    // lv_style_copy(&blueT, &greyT);
+    // blueT.body.main_color = LV_COLOR_BLUE;
+    // blueT.body.grad_color = LV_COLOR_BLUE;
 
 
-    std::vector<std::vector<lv_style_t*>> tileData = {
-    {&greyT, &redT , &greyT, &greyT, &blueT, &greyT},
-    {&redT, &greyT, &greyT, &greyT, &greyT, &blueT},
-    {&greyT, &greyT, &greyT, &greyT, &greyT, &greyT},
-    {&greyT, &greyT, &greyT, &greyT, &greyT, &greyT},
-    {&greyT, &greyT, &greyT, &greyT, &greyT, &greyT},
-    {&greyT, &greyT, &greyT, &greyT, &greyT, &greyT}
-    };
+    // std::vector<std::vector<lv_style_t*>> tileData = {
+    // {&greyT, &redT , &greyT, &greyT, &blueT, &greyT},
+    // {&redT, &greyT, &greyT, &greyT, &greyT, &blueT},
+    // {&greyT, &greyT, &greyT, &greyT, &greyT, &greyT},
+    // {&greyT, &greyT, &greyT, &greyT, &greyT, &greyT},
+    // {&greyT, &greyT, &greyT, &greyT, &greyT, &greyT},
+    // {&greyT, &greyT, &greyT, &greyT, &greyT, &greyT}
+    // };
 
-    double tileDim = (fieldDim) / tileData.size();
+    // double tileDim = (fieldDim) / tileData.size();
 
-    for(size_t y = 0; y < 6; y++) {
-        for(size_t x = 0; x < 6; x++) {
-        lv_obj_t* tileObj = lv_btn_create(field, NULL);
-        lv_obj_set_pos(tileObj, x * tileDim, y * tileDim);
-        lv_obj_set_size(tileObj, tileDim, tileDim);
-        //lv_btn_set_action(tileObj, LV_BTN_ACTION_CLICK, tileAction);
-        lv_obj_set_free_num(tileObj, y * 6 + x);
-        lv_obj_set_free_ptr(tileObj, this);
-        lv_btn_set_toggle(tileObj, false);
-        lv_btn_set_style(tileObj, LV_BTN_STYLE_PR, tileData[y][x]);
-        lv_btn_set_style(tileObj, LV_BTN_STYLE_REL, tileData[y][x]);
-        }
-    }
+    // for(size_t y = 0; y < 6; y++) {
+    //     for(size_t x = 0; x < 6; x++) {
+    //     lv_obj_t* tileObj = lv_btn_create(field, NULL);
+    //     lv_obj_set_pos(tileObj, x * tileDim, y * tileDim);
+    //     lv_obj_set_size(tileObj, tileDim, tileDim);
+    //     //lv_btn_set_action(tileObj, LV_BTN_ACTION_CLICK, tileAction);
+    //     lv_obj_set_free_num(tileObj, y * 6 + x);
+    //     lv_obj_set_free_ptr(tileObj, this);
+    //     lv_btn_set_toggle(tileObj, false);
+    //     lv_btn_set_style(tileObj, LV_BTN_STYLE_PR, tileData[y][x]);
+    //     lv_btn_set_style(tileObj, LV_BTN_STYLE_REL, tileData[y][x]);
+    //     }
+    // }
 
-    led = lv_led_create(field, NULL);
-    lv_led_on(led);
-    lv_obj_set_size(led, (fieldDim) / 15, (fieldDim)/ 15);
+    // led = lv_led_create(field, NULL);
+    // lv_led_on(led);
+    // lv_obj_set_size(led, (fieldDim) / 15, (fieldDim)/ 15);
 
     LV_IMG_DECLARE(logo2);
     lv_obj_t * logoBoi = lv_img_create(image, nullptr);
@@ -129,30 +129,19 @@ odomBoi::odomBoi(int hue) {
     lv_img_set_auto_size(logoBoi2, true);
     lv_img_set_src(logoBoi3, &logo2);
     lv_obj_set_pos(logoBoi3, 0, 20);
+    
 
 }
 
-void odomBoi::setData(double x, double y, double theta) {
-    double fieldInch = 144/(fieldDim - 22);
 
-    lv_obj_set_pos(led, x * fieldInch, y * fieldInch);
+// void odomBoi::setData(double x, double y, double theta) {
+//     double fieldInch = 144/(fieldDim - 22);
 
-    lv_style_copy(&textStyle, &lv_style_plain);
-    textStyle.text.color = LV_COLOR_BLACK;
+//     lv_obj_set_pos(led, x * fieldInch, y * fieldInch);
 
-    odomLabel = lv_label_create(odomF, NULL);
-    lv_obj_set_pos(odomLabel, 20, 20);
-    lv_label_set_style(odomLabel, &textStyle);
+//    
 
-    std::string text =
-    "X: " + std::to_string(x) + "\n" +
-    "Y: " + std::to_string(y) + "\n" +
-    "Theta: " + std::to_string(theta) + "\n";
-
-
-    lv_label_set_text(odomLabel, text.c_str());
-
-}
+// }
 
 
 // void odomBoi::reset() {
