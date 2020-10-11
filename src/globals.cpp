@@ -7,25 +7,25 @@
 #include "autoSelect/selection.h"
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
-
-pros::Motor leftBack(2);
-pros::Motor leftFront(12);
-pros::Motor rightBack(9);
-pros::Motor rightFront(19);
+pros::Motor leftBack(1);
+pros::Motor leftFront(20);
+pros::Motor rightBack(10);
+pros::Motor rightFront(11);
 pros::Motor leftIntake(15);
 pros::Motor rightIntake(16);
-pros::Motor indexer(3);
-pros::Motor shooter(17);
-pros::Imu inertial(1);
+pros::Motor indexer(17);
+pros::Motor shooter(14);
+pros::Imu inertial(21);
 pros::ADIEncoder verticalEncoder1('E','F', false);
 pros::ADIEncoder verticalEncoder2('A','B', false);
 pros::ADIEncoder horizontalEncoder('C','D', true);
 pros::ADIAnalogIn line_tracker1('G');
 pros::ADIAnalogIn line_tracker2('H');
-std::array<long double, 3> pointTurnPIDParams = {8000, 0, 40};
+std::array<long double, 3> pointTurnPIDParams = {8000, 0, 8000};
 std::array<long double, 3> drivebasePIDParams = {52, 2, 180};
 std::array<long double, 3> turningPID = {10000, 0, 0};
-std::array<long double, 3> strafePIDParams = {20, 0.01, 90};
+std::array<long double, 3> strafePIDParams = {52, 2, 180};
+// 20, 0.01, 90
 
 int maxSpeed = 12000;
 int INDEX_THRESHOLD = 2700; // needs to be changed depending on ambient lighting conditions
@@ -43,15 +43,15 @@ long double globalX = 0, globalY = 0;
 
 const long double pi = asin(1) * 2.0;
 
-lv_obj_t *blue;
-lv_obj_t *red;
-lv_obj_t *tabview;
-
 void disabled() {}
 
 void competition_initialize() {
   initialize();
 }
+
+lv_obj_t *blue;
+lv_obj_t *red;
+lv_obj_t *tabview;
 
 
 void initialize()
@@ -63,6 +63,8 @@ void initialize()
     pros::lcd::initialize();
 
     selector::init();
+
+
     // inertial.reset();
     // while (inertial.is_calibrating()) {
     //   pros::lcd::set_text(7, "IMU calibrating ...");

@@ -1,9 +1,8 @@
 #include "main.h"
 #include "globals.hpp"
-#include "posTracking.hpp"
 #include <cmath>
-#include "lvgl/lvglPage.hpp"
-#include "lvgl/callback.hpp"
+#include "posTracking.cpp"
+#include <cmath>
 
 void opcontrol()
 {
@@ -17,14 +16,9 @@ void opcontrol()
     // long double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
     // wait for imu to calibrate
     //pros::delay(3000);
-    
-    
-
-        
     while (true) // control loop
     {
-      
-        
+
         // master.print(0, 0, "Rot: %f", inertial.get_rotation());
         leftFront = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
         leftBack = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) - master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
