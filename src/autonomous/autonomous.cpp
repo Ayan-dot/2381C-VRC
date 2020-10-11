@@ -5,8 +5,7 @@
 #include "globals.hpp"
 #include <array>
 #include "pid.hpp"
-#include "lvgl/callback.hpp"
-#include "lvgl/lvglPage.hpp"
+#include "autoSelect/selection.h"
 
 long double currentx = 0, currenty = 0;
 
@@ -345,35 +344,40 @@ void redHomeAuton() {
 
 void autonomous() {
     
-    //left red
-    if(variables::auton == 1)
+    //Left red
+    if(selector::auton == 1)
     {
 
     }
     //right red
-    if(variables::auton == 2) {
+    if(selector::auton == 2) {
 
     }
     //skills red
-    if(variables::auton == 3)
+    if(selector::auton == 3)
     {
     }
-    if(variables::auton == 4) {
+
+    //do nothing
+    if(selector::auton == 4) {
       
     }
     //left blue
-    if(variables::auton == -1)
+    if(selector::auton == -1)
     {
     }
     //right blue
-    if(variables::auton == -2) {
+    if(selector::auton == -2) {
       
     }
     //skills blue
-    if(variables::auton == -3)
+    if(selector::auton == -3)
     {
+
     }
-    if(variables::auton == -4) {
+
+    //do nothing
+    if(selector::auton == -4) {
       
     }
 }

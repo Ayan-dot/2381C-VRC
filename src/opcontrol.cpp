@@ -2,7 +2,6 @@
 #include "globals.hpp"
 #include "posTracking.hpp"
 #include <cmath>
-#include "autoSelect/selection.h"
 #include "lvgl/lvglPage.hpp"
 #include "lvgl/callback.hpp"
 

@@ -4,6 +4,7 @@
 #include "pid.hpp"
 #include "lvgl/callback.hpp"
 #include "lvgl/lvglPage.hpp"
+#include "autoSelect/selection.h"
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
@@ -61,8 +62,7 @@ void initialize()
 
     pros::lcd::initialize();
 
-    odomBoi init(250);
-    variables::initAuton(3, btnMap);
+    selector::init();
     // inertial.reset();
     // while (inertial.is_calibrating()) {
     //   pros::lcd::set_text(7, "IMU calibrating ...");

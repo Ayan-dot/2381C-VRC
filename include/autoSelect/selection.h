@@ -5,7 +5,7 @@
 //selector configuration
 #define HUE 300
 #define DEFAULT 1
-#define AUTONS "Left Corner", "Right Corner", "Driver Control", "Diss"
+#define AUTONS "Left ", "Right ", "No program"
 
 namespace selector{
 
