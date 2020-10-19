@@ -46,4 +46,4 @@ Our main goal with programming this year was to implement odometry to increase o
 
 ## Contributing
 
-As the competition season is still in progress, we are not accepting any community contributions. If you run through our code and see there are things we can improve, feel free to contact us or to open an issue. For new 2381C members, or for reference, here’s a link to the contribution guide: [contributing.md](docs/contributing.md)
+As the competition season is still in progress, we are not accepting any community contributions. If you run through our code and see there are things we can improve, feel free to contact us or to open an issue. For new 2381C members, or for reference, here’s a link to the contribution guide: [contributing.md](docs/CONTRIBUTING.md)
