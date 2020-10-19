@@ -1,3 +1,16 @@
+/*
+  ___  ____   ___  __  _____ 
+ |__ \|___ \ / _ \/_ |/ ____|
+    ) | __) | (_) || | |     
+   / / |__ < > _ < | | |     
+  / /_ ___) | (_) || | |____ 
+ |____|____/ \___/ |_|\_____|
+
+All code is the property of 2381C, Kernel Bye. ANY UNAUTHORIZED REPRODUCTION
+OR DISTRIBUTION OF THIS CODE IS STRICTLY FORBIDDEN. Please contact team 2381C
+directly with any questions, concerns or suggestions you may have.
+*/
+
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
 
@@ -25,6 +38,4 @@ extern const double pi;
 extern pros::ADIEncoder verticalEncoder;
 extern pros::ADIEncoder horizontalEncoder;
 
-
 #endif
-
