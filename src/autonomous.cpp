@@ -1,61 +1,40 @@
-// ALL CODE PROPERTY of 2381C KERNEL BYE 2020-2021
-// UNAUTHORIZED DISTRIBUTION OF CODE STRICTLY FORBIDDEN
+/*
+  ___  ____   ___  __  _____ 
+ |__ \|___ \ / _ \/_ |/ ____|
+    ) | __) | (_) || | |     
+   / / |__ < > _ < | | |     
+  / /_ ___) | (_) || | |____ 
+ |____|____/ \___/ |_|\_____|
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////         ////         ////         ////   ////             /////////////////////
-//////////////////////////////  ///////////  ////  /////  ////   ////   ///////   /////////////////////
-////////////////////////////  //////         ////         ////   ////   ///////////////////////////////
-//////////////////////////  ///////////////  ////         ////   ////   ///////////////////////////////
-////////////////////////  /////////////////  ////  /////  ////   ////   ///////   /////////////////////
-///////////////////////         ////         ////         ////   ////             ///////////////////// 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
+All code is the property of 2381C, Kernel Bye. ANY UNAUTHORIZED REPRODUCTION
+OR DISTRIBUTION OF THIS CODE IS STRICTLY FORBIDDEN. Please contact team 2381C
+directly with any questions, concerns or suggestions you may have.
+*/
+
 #include "main.h"
-
 #include "posTracking.cpp"
-
 #include "globals.hpp"
-
 #include <array>
-
 #include "pid.hpp"
-
-long double currentx = 0, currenty = 0;
-
-//initation of array pointer values
-PID * rightdrivebasePIDController = new PID( &
-  drivebasePIDParams[0], &
-  drivebasePIDParams[1], &
-  drivebasePIDParams[2]);
-
-PID * leftdrivebasePIDController = new PID( &
-  drivebasePIDParams[0], &
-  drivebasePIDParams[1], &
-  drivebasePIDParams[2]);
-
-PID * strafePIDController = new PID( &
-  strafePIDParams[0], &
-  strafePIDParams[1], &
-  strafePIDParams[2]);
-
-PID * turningPIDController = new PID( &
-  turningPID[0], &
-  turningPID[1], &
-  turningPID[2]);
-
-PID * pointTurnPIDController = new PID( &
-  pointTurnPIDParams[0], &
-  pointTurnPIDParams[1], &
-  pointTurnPIDParams[2]);
 
 // ODOM TASK
 // make the global information on location and heading GLOBAL in this file
 long double lastposR, currentposR, lastposL, currentposL, lastposH, currentposH, newAngle, lastAngle;
+long double currentx = 0, currenty = 0;
 
-void vector_tasks_fn(void * param) {
+// initializing of array pointer values
+PID *rightdrivebasePIDController = new PID(&drivebasePIDParams[0], &drivebasePIDParams[1], &drivebasePIDParams[2]);
+PID *leftdrivebasePIDController = new PID(&drivebasePIDParams[0], &drivebasePIDParams[1], &drivebasePIDParams[2]);
+PID *strafePIDController = new PID(&strafePIDParams[0], &strafePIDParams[1], &strafePIDParams[2]);
+PID *turningPIDController = new PID(&turningPID[0], &turningPID[1], &turningPID[2]);
+PID *pointTurnPIDController = new PID(&pointTurnPIDParams[0], &pointTurnPIDParams[1], &pointTurnPIDParams[2]);
+
+void vector_tasks_fn(void *param)
+{
   lastposR = 0, currentposR = 0; // variables to hold right vertical tracking wheel encoder position, in intervals of 10 ms
   lastposL = 0, currentposL = 0; // variables to hold left vertical tracking wheel encoder position, in intervals of 10 ms
   lastposH = 0, currentposH = 0; // horizontal counterparts of above variables
-  newAngle = 0, lastAngle = 0; // angles taken by inertial sensor (IMU), in intervals of 20 ms
+  newAngle = 0, lastAngle = 0;   // angles taken by inertial sensor (IMU), in intervals of 20 ms
   // long double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
 
   while (true) // control loop
@@ -64,8 +43,8 @@ void vector_tasks_fn(void * param) {
     /*
      * Featuring imu averaging (more like imu domination)
      */
-    currentposR = verticalEncoder2.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
-    currentposL = verticalEncoder1.get_value() * vertToInch; // reverses vertical encoder, finds position and converts to inches
+    currentposR = verticalEncoder2.get_value() * vertToInch;  // reverses vertical encoder, finds position and converts to inches
+    currentposL = verticalEncoder1.get_value() * vertToInch;  // reverses vertical encoder, finds position and converts to inches
     currentposH = horizontalEncoder.get_value() * horiToInch; // same function as above, horizontal counterpart
 
     positionTracking robotPos(lastAngle, currentposH, lastposH, currentposL, lastposL, currentposR, lastposR); // creates a Position tracking class, where math is done.
@@ -88,8 +67,8 @@ void vector_tasks_fn(void * param) {
     lastposL = currentposL;
     // end of odom procedure
 
-    pros::lcd::print(0, "X: %f", globalX); // prints X coord on brain
-    pros::lcd::print(1, "Y: %f", globalY); // prints Y coord on brain
+    pros::lcd::print(0, "X: %f", globalX);   // prints X coord on brain
+    pros::lcd::print(1, "Y: %f", globalY);   // prints Y coord on brain
     pros::lcd::print(2, "I: %f", lastAngle); // prints angle on controller
     pros::lcd::print(3, "Iner: %f", inertial.get_rotation());
     pros::delay(20); // runs loop every 10ms
@@ -141,19 +120,25 @@ void descoreProcedureStatic(int time) //Static Descore Function with custom runt
 
 void descoreProcedureMoving(int numBalls) //descore function to be used in translationPID (while moving the robot)
 {
-  if (numBalls > 0) {
-    if (line_tracker1.get_value() <= INDEX_THRESHOLD) {
+  if (numBalls > 0)
+  {
+    if (line_tracker1.get_value() <= INDEX_THRESHOLD)
+    {
 
       indexer.move_velocity(200);
       shooter.move_velocity(-85);
       leftIntake.move_velocity(-85);
       rightIntake.move_velocity(85);
-    } else {
+    }
+    else
+    {
 
       indexer.move_velocity(-180);
       shooter.move_velocity(-160);
     }
-  } else {
+  }
+  else
+  {
 
     indexer.move_velocity(0);
     shooter.move_velocity(0);
@@ -172,23 +157,32 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBa
   if (numDescore > 0) // checks if balls are to be descored
   {
     descoreProcedureMoving(numDescore);
-  } else if (runIndexer) // indexing function
+  }
+  else if (runIndexer) // indexing function
   {
-    if (line_tracker1.get_value() > INDEX_THRESHOLD) {
+    if (line_tracker1.get_value() > INDEX_THRESHOLD)
+    {
 
       indexer.move_velocity(-200);
       shooter.move_velocity(10);
-    } else {
+    }
+    else
+    {
       shooter.move_velocity(0);
       shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
-      if (line_tracker2.get_value() > INDEX_THRESHOLD) {
+      if (line_tracker2.get_value() > INDEX_THRESHOLD)
+      {
         indexer.move_velocity(-180);
-      } else {
+      }
+      else
+      {
         indexer.move_velocity(0);
       }
     }
-  } else {
+  }
+  else
+  {
     indexer.move_velocity(0);
   }
 
@@ -198,7 +192,8 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBa
 void shootingProcedure(bool slowrun) // shooting function with boolean parameter dictating whether intakes are slowly run during the motion or not (to maintain grip on ball in goal)
 {
   int time = pros::millis();
-  while (line_tracker1.get_value() > INDEX_THRESHOLD && pros::millis() - time < 1000) {
+  while (line_tracker1.get_value() > INDEX_THRESHOLD && pros::millis() - time < 1000)
+  {
     // we do not have a ball properly indexed yet
     indexer.move_velocity(-200);
     shooter.move_velocity(20);
@@ -206,7 +201,8 @@ void shootingProcedure(bool slowrun) // shooting function with boolean parameter
   pros::delay(50);
   indexer.move_velocity(0);
   shooter.move_velocity(180);
-  if (slowrun) {
+  if (slowrun)
+  {
     leftIntake.move_velocity(60);
     rightIntake.move_velocity(-60);
   }
@@ -216,27 +212,37 @@ void shootingProcedure(bool slowrun) // shooting function with boolean parameter
 }
 
 // motion translation PROCEDURES
-void translationPID(long double x2, long double y2, long double heading, int time, int timeAllocated, bool runIntakes, bool runIndexer, bool runIntakesBackwards, int numDescore, double maxVolt) {
+void translationPID(long double x2, long double y2, long double heading, int time, int timeAllocated, bool runIntakes, bool runIndexer, bool runIntakesBackwards, int numDescore, double maxVolt)
+{
   int ballstoRemove = 0;
   int maxTime = 0;
-  if (line_tracker1.get_value() > INDEX_THRESHOLD) {
+  if (line_tracker1.get_value() > INDEX_THRESHOLD)
+  {
     maxTime = 500.0 * numDescore;
-  } else {
+  }
+  else
+  {
     maxTime = 550.0 * numDescore;
   }
 
-  while (true) {
+  while (true)
+  {
     // Run the intaking indexing procedure if commanded to do so
 
-    if (runIntakes || runIndexer || runIntakesBackwards) {
+    if (runIntakes || runIndexer || runIntakesBackwards)
+    {
       if (pros::millis() - time < maxTime) // if maximum allocated time for descoring has not been used, continue to run descore function
       {
         ballstoRemove = numDescore;
-      } else {
+      }
+      else
+      {
         ballstoRemove = 0;
       }
       intakeIndexingProcedure(runIntakes, runIndexer, runIntakesBackwards, ballstoRemove);
-    } else {
+    }
+    else
+    {
       leftIntake.move_velocity(0);
       rightIntake.move_velocity(0);
       indexer.move_velocity(0);
@@ -327,27 +333,28 @@ void translationPID(long double x2, long double y2, long double heading, int tim
     /*********/
 
     // [Y COMPONENT] Forward Backward (relative to heading) voltage output
-    long double yVoltageLeft = leftdrivebasePIDController -> update(leftDest, verticalEncoder1.get_value(), -1);
-    long double yVoltageRight = rightdrivebasePIDController -> update(rightDest, verticalEncoder2.get_value(), -1);
+    long double yVoltageLeft = leftdrivebasePIDController->update(leftDest, verticalEncoder1.get_value(), -1);
+    long double yVoltageRight = rightdrivebasePIDController->update(rightDest, verticalEncoder2.get_value(), -1);
     cout << "FB Volt: " << yVoltageLeft << ' ' << yVoltageRight << '\n';
 
     // [X COMPONENT] Side to side (relative to heading) voltage output
-    long double xVoltage = strafePIDController -> update(horizontalDest, horizontalEncoder.get_value(), -1);
+    long double xVoltage = strafePIDController->update(horizontalDest, horizontalEncoder.get_value(), -1);
     cout << "H Volt: " << xVoltage << '\n';
     pros::lcd::set_text(5, "lDest: " + to_string(leftDest));
     pros::lcd::set_text(6, "rDest: " + to_string(rightDest));
     pros::lcd::set_text(7, "hDest: " + to_string(horizontalDest));
 
     // [ANGLE] Heading correction voltage output
-    long double angleVoltageLeft = turningPIDController -> update(heading, lastAngle, -1);
-    long double angleVoltageRight = -turningPIDController -> update(heading, lastAngle, -1);
+    long double angleVoltageLeft = turningPIDController->update(heading, lastAngle, -1);
+    long double angleVoltageRight = -turningPIDController->update(heading, lastAngle, -1);
     cout << "Ang Volt: " << angleVoltageLeft << ' ' << angleVoltageRight << '\n';
 
     // to allow for a smoother acceleration gradient, time is considered in scaling the voltage outputs
     // so we limit speed the robot can travel in the first accelerationTime ms of acceleration
     long double currentTime = pros::millis() - time;
     long double coefTime = 1.0;
-    if (currentTime < accelerationTime) {
+    if (currentTime < accelerationTime)
+    {
       coefTime = sqrt(currentTime) / sqrt(accelerationTime);
     }
 
@@ -358,13 +365,12 @@ void translationPID(long double x2, long double y2, long double heading, int tim
     long double finalVoltageRightBack = -(yVoltageRight + xVoltage + angleVoltageRight) * coefTime;
 
     // As we do not want to send voltages higher than MAX_VOLTAGE to the motors, scale all of the motors accordingly
-    long double maxOutput = max({
-      finalVoltageLeftFront,
-      finalVoltageLeftBack,
-      finalVoltageRightFront,
-      finalVoltageRightBack
-    });
-    if (maxOutput > maxVolt) {
+    long double maxOutput = max({finalVoltageLeftFront,
+                                 finalVoltageLeftBack,
+                                 finalVoltageRightFront,
+                                 finalVoltageRightBack});
+    if (maxOutput > maxVolt)
+    {
       long double scaling = maxVolt / maxOutput; // scale down all of the motor outputs by a fraction >= 0 < 1 such that the max voltage does not exceed MAX_VOLTAGE
       finalVoltageLeftFront *= scaling;
       finalVoltageLeftBack *= scaling;
@@ -376,7 +382,8 @@ void translationPID(long double x2, long double y2, long double heading, int tim
 
     // Stop the robot when the maximum allowed time is reached
 
-    if (pros::millis() - time >= timeAllocated) {
+    if (pros::millis() - time >= timeAllocated)
+    {
       cout << "PID STOPPED" << '\n';
       leftFront.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
       rightFront.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
@@ -408,18 +415,21 @@ void translationPID(long double x2, long double y2, long double heading, int tim
 }
 
 //pid function made for turning: it takes in 2 arguments, the angle you want to turn to and the direction in which you are turning
-void turnPID(long double targetAngle, int time, int timeAllocated) {
+void turnPID(long double targetAngle, int time, int timeAllocated)
+{
   //while loop initiating the PID function
-  while (true) {
+  while (true)
+  {
     // [ANGLE] Heading correction voltage output
-    long double angleVoltageLeft = pointTurnPIDController -> update(targetAngle, lastAngle, -1);
-    long double angleVoltageRight = pointTurnPIDController -> update(targetAngle, lastAngle, -1);
+    long double angleVoltageLeft = pointTurnPIDController->update(targetAngle, lastAngle, -1);
+    long double angleVoltageRight = pointTurnPIDController->update(targetAngle, lastAngle, -1);
     pros::lcd::set_text(5, "Ang: " + to_string(lastAngle));
     leftFront.move_voltage(angleVoltageLeft);
     leftBack.move_voltage(angleVoltageLeft);
     rightFront.move_voltage(angleVoltageRight);
     rightBack.move_voltage(angleVoltageRight);
-    if (pros::millis() - time > timeAllocated) {
+    if (pros::millis() - time > timeAllocated)
+    {
       cout << "PID STOPPED" << '\n';
       leftFront.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
       rightFront.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
@@ -436,10 +446,10 @@ void turnPID(long double targetAngle, int time, int timeAllocated) {
   }
 }
 
-void autonomous() {
+void autonomous()
+{
 
-  pros::Task position_task(vector_tasks_fn, (void * )
-    "PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT, "Print X and Y Task");
+  pros::Task position_task(vector_tasks_fn, (void *)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT, "Print X and Y Task");
 
   deploy(); //DEPLOY AT BEGINNING OF PROGRAMMING SKILLS
 
@@ -448,7 +458,7 @@ void autonomous() {
   translationPID(15.0, 35.0, -pi / 4.0, pros::millis(), 1100, true, true, false, 0, 010000);
   translationPID(6.5, 42.0, -pi / 4.0, pros::millis(), 800, false, false, false, 0, 9000);
   shootingProcedure(false);
-  // 
+  //
   //2ND GOAL CODE
   translationPID(12.5, 34.0, lastAngle, pros::millis(), 600, false, true, false, 0, 8600);
   turnPID(pi / 4.0, pros::millis(), 600);

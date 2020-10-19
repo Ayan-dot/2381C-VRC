@@ -1,3 +1,16 @@
+/*
+  ___  ____   ___  __  _____ 
+ |__ \|___ \ / _ \/_ |/ ____|
+    ) | __) | (_) || | |     
+   / / |__ < > _ < | | |     
+  / /_ ___) | (_) || | |____ 
+ |____|____/ \___/ |_|\_____|
+
+All code is the property of 2381C, Kernel Bye. ANY UNAUTHORIZED REPRODUCTION
+OR DISTRIBUTION OF THIS CODE IS STRICTLY FORBIDDEN. Please contact team 2381C
+directly with any questions, concerns or suggestions you may have.
+*/
+
 #include "main.h"
 #include "globals.hpp"
 #include <cmath>
