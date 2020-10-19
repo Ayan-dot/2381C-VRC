@@ -1,3 +1,16 @@
+/*
+  ___  ____   ___  __  _____ 
+ |__ \|___ \ / _ \/_ |/ ____|
+    ) | __) | (_) || | |     
+   / / |__ < > _ < | | |     
+  / /_ ___) | (_) || | |____ 
+ |____|____/ \___/ |_|\_____|
+
+All code is the property of 2381C, Kernel Bye. ANY UNAUTHORIZED REPRODUCTION
+OR DISTRIBUTION OF THIS CODE IS STRICTLY FORBIDDEN. Please contact team 2381C
+directly with any questions, concerns or suggestions you may have.
+*/
+
 #include "main.h"
 #include "globals.hpp"
 #include <cmath>
@@ -6,24 +19,24 @@ using namespace std;
 
 enum DIRECTION
 {
-  FORWARD,
-  REVERSE,
-  LEFT,
-  RIGHT,
-  LEFT_FORWARD,
-  LEFT_BACK,
-  RIGHT_FORWARD,
-  RIGHT_BACK,
-  TRANS_UP,
-  TRANS_DOWN
+    FORWARD,
+    REVERSE,
+    LEFT,
+    RIGHT,
+    LEFT_FORWARD,
+    LEFT_BACK,
+    RIGHT_FORWARD,
+    RIGHT_BACK,
+    TRANS_UP,
+    TRANS_DOWN
 };
 
 class motion
 {
 private:
     long double desiredAngle = 0, distanceMove = 0;
-    DIRECTION turn;
     long double diffx = 0, diffy = 0;
+    DIRECTION turn;
 
 public:
     motion(long double currentX, long double currentY, long double moveX, long double moveY)
@@ -50,7 +63,7 @@ class positionTracking
 {
 private:
     long double angle = 0;
-    long double L,R,B = 0;
+    long double L, R, B = 0;
     long double halfang = 0;
     long double globalang = 0;
     long double h = 0;
@@ -64,16 +77,16 @@ public:
         L = currentYL - lastYL;
         R = currentYR - lastYR;
 
-        angle = (L-R) / (verticalOffset1+verticalOffset2);
+        angle = (L - R) / (verticalOffset1 + verticalOffset2);
         // arc length formula: r (theta) = s
         // theta = s / r
-        //angle = B / horizontalOffset;
+        // angle = B / horizontalOffset;
 
         if (angle != 0)
         {
             halfang = angle / 2.0;
             h = 2.0 * sin(halfang) * (((R) / angle) + verticalOffset2);
-            h2 = 2.0 * sin(halfang) * (((B) / angle)+ horizontalOffset);
+            h2 = 2.0 * sin(halfang) * (((B) / angle) + horizontalOffset);
         }
         else
         {
@@ -99,42 +112,8 @@ public:
     {
         return yplacehold;
     }
-    long double returnOrient(){
+    long double returnOrient()
+    {
         return globalang;
     }
 };
-// class turnCorrection
-// {
-// private:
-// long double factor = 0;
-// long double correction = 0;
-// long double L_adj = 0, R_adj = 0;
-
-// PID* adjustmentPIDController = new PID(
-//     &adjustmentPIDParams[0],
-//     &adjustmentPIDParams[1],
-//     &adjustmentPIDParams[2]);
-
-// public:
-//     turnCorrection(long double reqAng)
-//     {
-//     if(inertial.get_rotation!=reqAng){
-//      correction = inertial.get_rotation - reqAng;
-//         while(correction>0){
-//         factor = adjustmentPIDController->update(correction,0);
-//         R_adj = factor;
-//     }
-//         while(correction<0){
-//         factor = adjustmentPIDController->update(correction, 0);
-//         L_adj = factor;
-//         }
-
-// }
-//     }
-//     long double returnR(){
-//         return R_adj;
-//     }
-//     long double returnL(){
-//         return L_adj;
-//     }
-// };
