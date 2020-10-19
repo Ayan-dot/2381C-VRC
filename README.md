@@ -35,7 +35,7 @@ Team 2381C is a small team from Colonel By Secondary School, in Ottawa, Ontario.
 
 ## Odometry
 
-Our main goal with programming this year was to implement odometry to increase our performance in the autonomous and programming skills periods. We’d like to thank team [5225A](thepilons.ca) for open-sourcing their odometry code from In The Zone, which was tremendously helpful for the creation of this codebase. Here’s a 115 points programming skills run we were able to achieve with odometry:
+Our main goal with programming this year was to implement robot position tracking to ameliorate our performance in the autonomous and programming skills periods. We’d like to thank team [5225A](thepilons.ca) for open-sourcing their odometry code from In The Zone, which was tremendously helpful for the creation of this codebase. Here’s a 115 points programming skills run we were able to achieve with odometry:
 
 <p align="center">
 	<a href="https://www.youtube.com/watch?v=R2jROKa9MXg" target="_blank">
@@ -43,6 +43,11 @@ Our main goal with programming this year was to implement odometry to increase o
 		alt="2381C Change Up Robot Reveal" width="600" height="400" border="10" />
 	</a>
 </p>
+
+Our odometry loop relies on the modelling of robot motion as 2 distinct arcs, and mapping motions through vector motion on a 2d coordinate plane. For more insight into the function, please check the posTracking.cpp file in our /src folder. 
+
+## Motion Profiling
+Our autonomous routines rely on a combination of odometry and motion profiling, the latter of which is reliant on PID (Proportional Integral Derivative) loops to control our regular/strafe motion. 
 
 ## Contributing
 
