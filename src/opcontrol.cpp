@@ -83,7 +83,7 @@ void opcontrol()
         }
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)) {
-          leftIntake.move_velocity(200);
+
         }
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
           rightIntake.move_velocity(-200);
@@ -101,6 +101,7 @@ void opcontrol()
             shooter.move_velocity(10);
           } else {
             shooter.move_velocity(0);
+            shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
             if (line_tracker2.get_value() > INDEX_THRESHOLD) {
               indexer.move_velocity(-200);
             }
