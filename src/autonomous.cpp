@@ -451,6 +451,9 @@ void autonomous()
 
   pros::Task position_task(vector_tasks_fn, (void *)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT, "Print X and Y Task");
 
+
+
+  // The code below lists the procedurally called functions used to run our 120 point programming skills
   deploy(); //DEPLOY AT BEGINNING OF PROGRAMMING SKILLS
 
   //1ST GOAL CODE
@@ -495,16 +498,17 @@ void autonomous()
   translationPID(118.0, -12.0, pi / 2.0, pros::millis(), 20, true, true, false, 0, 8600);
   //
   //5TH GOAL CODE
-  translationPID(103.0, -12.0, lastAngle, pros::millis(), 400, true, true, false, 0, 8600);
+  translationPID(100.0, -12.0, pi/2.0, pros::millis(), 400, false, true, true, 0, 8600);
   turnPID(pi, pros::millis(), 600);
   translationPID(109.0, -55.0, pi / 2.0 + pi / 4.0, pros::millis(), 1700, true, true, false, 1, 10000);
   translationPID(120.0, -68.7, pi / 2.0 + pi / 4.0, pros::millis(), 1000, false, false, false, 0, 8600);
+  translationPID(120.0, -68.7, pi / 2.0 + pi / 4.0, pros::millis(), 600, true, true, false, 0, 8600);
   shootingProcedure(false);
   //
   //6TH GOAL CODE
   translationPID(109.0, -55.0, pi, pros::millis(), 800, false, false, false, 0, 10000);
   turnPID(pi + pi / 2.0, pros::millis(), 600);
-  translationPID(64.0, -60.0, lastAngle, pros::millis(), 1500, true, true, false, 0, 8600);
+  translationPID(64.0, -60.0, lastAngle, pros::millis(), 1500, true, true, false, 2, 8600);
   translationPID(63.0, -57.0, lastAngle, pros::millis(), 300, true, true, false, 0, 10500);
   turnPID(pi, pros::millis(), 400);
   translationPID(62.5, -69.0, pi, pros::millis(), 600, true, false, false, 0, 8600);
