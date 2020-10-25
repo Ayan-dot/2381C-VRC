@@ -10,49 +10,43 @@ All code is the property of 2381C, Kernel Bye. ANY UNAUTHORIZED REPRODUCTION
 OR DISTRIBUTION OF THIS CODE IS STRICTLY FORBIDDEN. Please contact team 2381C
 directly with any questions, concerns or suggestions you may have.
 */
+#ifndef PID_H_
+#define PID_H_
 
-#include "main.h"
-#include "pros/api_legacy.h"
-#include <array>
-#include "pid.hpp"
-
-PID::PID(long double *kp, long double *ki, long double *kd)
+class PID
 {
-  kp_ = kp;
-  ki_ = ki;
-  kd_ = kd;
-  resetError();
-}
+public:
+  /**
+   * Constructor
+   * Accepts the kp, ki, and kd to determine the correction value
+   * Defaults to (0,0,0)
+   */
+  PID(long double *kp = 0, long double *ki = 0, long double *kd = 0);
+  /**
+   * Resets the error counts. It should be called when the PID loop is not
+   * active to prevent integral windup.
+   */
+  void resetError();
 
-void PID::resetError()
-{
-  error_sum_ = 0.0;
-  last_error_ = 0.0;
-}
+  // Summation of errors used in the integral term
+  double error_sum_;
 
-long double PID::update(long double setpoint, long double current_value, long double integral_active_zone)
-{
-  long double error = setpoint - current_value;
-  long double errorDifference = error - last_error_;
+  // The last error value to find the difference with the current error value
+  // for the derivative term.
+  double last_error_;
 
-  last_error_ = error;
-  error_sum_ += (abs((int)error) < integral_active_zone ? error : 0.0);
+  /**
+   * Returns the output of the PID controller correcting the input.
+   * @param setpoint The current setpoint value
+   * @param current_value The current value that will be compared with the setpoint
+   */
+  double update(double setpoint, double current_value);
 
-  long double proportionalError = *kp_ * error;
-  long double integralError = (abs((int)error) < integral_active_zone ? *ki_ * error_sum_ : 0);
-  long double derivativeError = *kd_ * errorDifference;
+private:
+  // PID constants (Proportional (P), Integral (I), Derivative (D))
+  double *kp_;
+  double *ki_;
+  double *kd_;
+};
 
-  long double total = proportionalError + integralError + derivativeError;
-
-  // set a maximum threshold for the motor voltage
-
-  // if (abs((int)total) > 9000) {
-  //   if (total < 0) {
-  //     total = -9000;
-  //   } else {
-  //     total = 9000;
-  //   }
-  // }
-
-  return total;
-}
+#endif // !PID_H_

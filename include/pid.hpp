@@ -22,7 +22,7 @@ public:
    * Accepts the kp, ki, and kd to determine the correction value
    * Defaults to (0,0,0)
    */
-  PID(double *kp = 0, double *ki = 0, double *kd = 0);
+  PID(long double *kp = 0, long double *ki = 0, long double *kd = 0);
   /**
    * Resets the error counts. It should be called when the PID loop is not
    * active to prevent integral windup.

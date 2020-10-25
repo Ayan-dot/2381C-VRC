@@ -333,20 +333,20 @@ void translationPID(long double x2, long double y2, long double heading, int tim
     /*********/
 
     // [Y COMPONENT] Forward Backward (relative to heading) voltage output
-    long double yVoltageLeft = leftdrivebasePIDController->update(leftDest, verticalEncoder1.get_value(), -1);
-    long double yVoltageRight = rightdrivebasePIDController->update(rightDest, verticalEncoder2.get_value(), -1);
+    long double yVoltageLeft = leftdrivebasePIDController->update(leftDest, verticalEncoder1.get_value());
+    long double yVoltageRight = rightdrivebasePIDController->update(rightDest, verticalEncoder2.get_value());
     cout << "FB Volt: " << yVoltageLeft << ' ' << yVoltageRight << '\n';
 
     // [X COMPONENT] Side to side (relative to heading) voltage output
-    long double xVoltage = strafePIDController->update(horizontalDest, horizontalEncoder.get_value(), -1);
+    long double xVoltage = strafePIDController->update(horizontalDest, horizontalEncoder.get_value());
     cout << "H Volt: " << xVoltage << '\n';
     pros::lcd::set_text(5, "lDest: " + to_string(leftDest));
     pros::lcd::set_text(6, "rDest: " + to_string(rightDest));
     pros::lcd::set_text(7, "hDest: " + to_string(horizontalDest));
 
     // [ANGLE] Heading correction voltage output
-    long double angleVoltageLeft = turningPIDController->update(heading, lastAngle, -1);
-    long double angleVoltageRight = -turningPIDController->update(heading, lastAngle, -1);
+    long double angleVoltageLeft = turningPIDController->update(heading, lastAngle);
+    long double angleVoltageRight = -turningPIDController->update(heading, lastAngle);
     cout << "Ang Volt: " << angleVoltageLeft << ' ' << angleVoltageRight << '\n';
 
     // to allow for a smoother acceleration gradient, time is considered in scaling the voltage outputs
@@ -421,8 +421,8 @@ void turnPID(long double targetAngle, int time, int timeAllocated)
   while (true)
   {
     // [ANGLE] Heading correction voltage output
-    long double angleVoltageLeft = pointTurnPIDController->update(targetAngle, lastAngle, -1);
-    long double angleVoltageRight = pointTurnPIDController->update(targetAngle, lastAngle, -1);
+    long double angleVoltageLeft = pointTurnPIDController->update(targetAngle, lastAngle);
+    long double angleVoltageRight = pointTurnPIDController->update(targetAngle, lastAngle);
     pros::lcd::set_text(5, "Ang: " + to_string(lastAngle));
     leftFront.move_voltage(angleVoltageLeft);
     leftBack.move_voltage(angleVoltageLeft);
