@@ -1,6 +1,6 @@
 # 2381C Change Up Codebase
 
-This repository was created as part of the VEX VRC Change Up Competition for the 2020-2021 competition season. Mainly, the programming aspect of the competition consists of coding:
+This repository was created as part of the VEX VRC Change Up Competition for the 2020-2021 competition season, using PROS V5 as our coding platform. Mainly, the programming aspect of the competition consists of coding:
 
 - driver control (including macros for driving); and
 - a reliable drive pathway for the autonomous sequence and programming skills.
@@ -12,8 +12,10 @@ This repository belongs to team 2381C from Colonel By Secondary School (Ottawa, 
 ## Table of Contents
 
 1. [About](#about)
-2. [Odometry](#odometry)
-3. [Contributing](#contributing)
+2. [Mathematics and Theory](#mathematicsandtheory)
+3. [Odometry](#odometry)
+4. [Motion](#motionprofiling)
+5. [Contributing](#contributing)
 
 <a name="headers"/>
 
@@ -33,8 +35,11 @@ Team 2381C is a small team from Colonel By Secondary School, in Ottawa, Ontario.
 - https://www.robotevents.com/teams/VRC/2381C (our RobotEvents profile)
 - https://www.youtube.com/channel/UCHB6SeUT8tRKPbdgq9At18w (our YouTube channel)
 
-## Odometry
+## Mathematics and Theory
+All the mathematics behind our custom motion algorithm state function, as well as odometry, is documented in extensive detail in our paper, which can be read here:
+https://drive.google.com/file/d/1rogHSYbN24aIZ59ZjxgOQ-HCpfFKR6Uc/view?usp=sharing
 
+## Odometry
 Our main goal with programming this year was to implement robot position tracking to ameliorate our performance in the autonomous and programming skills periods. We’d like to thank team [5225A](thepilons.ca) for open-sourcing their odometry code from In The Zone, which was tremendously helpful for the creation of this codebase. Here’s a 115 points programming skills run we were able to achieve with odometry:
 
 <p align="center">
