@@ -10,24 +10,43 @@ All code is the property of 2381C, Kernel Bye. ANY UNAUTHORIZED REPRODUCTION
 OR DISTRIBUTION OF THIS CODE IS STRICTLY FORBIDDEN. Please contact team 2381C
 directly with any questions, concerns or suggestions you may have.
 */
-
 #include "main.h"
 #include "posTracking.cpp"
 #include "globals.hpp"
 #include <array>
 #include "pid.hpp"
 
+long double currentx = 0, currenty = 0;
+
+//initation of array pointer values
+PID *rightdrivebasePIDController = new PID(
+    &drivebasePIDParams[0],
+    &drivebasePIDParams[1],
+    &drivebasePIDParams[2]);
+
+PID *leftdrivebasePIDController = new PID(
+    &drivebasePIDParams[0],
+    &drivebasePIDParams[1],
+    &drivebasePIDParams[2]);
+
+PID *strafePIDController = new PID(
+    &strafePIDParams[0],
+    &strafePIDParams[1],
+    &strafePIDParams[2]);
+
+PID *turningPIDController = new PID(
+    &turningPID[0],
+    &turningPID[1],
+    &turningPID[2]);
+
+PID *pointTurnPIDController = new PID(
+    &pointTurnPIDParams[0],
+    &pointTurnPIDParams[1],
+    &pointTurnPIDParams[2]);
+
 // ODOM TASK
 // make the global information on location and heading GLOBAL in this file
 long double lastposR, currentposR, lastposL, currentposL, lastposH, currentposH, newAngle, lastAngle;
-long double currentx = 0, currenty = 0;
-
-// initializing of array pointer values
-PID *rightdrivebasePIDController = new PID(&drivebasePIDParams[0], &drivebasePIDParams[1], &drivebasePIDParams[2]);
-PID *leftdrivebasePIDController = new PID(&drivebasePIDParams[0], &drivebasePIDParams[1], &drivebasePIDParams[2]);
-PID *strafePIDController = new PID(&strafePIDParams[0], &strafePIDParams[1], &strafePIDParams[2]);
-PID *turningPIDController = new PID(&turningPID[0], &turningPID[1], &turningPID[2]);
-PID *pointTurnPIDController = new PID(&pointTurnPIDParams[0], &pointTurnPIDParams[1], &pointTurnPIDParams[2]);
 
 void vector_tasks_fn(void *param)
 {
@@ -41,8 +60,8 @@ void vector_tasks_fn(void *param)
   {
     // ODOMETRY PROCEDURE //
     /*
-     * Featuring imu averaging (more like imu domination)
-     */
+        * Featuring imu averaging (more like imu domination)
+        */
     currentposR = verticalEncoder2.get_value() * vertToInch;  // reverses vertical encoder, finds position and converts to inches
     currentposL = verticalEncoder1.get_value() * vertToInch;  // reverses vertical encoder, finds position and converts to inches
     currentposH = horizontalEncoder.get_value() * horiToInch; // same function as above, horizontal counterpart
@@ -75,7 +94,7 @@ void vector_tasks_fn(void *param)
   }
 }
 
-void deploy() //deploy macro to be used in autonomous routines
+void deploy() // deploy function (used at the beginning of autonomous)
 {
   leftFront.move_velocity(160);
   leftBack.move_velocity(160);
@@ -95,9 +114,10 @@ void deploy() //deploy macro to be used in autonomous routines
   rightBack.move_velocity(0);
   shooter.move_velocity(0);
 }
-void descoreProcedureStatic(int time) //Static Descore Function with custom runtime parameter
-{
-  while (line_tracker1.get_value() <= INDEX_THRESHOLD) //failsafe for case when balls are loaded in shooting position
+
+void descoreProcedureStatic(int time) // descore function when robot is not moving (not undergoing translationPID)
+{ //time based static descore function
+  while (line_tracker1.get_value() <= INDEX_THRESHOLD)
   {
 
     indexer.move_velocity(200);
@@ -117,12 +137,11 @@ void descoreProcedureStatic(int time) //Static Descore Function with custom runt
   leftIntake.move_velocity(0);
   rightIntake.move_velocity(0);
 }
-
-void descoreProcedureMoving(int numBalls) //descore function to be used in translationPID (while moving the robot)
-{
-  if (numBalls > 0)
+void descoreProcedureMoving(int numBalls) // continuous descore function when robot is moving (undergoing translationPID)
+{ //continupus descore function (when moving)
+  if (numBalls >= 1)
   {
-    if (line_tracker1.get_value() <= INDEX_THRESHOLD)
+    if (line_tracker1.get_value() <= INDEX_THRESHOLD) // if balls are fully indexed, un-index them to avoid jamming
     {
 
       indexer.move_velocity(200);
@@ -146,23 +165,22 @@ void descoreProcedureMoving(int numBalls) //descore function to be used in trans
   return;
 }
 
-void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBackwards, int numDescore) // autoindexing procedure for intaking balls to the robot, as well as controlling functions related to conveyor
+void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBackwards, int numShot)
 {
-  if (runIntakes || runIntakesBackwards) // conditional to run intakes either forwards or backwards
+  if (runIntakes || runIntakesBackwards)
   {
-    leftIntake.move_velocity((runIntakes ? 200 : -100));
+    leftIntake.move_velocity((runIntakes ? 200 : -100)); // define intake movement speed
     rightIntake.move_velocity((runIntakes ? -200 : 100));
-    indexer.move_velocity((runIntakesBackwards ? 200 : 0));
   }
-  if (numDescore > 0) // checks if balls are to be descored
+  if (numShot > 0)
   {
-    descoreProcedureMoving(numDescore);
+    descoreProcedureMoving(numShot); // if balls to be shot are a non-zero number
   }
-  else if (runIndexer) // indexing function
+  else if (runIndexer)
   {
     if (line_tracker1.get_value() > INDEX_THRESHOLD)
     {
-
+      // we do not have a ball properly indexed yet
       indexer.move_velocity(-200);
       shooter.move_velocity(10);
     }
@@ -181,6 +199,10 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBa
       }
     }
   }
+  else if (runIntakesBackwards)
+  {
+    indexer.move_velocity(200);
+  }
   else
   {
     indexer.move_velocity(0);
@@ -189,7 +211,7 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBa
   return;
 }
 
-void shootingProcedure(bool slowrun) // shooting function with boolean parameter dictating whether intakes are slowly run during the motion or not (to maintain grip on ball in goal)
+void shootingProcedure(bool slowrun)
 {
   int time = pros::millis();
   while (line_tracker1.get_value() > INDEX_THRESHOLD && pros::millis() - time < 1000)
@@ -212,11 +234,12 @@ void shootingProcedure(bool slowrun) // shooting function with boolean parameter
 }
 
 // motion translation PROCEDURES
-void translationPID(long double x2, long double y2, long double heading, int time, int timeAllocated, bool runIntakes, bool runIndexer, bool runIntakesBackwards, int numDescore, double maxVolt)
+void translationPID(long double x2, long double y2, long double heading, int time, int timeAllocated, bool runIntakes, bool runIndexer, bool runIntakesBackwards, int numDescore, int numShoot, double maxVolt)
 {
-  int ballstoRemove = 0;
+  int ballShot = 0; //
+  int numBalls = numDescore;
   int maxTime = 0;
-  if (line_tracker1.get_value() > INDEX_THRESHOLD)
+  if (line_tracker1.get_value() > INDEX_THRESHOLD) // if the balls are not fully indexed (defining amount of time to descore)
   {
     maxTime = 500.0 * numDescore;
   }
@@ -229,17 +252,22 @@ void translationPID(long double x2, long double y2, long double heading, int tim
   {
     // Run the intaking indexing procedure if commanded to do so
 
-    if (runIntakes || runIndexer || runIntakesBackwards)
+    if (runIntakes || runIndexer || runIntakesBackwards) //if any intaking / conveying function is called
     {
-      if (pros::millis() - time < maxTime) // if maximum allocated time for descoring has not been used, continue to run descore function
+      if (pros::millis() - time < maxTime) // as long as max time for descore is not exceeded
       {
-        ballstoRemove = numDescore;
+        numBalls = numDescore; //continue to set the descore variable to a non-zero value
       }
       else
       {
-        ballstoRemove = 0;
+        numBalls = 0;
       }
-      intakeIndexingProcedure(runIntakes, runIndexer, runIntakesBackwards, ballstoRemove);
+      intakeIndexingProcedure(runIntakes, runIndexer, runIntakesBackwards, numBalls);
+      if (ballShot < numShoot) // if the number of balls to shoot is greater than the balls already shot
+      {
+        shootingProcedure(false);
+        ballShot++;
+      }
     }
     else
     {
@@ -365,10 +393,7 @@ void translationPID(long double x2, long double y2, long double heading, int tim
     long double finalVoltageRightBack = -(yVoltageRight + xVoltage + angleVoltageRight) * coefTime;
 
     // As we do not want to send voltages higher than MAX_VOLTAGE to the motors, scale all of the motors accordingly
-    long double maxOutput = max({finalVoltageLeftFront,
-                                 finalVoltageLeftBack,
-                                 finalVoltageRightFront,
-                                 finalVoltageRightBack});
+    long double maxOutput = max({finalVoltageLeftFront, finalVoltageLeftBack, finalVoltageRightFront, finalVoltageRightBack});
     if (maxOutput > maxVolt)
     {
       long double scaling = maxVolt / maxOutput; // scale down all of the motor outputs by a fraction >= 0 < 1 such that the max voltage does not exceed MAX_VOLTAGE
@@ -449,107 +474,110 @@ void turnPID(long double targetAngle, int time, int timeAllocated)
 void autonomous()
 {
 
+  // The lines below are a combination of functions that have been used to create our 120 point programming skills run. 
   pros::Task position_task(vector_tasks_fn, (void *)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT, "Print X and Y Task");
+  //PRERUN
+  deploy();
+  // 
 
-
-
-  // The code below lists the procedurally called functions used to run our 120 point programming skills
-  deploy(); //DEPLOY AT BEGINNING OF PROGRAMMING SKILLS
-
-  //1ST GOAL CODE
-  translationPID(15.0, 3.0, lastAngle, pros::millis(), 1000, false, false, false, 0, 8600);
-  translationPID(15.0, 35.0, -pi / 4.0, pros::millis(), 1100, true, true, false, 0, 010000);
-  translationPID(6.5, 42.0, -pi / 4.0, pros::millis(), 800, false, false, false, 0, 9000);
+  //GOAL 1 PROCEDURE
+  translationPID(15.0, 3.0, lastAngle, pros::millis(), 1000, false, false, false, 0, 0, 8600);
+  translationPID(15.0, 35.0, -pi / 4.0, pros::millis(), 1100, true, true, false, 0, 0, 10000);
+  translationPID(6.5, 42.0, -pi / 4.0, pros::millis(), 800, false, false, false, 0, 0, 9000);
   shootingProcedure(false);
   //
-  //2ND GOAL CODE
-  translationPID(12.5, 34.0, lastAngle, pros::millis(), 600, false, true, false, 0, 8600);
+  //GOAL 2 PROCEDURE
+  translationPID(12.5, 34.0, lastAngle, pros::millis(), 600, false, true, false, 0, 0, 8600);
   turnPID(pi / 4.0, pros::millis(), 600);
-  translationPID(18.0, 43.0, pi / 5.8, pros::millis(), 800, true, true, false, 0, 10000);
+  translationPID(18.0, 43.0, pi / 5.8, pros::millis(), 800, true, true, false, 0, 0, 10000);
   turnPID(pi / 2.0, pros::millis(), 400);
-  translationPID(45.0, 34.0, pi / 2.0, pros::millis(), 1000, true, true, false, 0, 10000);
-  translationPID(63.0, 33.0, pi / 2.0, pros::millis(), 900, true, false, false, 0, 10000);
+  translationPID(45.0, 34.0, pi / 2.0, pros::millis(), 1000, true, true, false, 0, 0, 10000);
+  translationPID(63.0, 33.0, pi / 2.0, pros::millis(), 900, true, false, false, 0, 0, 10000);
   turnPID(0.0, pros::millis(), 600);
-  translationPID(63.0, 39.0, lastAngle, pros::millis(), 600, true, true, false, 0, 8600);
+  translationPID(63.0, 39.0, lastAngle, pros::millis(), 600, true, true, false, 0, 0, 8600);
   shootingProcedure(false);
   shootingProcedure(false);
   //
-  //3RD GOAL CODE
-  translationPID(63.0, 25.0, pi / 4.3, pros::millis(), 1100, false, false, false, 0, 10000);
-  translationPID(90.5, 44.0, lastAngle, pros::millis(), 1800, true, true, false, 0, 10000);
-  translationPID(117.0, 38.0, pi / 3.9, pros::millis(), 900, true, true, false, 0, 10000);
-  translationPID(119.0, 45.0, pi / 4.0, pros::millis(), 700, false, false, false, 0, 10000);
+  //GOAL 3 PROCEDURE
+  translationPID(63.0, 25.0, pi / 4.3, pros::millis(), 1100, false, false, false, 0, 0, 10000);
+  translationPID(89.5, 44.0, pi / 4.4, pros::millis(), 1800, true, true, false, 0, 0, 10000);
+  translationPID(117.0, 38.0, pi / 3.9, pros::millis(), 900, true, true, false, 0, 0, 10000);
+  translationPID(119.0, 45.0, pi / 4.0, pros::millis(), 700, false, false, false, 0, 0, 10000);
+  shootingProcedure(false);
   shootingProcedure(true);
-  shootingProcedure(true);
-  translationPID(119.0, 45.0, pi / 4.0, pros::millis(), 260, true, true, false, 0, 10000);
-  //
-  //4TH GOAL CODE
-  translationPID(103.0, 46.0, pi / 4.0, pros::millis(), 600, false, false, false, 0, 10000);
+  translationPID(119.0, 45.0, pi / 4.0, pros::millis(), 720, true, true, false, 0, 0, 10000);
+  translationPID(100.0, 43.0, pi / 2.0, pros::millis(), 500, false, false, false, 0, 0, 10000);
   turnPID(pi, pros::millis(), 700);
   descoreProcedureStatic(950);
-  translationPID(110.0, 45.0, lastAngle, pros::millis(), 600, false, false, false, 1, 10000);
-  translationPID(110.0, 10.0, pi + pi / 4.0, pros::millis(), 1200, true, true, false, 0, 8600);
-  translationPID(81.0, -15.5, pi + pi / 4.0, pros::millis(), 1200, true, true, false, 0, 8600);
-  turnPID(pi / 2.0, pros::millis(), 600);
-  translationPID(112.0, -12.0, pi / 2.0, pros::millis(), 1000, true, true, false, 0, 8600);
-  translationPID(118.0, -12.0, pi / 2.0, pros::millis(), 300, false, false, false, 0, 8600);
+  //
+  //GOAL 4 PROCEDURE
+  translationPID(111.0, 45.0, lastAngle, pros::millis(), 100, false, false, false, 1, 0, 10000);
+  translationPID(110.0, 10.0, pi + pi / 4.0, pros::millis(), 1200, true, true, false, 0, 0, 8600);
+  translationPID(81.0, -15.5, pi + pi / 4.0, pros::millis(), 1200, true, true, false, 0, 0, 8600);
+  turnPID(pi / 2.0, pros::millis(), 800);
+  translationPID(112.0, -12.0, pi / 2.0, pros::millis(), 1000, true, true, false, 0, 0, 8600);
+  translationPID(118.0, -12.0, pi / 2.0, pros::millis(), 300, false, false, false, 0, 0, 8600);
   shootingProcedure(false);
   shootingProcedure(true);
-  translationPID(118.0, -12.0, pi / 2.0, pros::millis(), 20, true, true, false, 0, 8600);
   //
-  //5TH GOAL CODE
-  translationPID(100.0, -12.0, pi/2.0, pros::millis(), 400, false, true, true, 0, 8600);
+  //GOAL 5 PROCEDURE
+  translationPID(118.0, -12.0, pi / 2.0, pros::millis(), 0, true, true, false, 0, 0, 8600);
+  translationPID(103.0, -12.0, lastAngle, pros::millis(), 400, true, true, false, 0, 0, 8600);
   turnPID(pi, pros::millis(), 600);
-  translationPID(109.0, -55.0, pi / 2.0 + pi / 4.0, pros::millis(), 1700, true, true, false, 1, 10000);
-  translationPID(120.0, -68.7, pi / 2.0 + pi / 4.0, pros::millis(), 1000, false, false, false, 0, 8600);
-  translationPID(120.0, -68.7, pi / 2.0 + pi / 4.0, pros::millis(), 600, true, true, false, 0, 8600);
+  translationPID(110.0, -55.0, pi / 2.0 + pi / 4.0, pros::millis(), 1700, true, true, false, 1, 0, 10000);
+  translationPID(120.0, -68.7, pi / 2.0 + pi / 4.0, pros::millis(), 1000, false, false, false, 0, 0, 8600);
+  translationPID(120.0, -70.5, pi / 2.0 + pi / 4.0, pros::millis(), 800, true, true, false, 0, 0, 8600);
   shootingProcedure(false);
   //
-  //6TH GOAL CODE
-  translationPID(109.0, -55.0, pi, pros::millis(), 800, false, false, false, 0, 10000);
+  //GOAL 6 PROCEDURE
+  translationPID(109.0, -55.0, pi, pros::millis(), 800, false, false, false, 0, 0, 10000);
   turnPID(pi + pi / 2.0, pros::millis(), 600);
-  translationPID(64.0, -60.0, lastAngle, pros::millis(), 1500, true, true, false, 2, 8600);
-  translationPID(63.0, -57.0, lastAngle, pros::millis(), 300, true, true, false, 0, 10500);
+  translationPID(64.0, -60.0, lastAngle, pros::millis(), 1500, true, true, false, 2, 0, 8600);
+  translationPID(63.0, -55.0, lastAngle, pros::millis(), 300, true, true, false, 0, 0, 10500);
   turnPID(pi, pros::millis(), 400);
-  translationPID(62.5, -69.0, pi, pros::millis(), 600, true, false, false, 0, 8600);
+  translationPID(62.5, -69.0, pi, pros::millis(), 600, true, false, false, 0, 0, 8600);
   shootingProcedure(true);
-  translationPID(64.0, -55.0, pi, pros::millis(), 450, true, true, false, 0, 8600);
-  //
-  //7TH GOAL CODE
+  translationPID(64.0, -55.0, pi, pros::millis(), 450, true, true, false, 0, 0, 8600);
   turnPID(pi + pi / 4.0, pros::millis(), 330);
   descoreProcedureStatic(500);
-  translationPID(32.0, -70.0, pi + pi / 4.2, pros::millis(), 1400, true, true, false, 0, 10000);
-  translationPID(7.5, -64.0, pi + pi / 4.0, pros::millis(), 900, true, true, false, 0, 10000);
-  translationPID(5.0, -73.5, pi + pi / 4.1, pros::millis(), 600, false, false, false, 0, 10000);
-  shootingProcedure(true);
-  translationPID(5.5, -73.50, pi + pi / 4.1, pros::millis(), 800, true, true, false, 0, 8600);
-  translationPID(15.0, -70.0, lastAngle, pros::millis(), 900, false, true, false, 0, 8600);
   //
-  //8TH GOAL CODE
+  //GOAL 7 PROCEDURE
+  translationPID(32.0, -70.0, pi + pi / 4.2, pros::millis(), 1400, true, true, false, 0, 0, 10000);
+  translationPID(7.5, -64.0, pi + pi / 4.0, pros::millis(), 900, true, true, false, 0, 0, 10000);
+  translationPID(5.0, -73.5, pi + pi / 4.1, pros::millis(), 600, false, false, false, 0, 0, 10000);
+  shootingProcedure(true);
+  translationPID(5.5, -73.50, pi + pi / 4.1, pros::millis(), 700, true, true, false, 0, 0, 8600);
+  translationPID(15.0, -70.0, lastAngle, pros::millis(), 700, false, true, false, 0, 0, 8600);
   turnPID(2 * pi, pros::millis(), 700);
   descoreProcedureStatic(800);
-  translationPID(13.0, -38.0, 2 * pi + pi / 4.0, pros::millis(), 1350, true, true, false, 0, 10500);
-  translationPID(41.0, -5.0, 2 * pi + pi / 4.0, pros::millis(), 1350, true, true, false, 0, 10000);
-  turnPID(pi + pi / 2.0, pros::millis(), 700);
-  translationPID(10.0, -10.0, pi + pi / 2.0, pros::millis(), 1120, true, true, false, 0, 10000);
-  shootingProcedure(true);
-  shootingProcedure(true);
-  translationPID(10.0, -11.25, pi + pi / 2.0, pros::millis(), 50, true, true, false, 0, 10000);
   //
-  //9TH GOAL CODE
-  translationPID(25.0, -11.25, pi + pi / 2.0, pros::millis(), 700, false, true, false, 0, 10000);
+  //GOAL 8 PROCEDURE
+  translationPID(13.0, -38.0, 2 * pi + pi / 4.0, pros::millis(), 1350, true, true, false, 0, 0, 10500);
+  translationPID(41.0, -5.0, 2 * pi + pi / 4.0, pros::millis(), 1350, true, true, false, 0, 0, 10000);
+  turnPID(pi + pi / 2.0, pros::millis(), 800);
+  translationPID(11.25, -12.25, pi + pi / 2.0, pros::millis(), 1120, true, true, false, 0, 0, 10000);
+  shootingProcedure(true);
+  shootingProcedure(true);
+  translationPID(11.25, -12.25, pi + pi / 2.0, pros::millis(), 30, true, true, false, 0, 0, 10000);
+  translationPID(25.0, -12.25, pi + pi / 2.0, pros::millis(), 700, false, true, false, 0, 0, 10000);
   turnPID(2 * pi + pi / 4.0, pros::millis(), 500);
   descoreProcedureStatic(500);
-  translationPID(61.0, 13.0, 2 * pi + pi / 2.0, pros::millis(), 1200, true, true, false, 0, 10000);
+  //
+  //MIDDLE GOAL PROCEDURE
+  translationPID(61.0, 13.0, 2 * pi + pi / 2.0, pros::millis(), 1200, true, true, false, 0, 0, 10000);
   turnPID(3 * pi, pros::millis(), 550);
-  translationPID(58.0, -0.0, 3 * pi, pros::millis(), 900, true, true, false, 0, 11000);
-  translationPID(58.0, 7.0, 3 * pi, pros::millis(), 600, false, false, false, 0, 11000);
-  translationPID(58.0, 0.0, 3 * pi, pros::millis(), 500, false, false, false, 0, 11000);
-  translationPID(58.0, 7.0, 3 * pi, pros::millis(), 500, false, false, false, 0, 11000);
-  translationPID(58.0, 0.0, 3 * pi, pros::millis(), 500, false, false, false, 0, 11000);
-  translationPID(56.0, 10.0, 3 * pi, pros::millis(), 800, false, false, false, 0, 11000);
-  translationPID(52.0, 0, 2 * pi + pi / 2.0 + pi / 3.8, pros::millis(), 1100, false, false, false, 0, 10000);
+  translationPID(58.0, -0.0, 3 * pi, pros::millis(), 900, true, true, false, 0, 0, 11000);
+  translationPID(58.0, 7.0, 3 * pi, pros::millis(), 600, false, false, false, 0, 0, 11000);
+  translationPID(58.0, 0.0, 3 * pi, pros::millis(), 500, false, false, false, 0, 0, 11000);
+  translationPID(58.0, 7.0, 3 * pi, pros::millis(), 500, false, false, false, 0, 0, 11000);
+  translationPID(58.0, 0.0, 3 * pi, pros::millis(), 500, false, false, false, 0, 0, 11000);
+  translationPID(56.0, 10.0, 3 * pi, pros::millis(), 800, false, false, false, 0, 0, 11000);
+  translationPID(52.0, 0, 2 * pi + pi / 2.0 + pi / 3.9, pros::millis(), 900, false, false, false, 0, 0, 10000);
   shootingProcedure(false);
-  //END PROCEDURE
-  translationPID(52.0, 9.0, 2 * pi + pi / 2.0 + pi / 4.0, pros::millis(), 600, false, false, false, 0, 10000);
+  // 
+  //POSTRUN
+  translationPID(52.0, 9.0, 2 * pi + pi / 2.0 + pi / 4.05, pros::millis(), 600, false, false, false, 0, 0, 10000);
+  //
+
+
 }
