@@ -37,7 +37,7 @@ Team 2381C is a small team from Colonel By Secondary School, in Ottawa, Ontario.
 
 ## Mathematics and Theory
 All the mathematics behind our custom motion algorithm state function, as well as odometry, is documented in extensive detail in our paper, which can be read here:
-https://drive.google.com/file/d/1rogHSYbN24aIZ59ZjxgOQ-HCpfFKR6Uc/view?usp=sharing
+https://drive.google.com/file/d/1zBMroM90nDU6iHqsbI_qOgd120M7x-rd/view?usp=sharing
 
 ## Odometry
 Our main goal with programming this year was to implement robot position tracking to ameliorate our performance in the autonomous and programming skills periods. We’d like to thank team [5225A](thepilons.ca) for open-sourcing their odometry code from In The Zone, which was tremendously helpful for the creation of this codebase. Here’s a 115 points programming skills run we were able to achieve with odometry:
