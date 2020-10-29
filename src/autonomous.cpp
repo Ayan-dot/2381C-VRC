@@ -72,17 +72,17 @@ long double lastposR, currentposR, lastposL, currentposL, lastposH, currentposH,
  * simultaneously while the robot performs its autonomous sequences. An
  * important characteristic of the function is that it modifies the global
  * variables discussed above for the allowing external access to the state.
- * 
+ *
  * @param *param: a pointer
  */
 void vector_tasks_fn(void *param)
 {
   // variables to hold right vertical tracking wheel encoder position, in
-  // intervals of 10 ms
+  // intervals of 20 ms
   lastposR = 0, currentposR = 0;
 
   // variables to hold left vertical tracking wheel encoder position, in
-  // intervals of 10 ms
+  // intervals of 20 ms
   lastposL = 0, currentposL = 0;
 
   // horizontal counterparts of above variables
@@ -178,7 +178,7 @@ void deploy()
  * In particular this function is labelled static since it is called when the
  * robot is not moving or undergoing any controlled motion with the
  * translation PID.
- * 
+ *
  * @param time the time in ms for which the robot will eject the balls
  */
 void descoreProcedureStatic(int time)
@@ -211,7 +211,7 @@ void descoreProcedureStatic(int time)
  * The dynamic descore function ejects balls from the robot through the pooper
  * (hence descore) - it is a continuous function, and hence does not have a
  * delay given that it runs in an ongoing loop.
- * 
+ *
  * @param numBalls the number of balls to be ejected
  */
 void descoreProcedureMoving(int numBalls)
@@ -249,7 +249,7 @@ void descoreProcedureMoving(int numBalls)
 
 /**
  * This function is a macro for the indexing and intake procedure.
- * 
+ *
  * @param runIntakes
  * @param runIndexer
  * @param runIntakesBackwards
@@ -315,7 +315,7 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBa
 /**
  * A macro executing the shooting procedure for the robot. Tuned to optimize
  * the motion of the ball.
- * 
+ *
  * @param slowrun a boolean defining whether intakes will run slowly to
  *                maintain their grip on the balls — important to ensure
  *                consistency when intaking balls after shooting
@@ -350,7 +350,7 @@ void shootingProcedure(bool slowrun)
 /**
  * The motion algorithm of the state function is expressed with a translation
  * PID. As suggested by its name, this algorithm moves the robot.
- * 
+ *
  * @param x2 the target x position
  * @param y2 the target y position
  * @param heading the target heading
@@ -588,7 +588,7 @@ void translationPID(long double x2, long double y2, long double heading, int tim
 
 /**
  * The turn PID function is used for making point turns.
- * 
+ *
  * @param targetAngle a double defining the target angle
  * @param time the start time of the procedure
  * @param timeAllocated an integer reflecting the allocated time in ms before the
@@ -636,7 +636,7 @@ void turnPID(long double targetAngle, int time, int timeAllocated)
 /**
  * The autonomous function contains the full procedure for creating the
  * programming skills run.
- * 
+ *
  * Currently, our robot consistently scores: *120* points.
  */
 void autonomous()
