@@ -129,7 +129,7 @@ void deploy() // deploy function (used at the beginning of autonomous)
 }
 
 //****************//
-// STATIC DESCORE //
+// STATIC DESCORE // - This function ejects balls from the robot through the pooper (hence descore)
 //****************//
 void descoreProcedureStatic(int time) // descore function when robot is not moving (not undergoing translationPID)
 { //time based static descore function
@@ -154,7 +154,7 @@ void descoreProcedureStatic(int time) // descore function when robot is not movi
 }
 
 //****************//
-// MOVING DESCORE //
+// MOVING DESCORE // - This function ejects balls from the robot through the pooper (hence descore) - it is a continuous function, and hence does not have a delay given that it runs in an ongoing loop
 //****************//
 void descoreProcedureMoving(int numBalls) // continuous descore function when robot is moving (undergoing translationPID)
 { //continuous descore function (when moving)
@@ -168,14 +168,14 @@ void descoreProcedureMoving(int numBalls) // continuous descore function when ro
       leftIntake.move_velocity(-85);
       rightIntake.move_velocity(85);
     }
-    else
+    else // run the back sprocket and indexer to remove balls from the robot
     {
 
       indexer.move_velocity(-180);
       shooter.move_velocity(-160);
     }
   }
-  else
+  else // hold sprockets in place
   {
 
     indexer.move_velocity(0);
@@ -209,7 +209,7 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBa
     else
     {
       shooter.move_velocity(0);
-      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD); // PID hold the shooter motor so that indexing balls does not allow the top ball to be moved out of optimal shooting position
 
       if (line_tracker2.get_value() > INDEX_THRESHOLD)
       {
@@ -221,7 +221,7 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBa
       }
     }
   }
-  else if (runIntakesBackwards)
+  else if (runIntakesBackwards) // if intakes must be run backwards, reverse the indexer as well to move balls downwards
   {
     indexer.move_velocity(200);
   }
@@ -234,9 +234,9 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBa
 }
 
 //********************//
-// SHOOTING PROCEDURE //
+// SHOOTING PROCEDURE // - This function is the function that shoots balls out of the robot - it has been tested extensively to provide the optimal trajectory.
 //********************//
-void shootingProcedure(bool slowrun)
+void shootingProcedure(bool slowrun) // includes a bool argument defining if the intakes will be run slowly to maintain grip on the balls - this is done to increase consistency when intaking balls after shooting
 {
   int time = pros::millis();
   while (line_tracker1.get_value() > INDEX_THRESHOLD && pros::millis() - time < 1000)
@@ -248,7 +248,7 @@ void shootingProcedure(bool slowrun)
   pros::delay(50);
   indexer.move_velocity(0);
   shooter.move_velocity(180);
-  if (slowrun)
+  if (slowrun) // if intakes must be run slowly
   {
     leftIntake.move_velocity(60);
     rightIntake.move_velocity(-60);
