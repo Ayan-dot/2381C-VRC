@@ -98,7 +98,7 @@ Source code files we have added ourselves to this projected are distributed amon
 .
 ├── ...
 ├── src
-│   ├── autonomous.cpp			# Macros and autonomous paths
+│   ├── autonomous.cpp			# Macros, movement functions, autonomous path and *programming skills*
 │   ├── global.cpp			# Definition of global variables
 │   ├── opcontrol.cpp			# Driver control
 │   ├── pid.cpp				# Definition of the PID class
