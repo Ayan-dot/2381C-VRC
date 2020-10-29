@@ -1,3 +1,23 @@
+/*
+  ___  ____   ___  __  _____
+ |__ \|___ \ / _ \/_ |/ ____|
+    ) | __) | (_) || | |
+   / / |__ < > _ < | | |
+  / /_ ___) | (_) || | |____
+ |____|____/ \___/ |_|\_____|
+
+All code is the property of 2381C, Kernel Bye. ANY UNAUTHORIZED REPRODUCTION
+OR DISTRIBUTION OF THIS CODE IS STRICTLY FORBIDDEN. Please contact team 2381C
+directly with any questions, concerns or suggestions you may have.
+
+opcontrol.cpp [contains]:
+  * Full suite of driver controls used in driver skills, match play, and testing odometry
+  * Driving, indexing, scoring, and pooping (discarding balls through the back)
+
+NOTE: All relevant mathematical calculations (odometry and motion) are documented in extensive detail in our paper regarding robot motion
+  * https://drive.google.com/file/d/1zBMroM90nDU6iHqsbI_qOgd120M7x-rd/view
+
+*/
 #include "main.h"
 #include "globals.hpp"
 #include "posTracking.cpp"
@@ -10,15 +30,12 @@ void opcontrol()
     long double lastposH = 0, currentposH = 0; // horizontal counterparts of above variables
     long double newAngle = 0, lastAngle = 0; // angles taken by inertial sensor (IMU), in intervals of 10 ms
 
-    long double k = 3.0;
-
-    // long double globalX = 0, globalY = 0; // global X and Y coordinates of the robot
-    // wait for imu to calibrate
-    //pros::delay(3000);
     while (true) // control loop
     {
 
         // master.print(0, 0, "Rot: %f", inertial.get_rotation());
+
+        // JOYSTICK CONTROLS FOR X DRIVE
         leftFront = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
         leftBack = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) - master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
         rightFront = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) + master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
