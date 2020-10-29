@@ -1,3 +1,24 @@
+/*
+  ___  ____   ___  __  _____
+ |__ \|___ \ / _ \/_ |/ ____|
+    ) | __) | (_) || | |
+   / / |__ < > _ < | | |
+  / /_ ___) | (_) || | |____
+ |____|____/ \___/ |_|\_____|
+
+All code is the property of 2381C, Kernel Bye. ANY UNAUTHORIZED REPRODUCTION
+OR DISTRIBUTION OF THIS CODE IS STRICTLY FORBIDDEN. Please contact team 2381C
+directly with any questions, concerns or suggestions you may have.
+
+posTracking.cpp [contains]:
+  * Odometry class and method from which we use as a task in autonomous.cpp to track the robot's absolute position
+
+NOTE: All relevant mathematical calculations (odometry and motion) are documented in extensive detail in our paper regarding robot motion
+  * https://drive.google.com/file/d/1zBMroM90nDU6iHqsbI_qOgd120M7x-rd/view
+  
+*/
+
+// Necessary imports
 #include "main.h"
 #include "globals.hpp"
 #include <cmath>
@@ -46,20 +67,24 @@ public:
     }
 };
 
+//****************//
+// ODOMETRY CLASS //
+//****************//
 class positionTracking
 {
 private:
-    long double angle = 0;
-    long double L,R,B = 0;
-    long double halfang = 0;
-    long double globalang = 0;
-    long double h = 0;
-    long double h2 = 0;
-    long double xplacehold = 0, yplacehold = 0;
+    long double angle = 0;                        // change in robot heading
+    long double L,R,B = 0;                        // changes in distances tracked by tracking wheels (left, right, and back respectively)
+    long double halfang = 0;                      // the change in robot heading (angle) divided by 2
+    long double globalang = 0;                    // global absolute robot heading
+    long double h = 0;                            // length of chord ON (see mathematical write up, or video)
+    long double h2 = 0;                           // length of chord MN
+    long double xplacehold = 0, yplacehold = 0;   // placeholder x and y displacements values that will be added to global x and y values
 
 public:
     positionTracking(long double lastAng, long double currentX, long double lastX, long double currentYL, long double lastYL, long double currentYR, long double lastYR)
     {
+        // Odometry calculations (see write up)
         B = currentX - lastX;
         L = currentYL - lastYL;
         R = currentYR - lastYR;
@@ -77,11 +102,13 @@ public:
         }
         else
         {
+            // special case to angle division by zero error (when angle == 0)
             h = R;
             h2 = B;
             halfang = 0;
         }
 
+        // convert all the local displacements onto the global coordinate system using trigonometry
         globalang = lastAng + halfang;
         yplacehold += h * cos(globalang);
         xplacehold += h * sin(globalang);

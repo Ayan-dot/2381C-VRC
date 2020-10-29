@@ -1,24 +1,33 @@
 /*
-  ___  ____   ___  __  _____ 
+  ___  ____   ___  __  _____
  |__ \|___ \ / _ \/_ |/ ____|
-    ) | __) | (_) || | |     
-   / / |__ < > _ < | | |     
-  / /_ ___) | (_) || | |____ 
+    ) | __) | (_) || | |
+   / / |__ < > _ < | | |
+  / /_ ___) | (_) || | |____
  |____|____/ \___/ |_|\_____|
- 
+
 All code is the property of 2381C, Kernel Bye. ANY UNAUTHORIZED REPRODUCTION
 OR DISTRIBUTION OF THIS CODE IS STRICTLY FORBIDDEN. Please contact team 2381C
 directly with any questions, concerns or suggestions you may have.
+
+autonomous.cpp [contains]:
+  * 120 programming skills routine
+  * all functions used for programming skills routine
+
+NOTE: All relevant mathematical calculations (odometry and motion) are documented in extensive detail in our paper regarding robot motion
+  * https://drive.google.com/file/d/1zBMroM90nDU6iHqsbI_qOgd120M7x-rd/view
+
 */
+
+// Necessary imports from other files within the src directory, header files in the include directory, and C++ libraries
 #include "main.h"
 #include "posTracking.cpp"
 #include "globals.hpp"
 #include <array>
 #include "pid.hpp"
 
-long double currentx = 0, currenty = 0;
-
-//initation of array pointer values
+// Initation of array pointer values (kp at index 0, ki at index 1, kd at index 2) for PID class
+// Kp, Ki, and Kd constants at those indexes are specified in globals.cpp, where other tunable constants reside
 PID *rightdrivebasePIDController = new PID(
     &drivebasePIDParams[0],
     &drivebasePIDParams[1],
@@ -44,8 +53,10 @@ PID *pointTurnPIDController = new PID(
     &pointTurnPIDParams[1],
     &pointTurnPIDParams[2]);
 
-// ODOM TASK
-// make the global information on location and heading GLOBAL in this file
+//***********//
+// ODOM TASK //
+//***********//
+// make the odometry information on location and heading GLOBAL within this file
 long double lastposR, currentposR, lastposL, currentposL, lastposH, currentposH, newAngle, lastAngle;
 
 void vector_tasks_fn(void *param)
@@ -60,13 +71,13 @@ void vector_tasks_fn(void *param)
   {
     // ODOMETRY PROCEDURE //
     /*
-        * Featuring imu averaging (more like imu domination)
-        */
+    * Featuring imu averaging
+    */
     currentposR = verticalEncoder2.get_value() * vertToInch;  // reverses vertical encoder, finds position and converts to inches
     currentposL = verticalEncoder1.get_value() * vertToInch;  // reverses vertical encoder, finds position and converts to inches
     currentposH = horizontalEncoder.get_value() * horiToInch; // same function as above, horizontal counterpart
 
-    positionTracking robotPos(lastAngle, currentposH, lastposH, currentposL, lastposL, currentposR, lastposR); // creates a Position tracking class, where math is done.
+    positionTracking robotPos(lastAngle, currentposH, lastposH, currentposL, lastposL, currentposR, lastposR); // creates a Position tracking class for odometry, where math is done (posTracking.cpp).
 
     if (!isnan(robotPos.returnX()) || !isnan(robotPos.returnY())) // to avoid turning global coordinates into null values when calculations are initializing, conditional statement
     {
@@ -75,8 +86,6 @@ void vector_tasks_fn(void *param)
     }
     // since we are doing inertial averaging, lastAngle is modified
     // perform a weighted average
-    //long double trackingWheelWeight = 1.0 - min((abs(lastAngle) / k), 0.9);
-    //long double imuWeight = min((abs(lastAngle) / k), 0.9);
     long double trackingWheelWeight = 0.01;
     long double imuWeight = 0.99;
     long double imuScaling = 0.9965;
@@ -88,14 +97,18 @@ void vector_tasks_fn(void *param)
 
     pros::lcd::print(0, "X: %f", globalX);   // prints X coord on brain
     pros::lcd::print(1, "Y: %f", globalY);   // prints Y coord on brain
-    pros::lcd::print(2, "I: %f", lastAngle); // prints angle on controller
+    pros::lcd::print(2, "I: %f", lastAngle); // prints angle on brain
     pros::lcd::print(3, "Iner: %f", inertial.get_rotation());
-    pros::delay(20); // runs loop every 10ms
+    pros::delay(20); // runs loop every 20ms
   }
 }
 
+//**************//
+// ROBOT DEPLOY //
+//**************//
 void deploy() // deploy function (used at the beginning of autonomous)
 {
+  // shakes robot fowards and back slightly, while moving preload up to contact the hood to deploy the hood with the intakes
   leftFront.move_velocity(160);
   leftBack.move_velocity(160);
   rightFront.move_velocity(-160);
@@ -115,11 +128,13 @@ void deploy() // deploy function (used at the beginning of autonomous)
   shooter.move_velocity(0);
 }
 
+//****************//
+// STATIC DESCORE // - This function ejects balls from the robot through the pooper (hence descore)
+//****************//
 void descoreProcedureStatic(int time) // descore function when robot is not moving (not undergoing translationPID)
 { //time based static descore function
-  while (line_tracker1.get_value() <= INDEX_THRESHOLD)
+  while (line_tracker1.get_value() <= INDEX_THRESHOLD) // INDEX_THRESHOLD constant is adjustable in globals.cpp depending on ambient lighting conditions
   {
-
     indexer.move_velocity(200);
     shooter.move_velocity(-85);
     leftIntake.move_velocity(-85);
@@ -137,8 +152,12 @@ void descoreProcedureStatic(int time) // descore function when robot is not movi
   leftIntake.move_velocity(0);
   rightIntake.move_velocity(0);
 }
+
+//****************//
+// MOVING DESCORE // - This function ejects balls from the robot through the pooper (hence descore) - it is a continuous function, and hence does not have a delay given that it runs in an ongoing loop
+//****************//
 void descoreProcedureMoving(int numBalls) // continuous descore function when robot is moving (undergoing translationPID)
-{ //continupus descore function (when moving)
+{ //continuous descore function (when moving)
   if (numBalls >= 1)
   {
     if (line_tracker1.get_value() <= INDEX_THRESHOLD) // if balls are fully indexed, un-index them to avoid jamming
@@ -149,14 +168,14 @@ void descoreProcedureMoving(int numBalls) // continuous descore function when ro
       leftIntake.move_velocity(-85);
       rightIntake.move_velocity(85);
     }
-    else
+    else // run the back sprocket and indexer to remove balls from the robot
     {
 
       indexer.move_velocity(-180);
       shooter.move_velocity(-160);
     }
   }
-  else
+  else // hold sprockets in place
   {
 
     indexer.move_velocity(0);
@@ -165,6 +184,9 @@ void descoreProcedureMoving(int numBalls) // continuous descore function when ro
   return;
 }
 
+//*******************************//
+// INDEXING AND INTAKE PROCEDURE //
+//*******************************//
 void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBackwards, int numShot)
 {
   if (runIntakes || runIntakesBackwards)
@@ -187,7 +209,7 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBa
     else
     {
       shooter.move_velocity(0);
-      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD); // PID hold the shooter motor so that indexing balls does not allow the top ball to be moved out of optimal shooting position
 
       if (line_tracker2.get_value() > INDEX_THRESHOLD)
       {
@@ -199,7 +221,7 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBa
       }
     }
   }
-  else if (runIntakesBackwards)
+  else if (runIntakesBackwards) // if intakes must be run backwards, reverse the indexer as well to move balls downwards
   {
     indexer.move_velocity(200);
   }
@@ -211,7 +233,10 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBa
   return;
 }
 
-void shootingProcedure(bool slowrun)
+//********************//
+// SHOOTING PROCEDURE // - This function is the function that shoots balls out of the robot - it has been tested extensively to provide the optimal trajectory.
+//********************//
+void shootingProcedure(bool slowrun) // includes a bool argument defining if the intakes will be run slowly to maintain grip on the balls - this is done to increase consistency when intaking balls after shooting
 {
   int time = pros::millis();
   while (line_tracker1.get_value() > INDEX_THRESHOLD && pros::millis() - time < 1000)
@@ -223,7 +248,7 @@ void shootingProcedure(bool slowrun)
   pros::delay(50);
   indexer.move_velocity(0);
   shooter.move_velocity(180);
-  if (slowrun)
+  if (slowrun) // if intakes must be run slowly
   {
     leftIntake.move_velocity(60);
     rightIntake.move_velocity(-60);
@@ -233,10 +258,14 @@ void shootingProcedure(bool slowrun)
   return;
 }
 
-// motion translation PROCEDURES
+//*********************************//
+// MOTION ALGORITHM STATE FUNCTION //
+//*********************************//
+
+// arguments: target x position, target y position, target robot heading, current time, time given to complete the motion, intakes off/on, indexer off/on, reverse intakes off/on, number of balls to shoot, max voltage output to drivebase motors
 void translationPID(long double x2, long double y2, long double heading, int time, int timeAllocated, bool runIntakes, bool runIndexer, bool runIntakesBackwards, int numDescore, int numShoot, double maxVolt)
 {
-  int ballShot = 0; //
+  int ballShot = 0;
   int numBalls = numDescore;
   int maxTime = 0;
   if (line_tracker1.get_value() > INDEX_THRESHOLD) // if the balls are not fully indexed (defining amount of time to descore)
@@ -288,6 +317,7 @@ void translationPID(long double x2, long double y2, long double heading, int tim
     /** MATH **/
     /**********/
 
+    // Current robot x and y position is given by odometry (global variables)
     long double x1 = globalX;
     long double y1 = globalY;
 
@@ -295,16 +325,16 @@ void translationPID(long double x2, long double y2, long double heading, int tim
     // this can be done by simply finding a second pair of coordinates, as two points define a line
     const long double l = 100.0; // how far away in euclidean distance the second point we want is, can be any arbirary number
 
-    // [ROBOT POSITION POINT] the first line is defined by x1 and y1, and the heading
+    // [ROBOT POSITION POINT] the first line is defined by x1 and y1, and the heading. We now use this to define a second point on the line
     long double x1Other = x1 + l * sin(lastAngle);
     long double y1Other = y1 + l * cos(lastAngle);
 
-    // [ROBOT POSITION LINE PARALLEL TO HEADING]
+    // [ROBOT POSITION LINE PARALLEL TO HEADING (line NT)]
     long double A1 = y1 - y1Other; // reversed because we have to assign negative sign to either numerator or denominator
     long double B1 = x1Other - x1;
     long double C1 = -(A1 * x1 + B1 * y1);
 
-    // [ROBOT DESTINATION LINE PERPENDICULAR PREVIOUS LINE]
+    // [ROBOT DESTINATION LINE PERPENDICULAR PREVIOUS LINE (line MT)]
     long double A2 = B1;
     long double B2 = -A1;
     long double C2 = -(A2 * x2 + B2 * y2);
@@ -319,7 +349,7 @@ void translationPID(long double x2, long double y2, long double heading, int tim
     // to do this, we need to define another line
     // LINE: going through x1, y1, heading rotated 90 degrees anticlockwise
 
-    // Define another point on 1
+    // Define another point on the line perpendicular to line NT in calculations
     long double x3Other = x1 + l * sin(heading - pi / 2.0);
     long double y3Other = y1 + l * cos(heading - pi / 2.0);
 
@@ -328,29 +358,25 @@ void translationPID(long double x2, long double y2, long double heading, int tim
     int verticalSign = 1;
 
     // determine the relative direction of the horizontal component
-    //long double d1 = (x - x1) * (y1Other - y1) - (y - y1) * (x1Other - x1);
     long double d1 = (x2 - x1) * (y1Other - y1) - (y2 - y1) * (x1Other - x1);
-    // long double d1 = (x2 - x) * (y - y1) - (y2 - y) * (x - x1);
     if (d1 < 0)
       horizontalSign = -1;
     cout << "D1: " << d1 << '\n';
 
-    // ^ for the vertical component
+    // same for the vertical component
     long double d2 = (x - x1) * (y3Other - y1) - (y - y1) * (x3Other - x1);
-    //long double d2 = (x2 - x3Other) * (y1 - y3Other) - (y2 - y3Other) * (x1 - x3Other);
-    // long double d2 = (x - x3Other) * (y3Other - y1) - (y - y3Other) * (x3Other - x1);
     if (d2 < 0)
       verticalSign = -1;
     cout << "D2: " << d2 << '\n';
 
-    // With the intersection point and direction, we can now calculate the Euclidean distance forwards relative the the robotics direction
-    // and horizontally relative to the robot heading to get our x and y compoenents for our overall translation vector
+    // With the intersection point and direction, we can now calculate the Euclidean distance forwards relative to the robot's direction
+    // and horizontally relative to the robot heading to get our x and y components (errors) for our overall translation vector
     long double yComponent = abs(sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1))) * verticalSign;
     long double xComponent = abs(sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2))) * horizontalSign;
     cout << "COMPONENT VECTORS: " << yComponent << ' ' << xComponent << '\n';
 
-    // To send this information to the motors, we pass the original encoder position, and the original encoder position
-    // plus their respective local components for the PID loop
+    // To send this information to the motors, we pass the original encoder position, and the destination encoder position
+    // plus their respective local components for the PID loop. We use ticks to inch conversion as function arguments are in inches
     long double leftDest = verticalEncoder1.get_value() + yComponent * (360 / (2.75 * pi));
     long double rightDest = verticalEncoder2.get_value() + yComponent * (360 / (2.75 * pi));
     long double horizontalDest = horizontalEncoder.get_value() + xComponent * (360 / (2.75 * pi));
@@ -379,11 +405,12 @@ void translationPID(long double x2, long double y2, long double heading, int tim
 
     // to allow for a smoother acceleration gradient, time is considered in scaling the voltage outputs
     // so we limit speed the robot can travel in the first accelerationTime ms of acceleration
+    // accelerationTime, like other tunable constants, is adjusted in globals.cpp
     long double currentTime = pros::millis() - time;
     long double coefTime = 1.0;
     if (currentTime < accelerationTime)
     {
-      coefTime = sqrt(currentTime) / sqrt(accelerationTime);
+      coefTime = sqrt(currentTime) / sqrt(accelerationTime); // based off of the square root curve approaching the target voltage
     }
 
     // NOTE: On the robot, LEFT SIDE MOTORS are POSITIVE POWER FORWARDS MVMT, and RIGHT SIDE MOTORS are NEGATIVE POWER FORWARDS MVMT
@@ -420,7 +447,7 @@ void translationPID(long double x2, long double y2, long double heading, int tim
       leftBack.move_velocity(0);
       rightBack.move_velocity(0);
 
-      // stop the indexing and intakes if need be
+      // stop the indexing and intakes
       leftIntake.move_velocity(0);
       rightIntake.move_velocity(0);
       indexer.move_velocity(0);
@@ -439,20 +466,23 @@ void translationPID(long double x2, long double y2, long double heading, int tim
   return;
 }
 
-//pid function made for turning: it takes in 2 arguments, the angle you want to turn to and the direction in which you are turning
+//pid function made for point turning: it takes in 2 arguments, the angle you want to turn to and the direction in which you are turning
 void turnPID(long double targetAngle, int time, int timeAllocated)
 {
   //while loop initiating the PID function
   while (true)
   {
-    // [ANGLE] Heading correction voltage output
+    // [ANGLE] Heading correction voltage output (set up a PID for both left and right sides of the x drive using motor encoder values for current and destination)
     long double angleVoltageLeft = pointTurnPIDController->update(targetAngle, lastAngle, -1);
     long double angleVoltageRight = pointTurnPIDController->update(targetAngle, lastAngle, -1);
+
     pros::lcd::set_text(5, "Ang: " + to_string(lastAngle));
     leftFront.move_voltage(angleVoltageLeft);
     leftBack.move_voltage(angleVoltageLeft);
     rightFront.move_voltage(angleVoltageRight);
     rightBack.move_voltage(angleVoltageRight);
+
+    // if the allocated time is exceeded, stop the robot, and exit the function
     if (pros::millis() - time > timeAllocated)
     {
       cout << "PID STOPPED" << '\n';
@@ -474,11 +504,11 @@ void turnPID(long double targetAngle, int time, int timeAllocated)
 void autonomous()
 {
 
-  // The lines below are a combination of functions that have been used to create our 120 point programming skills run. 
+  // The lines below are a combination of functions that have been used to create our 120 point programming skills run.
   pros::Task position_task(vector_tasks_fn, (void *)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT, "Print X and Y Task");
   //PRERUN
   deploy();
-  // 
+  //
 
   //GOAL 1 PROCEDURE
   translationPID(15.0, 3.0, lastAngle, pros::millis(), 1000, false, false, false, 0, 0, 8600);
@@ -574,7 +604,7 @@ void autonomous()
   translationPID(56.0, 10.0, 3 * pi, pros::millis(), 800, false, false, false, 0, 0, 11000);
   translationPID(52.0, 0, 2 * pi + pi / 2.0 + pi / 3.9, pros::millis(), 900, false, false, false, 0, 0, 10000);
   shootingProcedure(false);
-  // 
+  //
   //POSTRUN
   translationPID(52.0, 9.0, 2 * pi + pi / 2.0 + pi / 4.05, pros::millis(), 600, false, false, false, 0, 0, 10000);
   //
