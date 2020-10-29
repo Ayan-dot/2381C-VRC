@@ -38,7 +38,7 @@ Team 2381C is a small team from Colonel By Secondary School, in Ottawa, Ontario.
 
 ## Theory
 
-All the mathematics behind our custom motion algorithm state function, as well as odometry, is documented in extensive detail in our paper, linked under files in our online submission on robotevents, and in the comments at the head of all the source files.
+All the mathematics behind our custom motion algorithm state function, as well as odometry, is documented in extensive detail in our [paper](docs/2381C_Robotics_Mathematics_Paper.pdf), located in the documentation folder, [`docs`](docs).
 
 ## Odometry
 
@@ -107,4 +107,4 @@ Source code files we have added ourselves to this projected are distributed amon
 
 ## Contributing
 
-As the competition season is still in progress, we are not accepting any community contributions. If you run through our code and see there are things we can improve, feel free to contact us or to open an issue. For new 2381C members, or for reference, here’s a link to the contribution guide: [`docs/contributing.md`](docs/CONTRIBUTING.md).
+As the competition season is still in progress, we are not accepting any community contributions. If you run through our code and see there are things we can improve, feel free to contact us or to open an issue. For new 2381C members, or for reference, here’s a link to the contribution guide: [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md).
