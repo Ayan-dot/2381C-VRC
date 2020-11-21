@@ -296,7 +296,7 @@
         "upload_options": {
             "compress_bin": true,
             "description": "Created with PROS",
-            "remote_name": "progskills",
+            "remote_name": "Codebase",
             "slot": 2
         }
     }

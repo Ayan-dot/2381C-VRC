@@ -33,22 +33,22 @@ globals.cpp [contains]:
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
 // V5 motor definitions
-pros::Motor leftBack(2);
-pros::Motor leftFront(12);
-pros::Motor rightBack(9);
-pros::Motor rightFront(19);
+pros::Motor leftBack(1);
+pros::Motor leftFront(20);
+pros::Motor rightBack(10);
+pros::Motor rightFront(11);
 pros::Motor leftIntake(15);
 pros::Motor rightIntake(16);
-pros::Motor indexer(3);
-pros::Motor shooter(17);
+pros::Motor indexer(17);
+pros::Motor shooter(14);
 
 // inertial sensor definition
-pros::Imu inertial(1);
+pros::Imu inertial(19);
 
 // optical shaft encoder (for tracking wheels) definitions
-pros::ADIEncoder verticalEncoder1('E', 'F', false);
-pros::ADIEncoder verticalEncoder2('A', 'B', false);
-pros::ADIEncoder horizontalEncoder('C', 'D', true);
+pros::ADIEncoder verticalEncoder1('A', 'B', false);
+pros::ADIEncoder verticalEncoder2('C', 'D', true);
+pros::ADIEncoder horizontalEncoder('E', 'F', true);
 
 // line trackers definitions (for auto indexing)
 pros::ADIAnalogIn line_tracker1('G');
@@ -60,11 +60,14 @@ std::array<long double, 3> drivebasePIDParams = {52, 2, 180};
 std::array<long double, 3> turningPID = {10000, 0, 0};
 std::array<long double, 3> strafePIDParams = {52, 2, 180};
 
+// time spent indexing each ball
+int indTime = 185;
+
 // max voltage sent to motors
 int maxSpeed = 12000;
 
 // line sensor threshold, depending on ambient lighting conditions
-int INDEX_THRESHOLD = 2700;
+int INDEX_THRESHOLD = 2750;
 
 // epsilon, near zero value, to avoid zero division error
 const long double EPS = 1e-8;
@@ -73,9 +76,9 @@ const long double EPS = 1e-8;
 long double accelerationTime = 750;
 
 // tracking wheel offsets for odometry
-long double verticalOffset1 = 6.1675;
-long double verticalOffset2 = 6.1675;
-long double horizontalOffset = 6.8075;
+long double verticalOffset1 = 5.905;
+long double verticalOffset2 = 5.905;
+long double horizontalOffset = 6.660;
 
 // ticks to inches conversions
 long double horiToInch = (pi * 2.75) / 360.0;

@@ -148,29 +148,19 @@ void vector_tasks_fn(void *param)
 void deploy()
 {
   /*
-  Shake the robot forwards and backwards briefly while moving the preload ball
-  up to make contact with the hood. This contact should suffice in deploying
-  the hood along with the intakes.
+  Drive forwards, outtake to deploy everything
   */
   leftFront.move_velocity(160);
   leftBack.move_velocity(160);
   rightFront.move_velocity(-160);
   rightBack.move_velocity(-160);
-  shooter.move_velocity(180);
-  pros::delay(90);
 
-  leftFront.move_velocity(-150);
-  leftBack.move_velocity(-150);
-  rightFront.move_velocity(150);
-  rightBack.move_velocity(150);
-  shooter.move_velocity(-200);
-  pros::delay(110);
+  leftIntake.move_velocity(200);
+  rightIntake.move_velocity(-200);
 
-  leftFront.move_velocity(0);
-  leftBack.move_velocity(0);
-  rightFront.move_velocity(0);
-  rightBack.move_velocity(0);
-  shooter.move_velocity(0);
+  pros::delay(150);
+
+
 }
 
 /**
@@ -641,6 +631,7 @@ void turnPID(long double targetAngle, int time, int timeAllocated)
  */
 void autonomous()
 {
+  pros::delay(3000);
   // start by creating an odom instance
   pros::Task position_task(vector_tasks_fn, (void *)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT, "Print X and Y Task");
 

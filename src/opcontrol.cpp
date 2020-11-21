@@ -21,7 +21,7 @@ robot motion. The paper is located in the docs (documentation) folder.
 opcontrol.cpp [contains]:
   - Full suite of driver controls used in driver skills, match play, and
     testing odometry
-  - Driving, indexing, scoring, and pooping (discarding balls through the back)
+  - Driving, indexing, scoring for MK3
 */
 #include "main.h"
 #include "globals.hpp"
@@ -47,6 +47,12 @@ void opcontrol()
 
   // angles taken by inertial sensor (IMU), in intervals of 10 ms
   long double newAngle = 0, lastAngle = 0;
+
+  // boolean for the state of ball indexing
+  bool toggleBallUp = false;
+
+  // keep track of current time
+  int curTime = pros::millis();
 
   // the control loop
   while (true)
@@ -110,91 +116,52 @@ void opcontrol()
       - Y: Only left intake is turned on
       - X: Only right intake is turned on
     */
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
-    {
-      // start intakes
+    if (toggleBallUp && pros::millis() - curTime < indTime && line_tracker2.get_value() >= INDEX_THRESHOLD) {
+      indexer.move_velocity(-200);
+      shooter.move_velocity(200);
+    } else {
+      toggleBallUp = false;
+    }
+
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+      // intake
+      leftIntake.move_velocity(-200);
+      rightIntake.move_velocity(200);
+      if (line_tracker2.get_value() < INDEX_THRESHOLD) {
+        shooter.move_velocity(0);
+        indexer.move_velocity(0);
+        shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        toggleBallUp = false;
+      }
+      // if a ball is detected
+      cout << line_tracker1.get_value() << '\n';
+      if (line_tracker1.get_value() < INDEX_THRESHOLD && !toggleBallUp) {
+        toggleBallUp = true;
+        curTime = pros::millis();
+      }
+    }
+    else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
       leftIntake.move_velocity(200);
       rightIntake.move_velocity(-200);
     }
-
-    else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
-    {
-      leftIntake.move_velocity(-200);
-      rightIntake.move_velocity(200);
-    }
-
-    else
-    {
+    else {
       leftIntake.move_velocity(-0);
       rightIntake.move_velocity(-0);
     }
 
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X))
-    {
-    }
-
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
-    {
-      rightIntake.move_velocity(-200);
-    }
-
-    // indexing controls (R1 indexes the first ball to the shooting bay and the
-    // remaning accordingly)
-    shooter.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-
-    // we know the ball is indexed if the line tracker reports <= INDEX_THRESHOLD
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
-    {
-      if (line_tracker1.get_value() > INDEX_THRESHOLD)
-      {
-        // we do not have a ball properly indexed yet
-        indexer.move_velocity(-200);
-        shooter.move_velocity(10);
-      }
-
-      else
-      {
-        shooter.move_velocity(0);
-        shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-
-        if (line_tracker2.get_value() > INDEX_THRESHOLD)
-        {
-          indexer.move_velocity(-200);
-        }
-      }
-    }
-
-    else
-    {
-      indexer.move_velocity(0);
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+      indexer.move_velocity(-200);
+      shooter.move_velocity(200);
+    } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+      shooter.move_velocity(-200);
+      indexer.move_velocity(200);
+    } else if (!toggleBallUp) {
       shooter.move_velocity(0);
+      indexer.move_velocity(0);
+      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     }
 
-    // shooting controls (R2 fires balls)
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
-    {
-      // shoots indexed ball
-      shooter.move_velocity(130);
-    }
-
-    else
-    {
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && line_tracker1.get_value() > INDEX_THRESHOLD)
-      {
-      }
-
-      else
-      {
-        shooter.move_velocity(0);
-      }
-    }
-
-    // discarding controls
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) && master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
-    {
-      shooter.move_velocity(-150);
-    }
-
+    // button to calibrate IMU
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
     {
       int iter = 0;

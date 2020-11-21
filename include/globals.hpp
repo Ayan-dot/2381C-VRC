@@ -14,6 +14,7 @@ extern std::array<long double, 3> turningPID; // defines PID constant array for 
 extern std::array<long double, 3> strafePIDParams; // defines PID constant array for strafe driving
 
 extern int maxSpeed; // defining motion constants
+extern int indTime;
 extern int INDEX_THRESHOLD;
 extern long double ANGLE_Kp;
 extern long double STRAFE_Kp;
@@ -29,7 +30,7 @@ extern long double vertToInch; // conversion from vertical encoder ticks to inch
 extern long double imuToRad; // conversions from inertial sensor degrees to radians
 extern long double globalX, globalY; // global X and Y coordinates for the absolute position tracking suite
 
-extern const long double pi; // defines the pi constant 
+extern const long double pi; // defines the pi constant
 
 extern pros::ADIEncoder verticalEncoder1; // defining encoders and line tracking sensors
 extern pros::ADIEncoder verticalEncoder2;
