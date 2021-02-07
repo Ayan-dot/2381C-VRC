@@ -55,9 +55,9 @@ pros::ADIAnalogIn line_tracker1('G');
 pros::ADIAnalogIn line_tracker2('H');
 
 // kp, ki, and kd constants respectively for creating PID objects from PID class (in PID.cpp and PID.hpp)
-std::array<long double, 3> pointTurnPIDParams = {8000, 0, 8000};
+std::array<long double, 3> pointTurnPIDParams = {12000, 0, 8000};
 std::array<long double, 3> drivebasePIDParams = {52, 2, 180};
-std::array<long double, 3> turningPID = {10000, 0, 0};
+std::array<long double, 3> turningPID = {14000, 2, 180};
 std::array<long double, 3> strafePIDParams = {52, 2, 180};
 
 // time spent indexing each ball
@@ -73,7 +73,7 @@ int INDEX_THRESHOLD = 2750;
 const long double EPS = 1e-8;
 
 // time in ms given to accelerate for square root acceleration in translationPID
-long double accelerationTime = 750;
+long double accelerationTime = 550;
 
 // tracking wheel offsets for odometry
 long double verticalOffset1 = 5.905;

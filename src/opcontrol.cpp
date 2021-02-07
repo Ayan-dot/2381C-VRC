@@ -109,6 +109,7 @@ void opcontrol()
     pros::lcd::set_text(5, "B:" + std::to_string(horizontalEncoder.get_value()));
     pros::lcd::set_text(7, "I: " + std::to_string(inertial.get_rotation() * imuScaling));
 
+
     /*
     The intake controls are defined as follows:
       - L1: Intake
