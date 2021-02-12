@@ -19,7 +19,9 @@ extern int INDEX_THRESHOLD;
 extern long double ANGLE_Kp;
 extern long double STRAFE_Kp;
 extern long double accelerationTime;
+extern long double decelerationTime;
 extern const long double EPS;
+extern const long double inerCoef;
 //extern int coastVoltage;
 
 extern long double verticalOffset1; // offset from center for vertical tracking wheel 1

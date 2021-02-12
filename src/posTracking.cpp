@@ -57,7 +57,7 @@ public:
     /**
      * Initialize the class by taking current and target values. As well,
      * compute the angle between the two positions.
-     * 
+     *
      * @param currentX the current x position
      * @param currentY the current y position
      * @param moveX the target x position
@@ -123,7 +123,7 @@ public:
      * understanding of this procedure, please read the math paper presented
      * in our documentation folder. If you have any questions or concerns,
      * please contact our team captain Allen Tao <allentao7@gmail.com>.
-     * 
+     *
      * This function makes use of proofs and investigations made in the paper.
      */
     positionTracking(long double lastAng, long double currentX, long double lastX, long double currentYL, long double lastYL, long double currentYR, long double lastYR)
@@ -132,7 +132,11 @@ public:
         L = currentYL - lastYL;
         R = currentYR - lastYR;
         angle = (L - R) / (verticalOffset1 + verticalOffset2);
-
+        // arc length formula: r (theta) = s
+        // theta = s / r
+        //angle = B / horizontalOffset;
+        //angle = L / verticalOffset1;
+        //angle = R / verticalOffset2;
         if (angle != 0)
         {
             halfang = angle / 2.0;

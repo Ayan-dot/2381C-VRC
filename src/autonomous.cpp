@@ -123,9 +123,9 @@ void vector_tasks_fn(void *param)
     */
 
     // IMU averaging weights
-    long double trackingWheelWeight = 0.01;
-    long double imuWeight = 0.99;
-    long double imuScaling = 0.9965;
+    long double trackingWheelWeight = 0.0;
+    long double imuWeight = 1.0;
+    long double imuScaling = inerCoef;
 
     lastAngle = robotPos.returnOrient() * trackingWheelWeight + (inertial.get_rotation()) * (pi / 180.0) * imuWeight * imuScaling;
     lastposH = currentposH;
@@ -149,28 +149,32 @@ void vector_tasks_fn(void *param)
 void deploy()
 {
   /*
-  Drive forwards, outtake to deploy everything
-  */leftBack.move_velocity(0);
-  leftBack.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+  To deploy, run conveyors out (as if you are spitting balls out through the bottom), and intakes in
 
-  rightBack.move_velocity(0);
-  rightBack.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-
-
-  leftFront.move_velocity(160);
-
-  rightFront.move_velocity(-160);
-
-  pros::delay(150);
-  leftFront.move_velocity(0);
-
-  rightFront.move_velocity(0);
-
-  leftIntake.move_velocity(150);
-  rightIntake.move_velocity(-150);
-    pros::delay(150);
-    leftIntake.move_velocity(0);
-    rightIntake.move_velocity(0);
+  */
+  // /*
+  // Drive forwards, outtake to deploy everything
+  // */leftBack.move_velocity(0);
+  // leftBack.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+  //
+  // rightBack.move_velocity(0);
+  // rightBack.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+  //
+  //
+  // leftFront.move_velocity(160);
+  //
+  // rightFront.move_velocity(-160);
+  //
+  // pros::delay(150);
+  // leftFront.move_velocity(0);
+  //
+  // rightFront.move_velocity(0);
+  //
+  // leftIntake.move_velocity(150);
+  // rightIntake.move_velocity(-150);
+  //   pros::delay(150);
+  //   leftIntake.move_velocity(0);
+  //   rightIntake.move_velocity(0);
 
 
 
@@ -782,6 +786,8 @@ void turnPID(long double targetAngle, int time, int timeAllocated)
  */
 void autonomous()
 {
+  // ALLEN TESTING PLZ REMOVE
+  pros::delay(3000);
 
   // start by creating an odom instance
   pros::Task position_task(vector_tasks_fn, (void *)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT, "Print X and Y Task");
@@ -789,46 +795,54 @@ void autonomous()
   // // begin run
   // turnPID(-pi / 2.0, pros::millis(), 700);
 
-  deploy();
-  //
-  // goal 1
-  translationPID(0.0, 12.0, lastAngle, pros::millis(), 700, true, true, 0, 0, 2, 12000);
-  turnPID(-pi/2.0, pros::millis(), 400);
-  translationPID(-36.0, 15.0, -pi/2.0-pi/4.0, pros::millis(), 1200, true, true, 0, 0, 2, 12000);
-  translationPID(-40.0, 5.0, -pi/2.0-pi/4.0, pros::millis(), 600, false, false, 0, 0, 0, 12000);
-  ballDistro(2,2,2);
-
-
-  translationPID(-28.0, 16.0, -pi-pi/6.0, pros::millis(), 700, false, false, 1, 0, 0, 12000);
-  translationPID(-27.0, 17.0, -pi, pros::millis(), 900, false, false, 0, 1, 0, 12000);
-  // translationPID(-30.0, 19.0, -pi/6.0, pros::millis(), 1400, false, false, 0, 1, 0, 10000);
-  turnPID(-pi / 6.0, pros::millis(), 600);
-
-  translationPID(-44.0, 15.0, -pi/3.7, pros::millis(), 900, true, false, 0, 0, 3, 12000);
-
-  translationPID(-10.0, 43.0, 0.0, pros::millis(), 1600, true, false, 0, 0, 3, 12000);
-
-  translationPID(-8.0, 60.0, 0.0, pros::millis(), 700, true, false, 0, 0, 3, 12000);
-
-  turnPID(-pi / 2.0, pros::millis(), 500);
-
-  translationPID(-32.0, 61.0, -pi/2.0, pros::millis(), 1000, true, false, 0, 0, 3, 10000);
-
-  translationPID(-44.0, 61.0, -pi/2.0, pros::millis(), 600, false, false, 0, 0, 3, 10000);
-  ballDistro(3,1,3);
-
-translationPID(-25.0, 61.0, -pi/1.9, pros::millis(), 700, false, false, 2, 0, 0, 12000);
-translationPID(-27.0, 61.0, -pi/1.5, pros::millis(), 600, false, false, 0, 1, 0, 12000);
-turnPID(-pi / 3.0, pros::millis(), 400);
-translationPID(-49.0, 100.0, -pi/3.0, pros::millis(), 1400, true, false, 0, 0, 1, 12000);
-translationPID(-35.0, 109.0, -pi/4.0, pros::millis(), 900, true, false, 0, 0, 1, 12000);
-translationPID(-49.0, 125.0, -pi/4.0, pros::millis(), 700, false, false, 0, 0, 1, 12000);
-ballDistro(1,2,1);
-translationPID(-35.0, 106.0, -pi/4.0, pros::millis(), 800, false, false, 1, 0, 0, 12000);
-translationPID(-35.0, 106.0, 0.0, pros::millis(), 400, false, false, 0, 0, 0, 12000);
-// translationPID(-35.0, 120.0, -pi, pros::millis(), 800, false, false, 0, 0, 0, 12000);
-translationPID(-34.0, 105.0, 0, pros::millis(), 600, false, false, 0, 1, 0, 12000);
-turnPID(pi/2.0, pros::millis(), 1000);
+  // ALLEN MOTION TEST
+  translationPID(0.0, 48.0, lastAngle, pros::millis(), 4000, false, false, 0, 0, 0, 12000);
+  translationPID(-24.0, 36, -pi/2, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
+  translationPID(0.0, 48, 0.0, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
+  translationPID(12.0, 0.0, 0.0, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
+  translationPID(0.0, 0.0, 0.0, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
+  translationPID(0.0, 24.0, 0.0, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
+  translationPID(0.0, 0.0, 0.0, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
+//   deploy();
+//   //
+//   // goal 1
+//   translationPID(0.0, 12.0, lastAngle, pros::millis(), 700, true, true, 0, 0, 2, 12000);
+//   turnPID(-pi/2.0, pros::millis(), 400);
+//   translationPID(-36.0, 15.0, -pi/2.0-pi/4.0, pros::millis(), 1200, true, true, 0, 0, 2, 12000);
+//   translationPID(-40.0, 5.0, -pi/2.0-pi/4.0, pros::millis(), 600, false, false, 0, 0, 0, 12000);
+//   ballDistro(2,2,2);
+//
+//
+//   translationPID(-28.0, 16.0, -pi-pi/6.0, pros::millis(), 700, false, false, 1, 0, 0, 12000);
+//   translationPID(-27.0, 17.0, -pi, pros::millis(), 900, false, false, 0, 1, 0, 12000);
+//   // translationPID(-30.0, 19.0, -pi/6.0, pros::millis(), 1400, false, false, 0, 1, 0, 10000);
+//   turnPID(-pi / 6.0, pros::millis(), 600);
+//
+//   translationPID(-44.0, 15.0, -pi/3.7, pros::millis(), 900, true, false, 0, 0, 3, 12000);
+//
+//   translationPID(-10.0, 43.0, 0.0, pros::millis(), 1600, true, false, 0, 0, 3, 12000);
+//
+//   translationPID(-8.0, 60.0, 0.0, pros::millis(), 700, true, false, 0, 0, 3, 12000);
+//
+//   turnPID(-pi / 2.0, pros::millis(), 500);
+//
+//   translationPID(-32.0, 61.0, -pi/2.0, pros::millis(), 1000, true, false, 0, 0, 3, 10000);
+//
+//   translationPID(-44.0, 61.0, -pi/2.0, pros::millis(), 600, false, false, 0, 0, 3, 10000);
+//   ballDistro(3,1,3);
+//
+// translationPID(-25.0, 61.0, -pi/1.9, pros::millis(), 700, false, false, 2, 0, 0, 12000);
+// translationPID(-27.0, 61.0, -pi/1.5, pros::millis(), 600, false, false, 0, 1, 0, 12000);
+// turnPID(-pi / 3.0, pros::millis(), 400);
+// translationPID(-49.0, 100.0, -pi/3.0, pros::millis(), 1400, true, false, 0, 0, 1, 12000);
+// translationPID(-35.0, 109.0, -pi/4.0, pros::millis(), 900, true, false, 0, 0, 1, 12000);
+// translationPID(-49.0, 125.0, -pi/4.0, pros::millis(), 700, false, false, 0, 0, 1, 12000);
+// ballDistro(1,2,1);
+// translationPID(-35.0, 106.0, -pi/4.0, pros::millis(), 800, false, false, 1, 0, 0, 12000);
+// translationPID(-35.0, 106.0, 0.0, pros::millis(), 400, false, false, 0, 0, 0, 12000);
+// // translationPID(-35.0, 120.0, -pi, pros::millis(), 800, false, false, 0, 0, 0, 12000);
+// translationPID(-34.0, 105.0, 0, pros::millis(), 600, false, false, 0, 1, 0, 12000);
+// turnPID(pi/2.0, pros::millis(), 1000);
 
 
 

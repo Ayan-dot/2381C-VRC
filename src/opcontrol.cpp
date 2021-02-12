@@ -34,6 +34,9 @@ opcontrol.cpp [contains]:
  */
 void opcontrol()
 {
+  // TEMP (give 3 secs for imu)
+  pros::delay(3000);
+
   // variables to hold right vertical tracking wheel encoder position, in
   // intervals of 10 ms
   long double lastposR = 0, currentposR = 0;
@@ -93,9 +96,10 @@ void opcontrol()
     // IMU averaging weights
     long double trackingWheelWeight = 0.01;
     long double imuWeight = 0.99;
-    long double imuScaling = 0.9965;
+    long double imuScaling = inerCoef;
 
     lastAngle = robotPos.returnOrient() * trackingWheelWeight + inertial.get_rotation() * (pi / 180.0) * imuWeight * imuScaling;
+    //lastAngle = robotPos.returnOrient();
     lastposH = currentposH;
     lastposR = currentposR;
     lastposL = currentposL;
@@ -119,7 +123,7 @@ void opcontrol()
     */
     if (toggleBallUp && pros::millis() - curTime < indTime && line_tracker2.get_value() >= INDEX_THRESHOLD) {
       indexer.move_velocity(-200);
-      shooter.move_velocity(200);
+      shooter.move_velocity(160);
     } else {
       toggleBallUp = false;
     }
@@ -128,6 +132,8 @@ void opcontrol()
       // intake
       leftIntake.move_velocity(-200);
       rightIntake.move_velocity(200);
+      // bias for the lower indexer rollers
+      //indexer.move_velocity(-50);
       if (line_tracker2.get_value() < INDEX_THRESHOLD) {
         shooter.move_velocity(0);
         indexer.move_velocity(0);
@@ -150,16 +156,20 @@ void opcontrol()
       rightIntake.move_velocity(-0);
     }
 
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) && master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+      indexer.move_velocity(-150);
+      shooter.move_velocity(-200);
+    } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
       indexer.move_velocity(-200);
       shooter.move_velocity(200);
+      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
       shooter.move_velocity(-200);
       indexer.move_velocity(200);
+      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     } else if (!toggleBallUp) {
       shooter.move_velocity(0);
       indexer.move_velocity(0);
-      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     }
 
     // button to calibrate IMU

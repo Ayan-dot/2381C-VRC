@@ -33,12 +33,12 @@ globals.cpp [contains]:
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
 // V5 motor definitions
-pros::Motor leftBack(1);
-pros::Motor leftFront(20);
-pros::Motor rightBack(10);
-pros::Motor rightFront(11);
-pros::Motor leftIntake(15);
-pros::Motor rightIntake(16);
+pros::Motor leftBack(1, true);
+pros::Motor leftFront(20, true);
+pros::Motor rightBack(10, true);
+pros::Motor rightFront(11, true);
+pros::Motor leftIntake(15, true);
+pros::Motor rightIntake(16, true);
 pros::Motor indexer(17);
 pros::Motor shooter(14);
 
@@ -46,28 +46,28 @@ pros::Motor shooter(14);
 pros::Imu inertial(19);
 
 // optical shaft encoder (for tracking wheels) definitions
-pros::ADIEncoder verticalEncoder1('A', 'B', false);
-pros::ADIEncoder verticalEncoder2('C', 'D', true);
+pros::ADIEncoder verticalEncoder1('C', 'D', true);
+pros::ADIEncoder verticalEncoder2('A', 'B', true);
 pros::ADIEncoder horizontalEncoder('E', 'F', true);
 
 // line trackers definitions (for auto indexing)
-pros::ADIAnalogIn line_tracker1('G');
-pros::ADIAnalogIn line_tracker2('H');
+pros::ADIAnalogIn line_tracker1('H');
+pros::ADIAnalogIn line_tracker2('G');
 
 // kp, ki, and kd constants respectively for creating PID objects from PID class (in PID.cpp and PID.hpp)
 std::array<long double, 3> pointTurnPIDParams = {12000, 0, 8000};
-std::array<long double, 3> drivebasePIDParams = {52, 2, 180};
+std::array<long double, 3> drivebasePIDParams = {52, 2, 300};
 std::array<long double, 3> turningPID = {14000, 2, 180};
 std::array<long double, 3> strafePIDParams = {52, 2, 180};
 
 // time spent indexing each ball
-int indTime = 185;
+int indTime = 140;
 
 // max voltage sent to motors
 int maxSpeed = 12000;
 
 // line sensor threshold, depending on ambient lighting conditions
-int INDEX_THRESHOLD = 2750;
+int INDEX_THRESHOLD = 2850;
 
 // epsilon, near zero value, to avoid zero division error
 const long double EPS = 1e-8;
@@ -75,10 +75,14 @@ const long double EPS = 1e-8;
 // time in ms given to accelerate for square root acceleration in translationPID
 long double accelerationTime = 550;
 
+// time in ms given to decelerate in translationPID
+long double decelerationTime = 550;
+
 // tracking wheel offsets for odometry
-long double verticalOffset1 = 5.905;
-long double verticalOffset2 = 5.905;
-long double horizontalOffset = 6.660;
+long double verticalOffset1 = 7.125; // 7.1, 7.105, *7.115
+long double verticalOffset2 = 7.125;
+long double horizontalOffset = 7.45; //7.43 -> 7.37, *7.39
+//7.45
 
 // ticks to inches conversions
 long double horiToInch = (pi * 2.75) / 360.0;
@@ -93,6 +97,9 @@ long double globalX = 0, globalY = 0;
 // mathematical constant pi
 // note: defined using trignometry instead of decimals to maximize accuracy
 const long double pi = asin(1) * 2.0;
+
+// inertial sensor coefficient
+const long double inerCoef = 0.9975;
 
 void disabled() {}
 
