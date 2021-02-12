@@ -189,71 +189,7 @@ void deploy()
  *
  * @param time the time in ms for which the robot will eject the balls
  */
-void descoreProcedureStatic(int time)
-{
-  /*
-  INDEX_THRESHOLD is a constant adjustable from globals.cpp. It's value varies
-  depending on the ambient lighting conditions.
-  */
-  while (line_tracker1.get_value() <= INDEX_THRESHOLD)
-  {
-    indexer.move_velocity(200);
-    shooter.move_velocity(-85);
-    leftIntake.move_velocity(-85);
-    rightIntake.move_velocity(85);
-  }
 
-  indexer.move_velocity(-180);
-  shooter.move_velocity(-160);
-  leftIntake.move_velocity(155);
-  rightIntake.move_velocity(-155);
-  pros::delay(time);
-
-  indexer.move_velocity(0);
-  shooter.move_velocity(0);
-  leftIntake.move_velocity(0);
-  rightIntake.move_velocity(0);
-}
-
-/**
- * The dynamic descore function ejects balls from the robot through the pooper
- * (hence descore) - it is a continuous function, and hence does not have a
- * delay given that it runs in an ongoing loop.
- *
- * @param numBalls the number of balls to be ejected
- */
-void descoreProcedureMoving(int numBalls)
-{
-
-  if (numBalls >= 1)
-  {
-    // if balls are fully indexed, un-index them to avoid jamming
-    if (line_tracker1.get_value() <= INDEX_THRESHOLD)
-    {
-      indexer.move_velocity(200);
-      shooter.move_velocity(-85);
-      leftIntake.move_velocity(-85);
-      rightIntake.move_velocity(85);
-    }
-
-    // run the back sprocket and indexer to remove balls from the robot
-    else
-    {
-
-      indexer.move_velocity(-180);
-      shooter.move_velocity(-160);
-    }
-  }
-
-  // hold sprockets in place
-  else
-  {
-    indexer.move_velocity(0);
-    shooter.move_velocity(0);
-  }
-
-  return;
-}
 
 /**
  * This function is a macro for the indexing and intake procedure.
@@ -275,7 +211,7 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBa
   if (numShot > 0)
   {
     // if balls to be shot are a non-zero number
-    descoreProcedureMoving(numShot);
+    //descoreProcedureMoving(numShot);
   }
 
   else if (runIndexer)
@@ -371,90 +307,59 @@ void shootingProcedure(bool slowrun)
  * @param numShoot number of balls to shoot
  * @param maxVolt the max volt sent to the drivebase
  */
-int ballDistro(int ballShoot, int ballGrab, int ballsinBot){
-  int baller = ballShoot;
-  int baller2 = ballGrab;
-  int baller3 = ballsinBot;
-  bool fronTrue = false;
-  double mainTime = pros::millis();
-
-  bool addActive = false;
-while(baller>0&&line_tracker2.get_value() >= INDEX_THRESHOLD){
-  indexer.move_velocity(-200);
-  shooter.move_velocity(200);
-}
-indexer.move_velocity(0);
-shooter.move_velocity(0);
-for(int i = baller; i>0; i--){
-
-
-    while(line_tracker2.get_value() < INDEX_THRESHOLD){
-      indexer.move_velocity(-200);
-      shooter.move_velocity(200);
-    }
-    baller3--;
-
-  indexer.move_velocity(0);
-  shooter.move_velocity(0);
-while(line_tracker2.get_value() >= INDEX_THRESHOLD && baller3!=0){
+int ballDistro(int ballShoot, int ballGrab){
+  int shot = 0;
+  int took = 0;
+  while(line_tracker2.get_value() >= INDEX_THRESHOLD){
     indexer.move_velocity(-200);
-    shooter.move_velocity(200);
+    shooter.move_velocity(160);
   }
+  shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
   indexer.move_velocity(0);
   shooter.move_velocity(0);
-}
-indexer.move_velocity(0);
-shooter.move_velocity(0);
-shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-indexer.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-
-ballsinBot += ballGrab;
-mainTime = pros::millis();
-leftFront.move_velocity(120);
-leftBack.move_velocity(120);
-rightFront.move_velocity(-120);
-rightBack.move_velocity(-120);
-while(baller2>0&&line_tracker1.get_value() >= INDEX_THRESHOLD){
-  leftIntake.move_velocity(-200);
-  rightIntake.move_velocity(200);
-  if(fronTrue&&pros::millis()-mainTime>1000){
-    leftFront.move_velocity(30);
-    leftBack.move_velocity(30);
-    rightFront.move_velocity(30);
-    rightBack.move_velocity(30);
+  while(took<ballGrab){
+    while(line_tracker1.get_value()>=INDEX_THRESHOLD){
+      leftIntake.move_velocity(-200);
+      rightIntake.move_velocity(200);
+    }
+    leftIntake.move_velocity(0);
+    rightIntake.move_velocity(0);
+    took++;
+    if(shot<ballShoot){
+      if(line_tracker2.get_value()<INDEX_THRESHOLD){
+        indexer.move_velocity(-80);
+        shooter.move_velocity(200);
+        pros::delay(550);
+      }
+      indexer.move_velocity(0);
+      shooter.move_velocity(0);
+      shot++;
+    }
+    if(took<ballGrab){
+    while(line_tracker1.get_value()<INDEX_THRESHOLD){
+      indexer.move_velocity(-140);
+    }}
+    indexer.move_velocity(0);
+    shooter.move_velocity(0);
   }
-  else if(!fronTrue && pros::millis()-mainTime>1000){
-    leftFront.move_velocity(-30);
-    leftBack.move_velocity(-30);
-    rightFront.move_velocity(-30);
-    rightBack.move_velocity(-30);
+  while(shot < ballShoot){
+    while(line_tracker2.get_value() >= INDEX_THRESHOLD){
+      indexer.move_velocity(-200);
+      shooter.move_velocity(160);
+    }
+    indexer.move_velocity(0);
+    shooter.move_velocity(0);
+    while(line_tracker2.get_value()<INDEX_THRESHOLD){
+      indexer.move_velocity(-150);
+      shooter.move_velocity(120);
+    }
+    indexer.move_velocity(0);
+    shooter.move_velocity(0);
+    shot++;
   }
-  if((int)(pros::millis()-mainTime)%60==0){
-    fronTrue = !fronTrue;
-  }
-}
-  if(line_tracker1.get_value() < INDEX_THRESHOLD){
-
-    if(baller2 == 2){
-    leftIntake.move_velocity(-200);
-    rightIntake.move_velocity(200);
-    pros::delay(150);
-    leftIntake.move_velocity(-200);
-    rightIntake.move_velocity(200);}
-    baller2 = 0;
-  }
-
-leftIntake.move_velocity(0);
-rightIntake.move_velocity(0);
-leftFront.move_velocity(0);
-leftBack.move_velocity(0);
-rightFront.move_velocity(0);
-rightBack.move_velocity(0);
-return ballsinBot;
-
 
  }
-int translationPID(long double x2, long double y2, long double heading, int time, int timeAllocated, bool runIntakes, bool runIndexer, int runIntakesGrip, int runIntakesBack, int numGrab, double maxVolt)
+int translationPID(long double x2, long double y2, long double heading, int time, int timeAllocated, bool runIntakes, bool runIndexer, int runIntakesGrip, int runIntakesBack, int removeBalls, int numGrab, double maxVolt)
 {
   int ballShot = 0;
   int maxTime = 0;
@@ -463,6 +368,8 @@ int translationPID(long double x2, long double y2, long double heading, int time
   int ballstoReach = numGrab;
   int ballsinBot = 0;
   bool addActive = false;
+  bool timeSet = false;
+  double refTime;
 
 
   // keep track of current time
@@ -477,7 +384,24 @@ double curTime = pros::millis();
     // run the intake indexing procedure if commanded to do so
     // if any intake / conveying function is called
 
+    if(removeBalls>0){
+      double maxRem = removeBalls*360;
+      if(!timeSet){
+       refTime = pros::millis();
+        timeSet = true;
+      }
+    if((pros::millis()-refTime)<maxRem){
+        indexer.move_velocity(-200);
+        shooter.move_velocity(-160);
+      }
+      else{
+        indexer.move_velocity(0);
+        shooter.move_velocity(0);
+        indexer.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+      }
 
+    }
 
     if (runIntakes)
     {
@@ -796,13 +720,8 @@ void autonomous()
   // turnPID(-pi / 2.0, pros::millis(), 700);
 
   // ALLEN MOTION TEST
-  translationPID(0.0, 48.0, lastAngle, pros::millis(), 4000, false, false, 0, 0, 0, 12000);
-  translationPID(-24.0, 36, -pi/2, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
-  translationPID(0.0, 48, 0.0, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
-  translationPID(12.0, 0.0, 0.0, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
-  translationPID(0.0, 0.0, 0.0, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
-  translationPID(0.0, 24.0, 0.0, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
-  translationPID(0.0, 0.0, 0.0, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
+  //ballDistro(1,2);
+  translationPID(0.0, 48.0, lastAngle, pros::millis(), 4000, false, false, 0, 0, 2,0,12000);
 //   deploy();
 //   //
 //   // goal 1
