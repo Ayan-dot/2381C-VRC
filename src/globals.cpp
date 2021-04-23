@@ -35,7 +35,7 @@ pros::Controller master(pros::E_CONTROLLER_MASTER);
 // V5 motor definitions
 pros::Motor leftBack(1, true);
 pros::Motor leftFront(20, true);
-pros::Motor rightBack(10, true);
+pros::Motor rightBack(8, true);
 pros::Motor rightFront(11, true);
 pros::Motor leftIntake(15, true);
 pros::Motor rightIntake(16, true);
@@ -67,7 +67,7 @@ int indTime = 140;
 int maxSpeed = 12000;
 
 // line sensor threshold, depending on ambient lighting conditions
-int INDEX_THRESHOLD = 2850;
+int INDEX_THRESHOLD = 2800;
 
 // epsilon, near zero value, to avoid zero division error
 const long double EPS = 1e-8;
