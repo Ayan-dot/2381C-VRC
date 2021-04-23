@@ -124,9 +124,9 @@ void opcontrol()
       - Y: Only left intake is turned on
       - X: Only right intake is turned on
     */
-    if (toggleBallUp && pros::millis() - curTime < indTime && !limit_switch.get_new_press()) {
-      indexer.move_velocity(-200);
-      shooter.move_velocity(160);
+    if (toggleBallUp && pros::millis() - curTime < indTime && limit_switch.get_value() == 0) {
+      indexer.move_velocity(-150);
+      shooter.move_velocity(120);
     } else {
       toggleBallUp = false;
     }
@@ -137,7 +137,7 @@ void opcontrol()
       rightIntake.move_velocity(200);
       // bias for the lower indexer rollers
       //indexer.move_velocity(-50);
-      if (limit_switch.get_new_press()) {
+      if (limit_switch.get_value() == 1) {
         // cout << "A" << '\n';
         //ballsCounted++;
         shooter.move_velocity(0);

@@ -370,12 +370,12 @@ double time = pros::millis();
     boolsToggle = false;
   }
   //if(line_tracker2.get_value() < INDEX_THRESHOLD && !booltToggle){
-  if (!limit_switch.get_new_press() && !booltToggle) {
+  if (limit_switch.get_value() == 0 && !booltToggle) {
   //  shot++;
     booltToggle = true;
   }
   // if(line_tracker2.get_value()>= INDEX_THRESHOLD&&booltToggle == true){
-  if(limit_switch.get_new_press()&&booltToggle == true){
+  if(limit_switch.get_new_press() &&booltToggle == true){
     booltToggle = false;
     shot++;
 
@@ -516,7 +516,7 @@ double curTime = pros::millis();
 
       }
       // else if(((currentTime - indTime) >= 260 && removeBalls==0) || line_tracker2.get_value() < INDEX_THRESHOLD){
-      else if(((currentTime - indTime) >= 260 && removeBalls==0) || !limit_switch.get_new_press()){
+      else if(((currentTime - indTime) >= 260 && removeBalls==0) || limit_switch.get_value() == 0){
         indStart = false;
         indexer.move_velocity(0);
         shooter.move_velocity(0);
@@ -534,7 +534,7 @@ double curTime = pros::millis();
         indTime = pros::millis()-time;
       }
       // if(indStart && (currentTime - indTime) < 700 && line_tracker2.get_value() >= INDEX_THRESHOLD){
-      else if(((currentTime - indTime) >= 260 && removeBalls==0) || !limit_switch.get_new_press()){
+      else if(((currentTime - indTime) >= 260 && removeBalls==0) || limit_switch.get_value() == 0){
         indexer.move_velocity(80);
       //  shooter.move_velocity(-160);
         leftIntake.move_velocity(155);
@@ -807,7 +807,7 @@ void middleCycle(){
   leftIntake.move_velocity(0);
   rightIntake.move_velocity(0);
   // if(line_tracker2.get_value()<INDEX_THRESHOLD && line_tracker1.get_value()<INDEX_THRESHOLD){
-  if(!limit_switch.get_new_press() && line_tracker1.get_value()<INDEX_THRESHOLD){
+  if(limit_switch.get_value() == 0 && line_tracker1.get_value()<INDEX_THRESHOLD){
     shooter.move_velocity(200);
     indexer.move_velocity(-80);
     pros::delay(320);
