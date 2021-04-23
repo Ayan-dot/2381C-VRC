@@ -57,6 +57,9 @@ void opcontrol()
   // keep track of current time
   int curTime = pros::millis();
 
+  // testing: keep track of number of balls counted
+  int ballsCounted = 0;
+
   // the control loop
   while (true)
   {
@@ -121,7 +124,7 @@ void opcontrol()
       - Y: Only left intake is turned on
       - X: Only right intake is turned on
     */
-    if (toggleBallUp && pros::millis() - curTime < indTime && line_tracker2.get_value() >= INDEX_THRESHOLD) {
+    if (toggleBallUp && pros::millis() - curTime < indTime && !limit_switch.get_new_press()) {
       indexer.move_velocity(-200);
       shooter.move_velocity(160);
     } else {
@@ -134,7 +137,9 @@ void opcontrol()
       rightIntake.move_velocity(200);
       // bias for the lower indexer rollers
       //indexer.move_velocity(-50);
-      if (line_tracker2.get_value() < INDEX_THRESHOLD) {
+      if (limit_switch.get_new_press()) {
+        // cout << "A" << '\n';
+        //ballsCounted++;
         shooter.move_velocity(0);
         indexer.move_velocity(0);
         shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
@@ -168,6 +173,7 @@ void opcontrol()
       indexer.move_velocity(200);
       shooter.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     } else if (!toggleBallUp) {
+      // cout << "B" << '\n';
       shooter.move_velocity(0);
       indexer.move_velocity(0);
     }
@@ -187,6 +193,8 @@ void opcontrol()
     }
 
     // set loop frequency (t = 20ms)
+    if (limit_switch.get_new_press()) ballsCounted++;
+    cout << "Balls Counted: " <<  ballsCounted << '\n';
     pros::delay(20);
   }
 }

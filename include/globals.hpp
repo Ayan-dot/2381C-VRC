@@ -39,5 +39,6 @@ extern pros::ADIEncoder verticalEncoder2;
 extern pros::ADIEncoder horizontalEncoder;
 extern pros::ADIAnalogIn line_tracker1;
 extern pros::ADIAnalogIn line_tracker2;
+extern pros::ADIDigitalIn limit_switch;
 
 #endif

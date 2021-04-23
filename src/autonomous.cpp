@@ -236,7 +236,8 @@ void intakeIndexingProcedure(bool runIntakes, bool runIndexer, bool runIntakesBa
       // top ball to be moved out of optimal shooting position
       shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
-      if (line_tracker2.get_value() > INDEX_THRESHOLD)
+      //if (line_tracker2.get_value() > INDEX_THRESHOLD)
+      if (limit_switch.get_new_press())
       {
         indexer.move_velocity(-180);
       }
@@ -334,7 +335,8 @@ void ballDistro(int ballShoot, int ballGrab, bool corner){
 //  rightIntake.move_velocity(60);
 }
 double time = pros::millis();
-  while(line_tracker2.get_value() >= INDEX_THRESHOLD && pros::millis()-time < 1800){
+  //while(line_tracker2.get_value() >= INDEX_THRESHOLD && pros::millis()-time < 1800){
+  while(limit_switch.get_new_press() && pros::millis()-time < 1800) {
     indexer.move_velocity(-200);
     shooter.move_velocity(190);
   }
@@ -367,11 +369,13 @@ double time = pros::millis();
   if(line_tracker1.get_value() >= INDEX_THRESHOLD && boolsToggle){
     boolsToggle = false;
   }
-  if(line_tracker2.get_value() < INDEX_THRESHOLD && !booltToggle){
+  //if(line_tracker2.get_value() < INDEX_THRESHOLD && !booltToggle){
+  if (!limit_switch.get_new_press() && !booltToggle) {
   //  shot++;
     booltToggle = true;
   }
-  if(line_tracker2.get_value()>= INDEX_THRESHOLD&&booltToggle == true){
+  // if(line_tracker2.get_value()>= INDEX_THRESHOLD&&booltToggle == true){
+  if(limit_switch.get_new_press()&&booltToggle == true){
     booltToggle = false;
     shot++;
 
@@ -502,7 +506,8 @@ double curTime = pros::millis();
         indStart = true;
         indTime = pros::millis()-time;
       }
-      if(indStart && (currentTime - indTime) < 260 && line_tracker2.get_value() >= INDEX_THRESHOLD){
+      // if(indStart && (currentTime - indTime) < 260 && line_tracker2.get_value() >= INDEX_THRESHOLD){
+      if(indStart && (currentTime - indTime) < 260 && limit_switch.get_new_press()){
         indexer.move_velocity(-200);
         if(!removeBalls)
         shooter.move_velocity(160);
@@ -510,7 +515,8 @@ double curTime = pros::millis();
         shooter.move_velocity(-200);
 
       }
-      else if(((currentTime - indTime) >= 260 && removeBalls==0) || line_tracker2.get_value() < INDEX_THRESHOLD){
+      // else if(((currentTime - indTime) >= 260 && removeBalls==0) || line_tracker2.get_value() < INDEX_THRESHOLD){
+      else if(((currentTime - indTime) >= 260 && removeBalls==0) || !limit_switch.get_new_press()){
         indStart = false;
         indexer.move_velocity(0);
         shooter.move_velocity(0);
@@ -527,7 +533,8 @@ double curTime = pros::millis();
         indStart = true;
         indTime = pros::millis()-time;
       }
-      if(indStart && (currentTime - indTime) < 700 && line_tracker2.get_value() >= INDEX_THRESHOLD){
+      // if(indStart && (currentTime - indTime) < 700 && line_tracker2.get_value() >= INDEX_THRESHOLD){
+      else if(((currentTime - indTime) >= 260 && removeBalls==0) || !limit_switch.get_new_press()){
         indexer.move_velocity(80);
       //  shooter.move_velocity(-160);
         leftIntake.move_velocity(155);
@@ -799,7 +806,8 @@ void middleCycle(){
   pros::delay(250);
   leftIntake.move_velocity(0);
   rightIntake.move_velocity(0);
-  if(line_tracker2.get_value()<INDEX_THRESHOLD && line_tracker1.get_value()<INDEX_THRESHOLD){
+  // if(line_tracker2.get_value()<INDEX_THRESHOLD && line_tracker1.get_value()<INDEX_THRESHOLD){
+  if(!limit_switch.get_new_press() && line_tracker1.get_value()<INDEX_THRESHOLD){
     shooter.move_velocity(200);
     indexer.move_velocity(-80);
     pros::delay(320);
@@ -845,6 +853,14 @@ void autonomous()
 
   // start by creating an odom instance
   pros::Task position_task(vector_tasks_fn, (void *)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT, "Print X and Y Task");
+
+  // ALLEN TESTING PLZ REMOVE
+  while(true) {
+    ballDistro(2,2,0);
+    pros::delay(1000);
+    // ballDistro(1,1,0);
+    // pros::delay(1000);
+  }
 
   // // begin run
   // turnPID(-pi / 2.0, pros::millis(), 700);

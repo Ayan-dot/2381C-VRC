@@ -40,7 +40,7 @@ pros::Motor rightFront(11, true);
 pros::Motor leftIntake(15, true);
 pros::Motor rightIntake(16, true);
 pros::Motor indexer(17);
-pros::Motor shooter(14);
+pros::Motor shooter(14, true);
 
 // inertial sensor definition
 pros::Imu inertial(19);
@@ -51,8 +51,9 @@ pros::ADIEncoder verticalEncoder2('A', 'B', true);
 pros::ADIEncoder horizontalEncoder('E', 'F', true);
 
 // line trackers definitions (for auto indexing)
-pros::ADIAnalogIn line_tracker1('H');
-pros::ADIAnalogIn line_tracker2('G');
+pros::ADIAnalogIn line_tracker1('G');
+pros::ADIDigitalIn limit_switch('H');
+// pros::ADIAnalogIn line_tracker2('H');
 
 // kp, ki, and kd constants respectively for creating PID objects from PID class (in PID.cpp and PID.hpp)
 std::array<long double, 3> pointTurnPIDParams = {12000, 0, 8000};
