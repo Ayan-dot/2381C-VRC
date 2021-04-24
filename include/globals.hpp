@@ -16,6 +16,7 @@ extern std::array<long double, 3> strafePIDParams; // defines PID constant array
 extern int maxSpeed; // defining motion constants
 extern int indTime;
 extern int INDEX_THRESHOLD;
+extern int COUNTER_THRESHOLD;
 extern long double ANGLE_Kp;
 extern long double STRAFE_Kp;
 extern long double accelerationTime;
@@ -39,6 +40,5 @@ extern pros::ADIEncoder verticalEncoder2;
 extern pros::ADIEncoder horizontalEncoder;
 extern pros::ADIAnalogIn line_tracker1;
 extern pros::ADIAnalogIn line_tracker2;
-extern pros::ADIDigitalIn limit_switch;
 
 #endif

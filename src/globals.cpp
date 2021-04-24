@@ -52,8 +52,7 @@ pros::ADIEncoder horizontalEncoder('E', 'F', true);
 
 // line trackers definitions (for auto indexing)
 pros::ADIAnalogIn line_tracker1('G');
-pros::ADIDigitalIn limit_switch('H');
-// pros::ADIAnalogIn line_tracker2('H');
+pros::ADIAnalogIn line_tracker2('H');
 
 // kp, ki, and kd constants respectively for creating PID objects from PID class (in PID.cpp and PID.hpp)
 std::array<long double, 3> pointTurnPIDParams = {12000, 0, 8000};
@@ -69,6 +68,7 @@ int maxSpeed = 12000;
 
 // line sensor threshold, depending on ambient lighting conditions
 int INDEX_THRESHOLD = 2800;
+int COUNTER_THRESHOLD = 2700;
 
 // epsilon, near zero value, to avoid zero division error
 const long double EPS = 1e-8;
