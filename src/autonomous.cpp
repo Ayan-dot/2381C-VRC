@@ -151,10 +151,12 @@ void deploy()
   leftIntake.move_velocity(-200);
   rightIntake.move_velocity(200);
   indexer.move_velocity(200);
-  pros::delay(500);
+  pros::delay(250);
+  indexer.move_velocity(0);
+  pros::delay(250);
   leftIntake.move_velocity(0);
   rightIntake.move_velocity(0);
-  indexer.move_velocity(0);
+
   /*
   To deploy, run conveyors out (as if you are spitting balls out through the bottom), and intakes in
 
@@ -846,8 +848,8 @@ void autonomous()
   // start by creating an odom instance
   pros::Task position_task(vector_tasks_fn, (void *)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT, "Print X and Y Task");
 
-translationPID(0, 24.0, 0, pros::millis(), 2000, true, false, 0, 0, 2, 1,12000);
-pros::delay(100000);
+//translationPID(0, 24.0, 0, pros::millis(), 2000, true, false, 0, 0, 2, 1,12000);
+//pros::delay(100000);
   // while(true) {
   //   ballDistro(2, 2, 0);
   //   pros::delay(1000);
@@ -862,14 +864,17 @@ pros::delay(100000);
     //pros::delay(850);}
 
 
-  translationPID(13.3, 0.0, 0, pros::millis(), 600, false, false, 0, 0, 0,0,11000);
- translationPID(14.0, 32.0, -pi/3.6, pros::millis(), 1000, true, false, 0, 0, 0,2,11000);
-  translationPID(3.2, 42.2, -pi/4.0, pros::millis(), 730, false, false, 0, 0, 0,1,11400);
+  translationPID(13.3, 0.0, 0, pros::millis(), 600, false, false, 0, 0, 0,0,12000);
+ translationPID(14.0, 32.0, -pi/3.6, pros::millis(), 1000, true, false, 0, 0, 0,2,12000);
+  translationPID(3.2, 42.2, -pi/4.0, pros::millis(), 730, false, false, 0, 0, 0,1,12000);
   ballDistro(2,2,0);
   translationPID(16.0, 26.0, -pi/2.5, pros::millis(), 460, false, false, 1, 0, 0,0,12000);
-  translationPID(18.0, 22.0, -pi/5.2, pros::millis(), 800, false, false, 0, 1, 0,0,11000);
-  translationPID(20.0, 42.0, pi/6.5, pros::millis(), 1290, true, false, 0, 0, 0,1,11000);
-  translationPID(47.0, 22.0, pi/5.0, pros::millis(), 1180, true, false, 0, 0, 0,1,11000);
+  translationPID(18.0, 22.0, -pi/5.2, pros::millis(), 800, false, false, 0, 1, 0,0,12000);
+  translationPID(20.0, 42.0, pi/6.5, pros::millis(), 1290, true, false, 0, 0, 0,1,12000);
+  translationPID(42.0, 10.0, pi/2.0, pros::millis(), 1240, true, false, 0, 0, 0,1,12000);
+  translationPID(46.0, 10.0, pi/2.0, pros::millis(), 5000, true, false, 0, 0, 0,1,12000);
+
+
   translationPID(57.0, 33.0, pi/5.5, pros::millis(), 920, true, false, 0, 0, 0,1,12000);
   turnPID(0.0, pros::millis(), 300, false);
   translationPID(59.0, 45.0, 0, pros::millis(), 520, true, false, 0, 0, 0,1,12000);
