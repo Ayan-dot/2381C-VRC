@@ -67,7 +67,12 @@ int indTime = 140;
 int maxSpeed = 12000;
 
 // line sensor threshold, depending on ambient lighting conditions
+<<<<<<< Updated upstream
 int INDEX_THRESHOLD = 2850;
+=======
+int INDEX_THRESHOLD = 2800; //2800
+int COUNTER_THRESHOLD = 2700; //2700
+>>>>>>> Stashed changes
 
 // epsilon, near zero value, to avoid zero division error
 const long double EPS = 1e-8;

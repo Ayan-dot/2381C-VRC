@@ -378,10 +378,139 @@ int ballDistro(int ballShoot, int ballGrab, int ballsinBot){
   bool fronTrue = false;
   double mainTime = pros::millis();
 
+<<<<<<< Updated upstream
   bool addActive = false;
 while(baller>0&&line_tracker2.get_value() >= INDEX_THRESHOLD){
   indexer.move_velocity(-200);
   shooter.move_velocity(200);
+=======
+/*void ballDistro(int ballShoot, int ballGrab){
+  int shot = 0;
+  int took = 0;
+
+}*/
+
+/*
+<
+Pseudocode
+
+
+*/
+void ballDistro(int ballShoot, int ballGrab, bool corner){
+  // you only want the 150ms delay after shooting after the last ball being shot, so that
+  // conditional should only be run ONCE
+  bool shotsDone = false;
+
+  int shot = 0;
+  int took = 0;
+  int retainSpeed = 0;
+
+  bool botCovered;
+  if (line_tracker1.get_value() < COUNTER_THRESHOLD) {
+   botCovered = true;
+  } else {
+   botCovered = false;
+  }
+  bool topCovered = true;
+
+   double timePrime = pros::millis();
+   while(line_tracker2.get_value() >= INDEX_THRESHOLD  && pros::millis()- timePrime < 1800){
+   indexer.move_velocity(-200);
+   shooter.move_velocity(190);
+   }
+
+  // set the conveyor system to be running up initially
+  indexer.move_velocity(-110);
+  shooter.move_velocity(190);
+  leftIntake.move_velocity(-200);
+  rightIntake.move_velocity(200);
+  retainSpeed = 200;
+
+  while(took < ballGrab || shot < ballShoot){
+    pros::lcd::set_text(7, "RS " + to_string(retainSpeed));
+    pros::lcd::set_text(5, "BALLS " + to_string(took));
+    pros::lcd::set_text(4, "BALLS " + to_string(shot));
+
+
+    // counting
+    if(line_tracker1.get_value() >= COUNTER_THRESHOLD && botCovered){
+      botCovered = false;
+    }
+    else if(line_tracker1.get_value() < COUNTER_THRESHOLD && !botCovered){
+      took++;
+      botCovered = true;
+    }
+    if(line_tracker2.get_value() >= INDEX_THRESHOLD && topCovered){
+      cout << "wtf\n";
+      shot++;
+      topCovered = false;
+    }
+    else if(line_tracker2.get_value() < INDEX_THRESHOLD && !topCovered){
+      topCovered = true;
+    }
+
+    // stop conditions for intaking:
+    if(took>=ballGrab){
+      // DEBUG
+      if (took > ballGrab) {
+        // you better have terminal open
+        cout << "Overintake ERR: " << "Balls taken: " << took << '\n';
+      }
+      leftIntake.move_velocity(0);
+      rightIntake.move_velocity(0);
+      indexer.move_velocity(0);
+      retainSpeed = 0;
+    }
+    // stop conditions for shooting
+    if(shotsDone) {
+      shooter.move_velocity(0);
+      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+      leftIntake.move_velocity(-retainSpeed);
+      rightIntake.move_velocity(retainSpeed);
+    }
+    if(shot>=ballShoot && shotsDone == false){
+      shotsDone = true; // so we don't delay 150ms more than once
+      // DEBUG
+      if (shot > ballShoot) {
+        // you better have terminal open
+        cout << "Overshoot ERR: " << "Balls shot: " << shot << '\n';
+      }
+      // stop the intakes so it doesn't overintake
+      leftIntake.move_velocity(0);
+      rightIntake.move_velocity(0);
+      // 150ms delay to make sure ball leaves robot
+      double extraTime = pros::millis();
+      while(line_tracker2.get_value() >= INDEX_THRESHOLD || (pros::millis() - extraTime) < 150){
+        pros::delay(0);
+      }
+      leftIntake.move_velocity(-retainSpeed);
+      rightIntake.move_velocity(retainSpeed);
+      shooter.move_velocity(0);
+      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    }
+    pros::delay(20);
+  }
+}
+
+void ballDistro2(int ballShoot, int ballGrab, bool corner){
+  int shot = 0;
+  int took = 0;
+  int booltToggle;
+  if(line_tracker1.get_value() < COUNTER_THRESHOLD){
+    booltToggle = true;
+  }
+  else{
+    booltToggle = false;
+  }
+  int boolsToggle = true;
+  if(corner){
+  leftFront.move_velocity(60);
+  rightFront.move_velocity(-60);
+  rightBack.move_velocity(-60);
+  leftBack.move_velocity(60);
+  //leftIntake.move_velocity(-60);
+//  rightIntake.move_velocity(60);
+>>>>>>> Stashed changes
 }
 indexer.move_velocity(0);
 shooter.move_velocity(0);
@@ -400,6 +529,7 @@ while(line_tracker2.get_value() >= INDEX_THRESHOLD && baller3!=0){
     indexer.move_velocity(-200);
     shooter.move_velocity(200);
   }
+<<<<<<< Updated upstream
   indexer.move_velocity(0);
   shooter.move_velocity(0);
 }
@@ -422,6 +552,25 @@ while(baller2>0&&line_tracker1.get_value() >= INDEX_THRESHOLD){
     leftBack.move_velocity(30);
     rightFront.move_velocity(30);
     rightBack.move_velocity(30);
+=======
+  shooter.move_velocity(0);
+  shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+  indexer.move_velocity(0);
+
+  double timer = pros::millis();
+
+  while((shot!=ballShoot || took!=ballGrab) && pros::millis()-timer < 2500){
+    pros::lcd::set_text(7, "BALLS " + to_string(shot));
+    pros::lcd::set_text(7, "BALLS " + to_string(shot));
+
+    if(took!=ballGrab){
+    indexer.move_velocity(-110);}
+    else{
+      indexer.move_velocity(0);
+    }
+  if(shot!=ballShoot){
+    shooter.move_velocity(200);
+>>>>>>> Stashed changes
   }
   else if(!fronTrue && pros::millis()-mainTime>1000){
     leftFront.move_velocity(-30);
@@ -443,7 +592,41 @@ while(baller2>0&&line_tracker1.get_value() >= INDEX_THRESHOLD){
     rightIntake.move_velocity(200);}
     baller2 = 0;
   }
+<<<<<<< Updated upstream
 
+=======
+  else{
+    leftIntake.move_velocity(0);
+    rightIntake.move_velocity(0);
+  }
+  if(line_tracker1.get_value() < COUNTER_THRESHOLD && !boolsToggle){
+  took++;
+  boolsToggle = true;
+  }
+  if(line_tracker1.get_value() >= COUNTER_THRESHOLD && boolsToggle){
+    boolsToggle = false;
+  }
+  if(line_tracker2.get_value() < INDEX_THRESHOLD && !booltToggle){
+  //  shot++;
+    booltToggle = true;
+  }
+  if(line_tracker2.get_value()>= INDEX_THRESHOLD&&booltToggle == true){
+    booltToggle = false;
+    shot++;
+
+    if(shot==ballShoot){
+      leftIntake.move_velocity(0);
+      rightIntake.move_velocity(0);
+      pros::delay(150);
+    }
+    if(took == ballGrab){
+      indexer.move_velocity(0);
+    }
+  }
+}
+indexer.move_velocity(0);
+shooter.move_velocity(0);
+>>>>>>> Stashed changes
 leftIntake.move_velocity(0);
 rightIntake.move_velocity(0);
 leftFront.move_velocity(0);
@@ -481,6 +664,7 @@ double curTime = pros::millis();
 
     if (runIntakes)
     {
+<<<<<<< Updated upstream
 
       leftIntake.move_velocity(-200);
       rightIntake.move_velocity(200);
@@ -512,6 +696,33 @@ double curTime = pros::millis();
       else if(toggleBallsMax && line_tracker2.get_value() >= INDEX_THRESHOLD ){
         shooter.move_velocity(200);
         indexer.move_velocity(-200);
+=======
+      if(ballstoReach>0){
+      leftIntake.move_velocity(-200);
+      rightIntake.move_velocity(200);}
+      else{
+        leftIntake.move_velocity(0);
+        rightIntake.move_velocity(0);
+      }
+      if(line_tracker1.get_value() < COUNTER_THRESHOLD && !indStart){
+        ballstoReach--;
+        indStart = true;
+        indTime = pros::millis()-time;
+      }
+      if(indStart && (currentTime - indTime) < 315 && line_tracker2.get_value() >= INDEX_THRESHOLD){
+        indexer.move_velocity(-200);
+        if(!removeBalls)
+        shooter.move_velocity(160);
+        else{
+        shooter.move_velocity(-150);
+      }}
+      else if(((currentTime - indTime) >= 315 && removeBalls==0) || line_tracker2.get_value() < INDEX_THRESHOLD){
+        indStart = false;
+        indexer.move_velocity(0);
+        shooter.move_velocity(0);
+        indexer.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+>>>>>>> Stashed changes
       }
 
       else{
@@ -528,6 +739,7 @@ double curTime = pros::millis();
       }
 
     }
+<<<<<<< Updated upstream
     else if(runIntakesGrip>0){
       if(runIntakesGrip==1){
         leftIntake.move_velocity(-80);
@@ -535,6 +747,18 @@ double curTime = pros::millis();
         shooter.move_velocity(-100);
         indexer.move_velocity(100);
 
+=======
+    else if(runIntakesBack){
+      if(!indStart){
+        indStart = true;
+        indTime = pros::millis()-time;
+      }
+      if(indStart && (currentTime - indTime) < 700){
+        indexer.move_velocity(140);
+        shooter.move_velocity(-130);
+        leftIntake.move_velocity(155);
+        rightIntake.move_velocity(-155);
+>>>>>>> Stashed changes
       }
       else{
         leftIntake.move_velocity(80);
@@ -542,6 +766,7 @@ double curTime = pros::millis();
       }
 
     }
+<<<<<<< Updated upstream
     else if(runIntakesBack>0){
 
       while(line_tracker1.get_value() < INDEX_THRESHOLD){
@@ -556,6 +781,15 @@ double curTime = pros::millis();
       indexer.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
       leftIntake.move_velocity(150);
       rightIntake.move_velocity(-150);
+=======
+    else if(runIntakesGrip){
+      leftIntake.move_velocity(80);
+      rightIntake.move_velocity(-80);
+    }
+    else if(runIndexer){
+      if(pros::millis()-time <= 400){
+      indexer.move_velocity(-180);}
+>>>>>>> Stashed changes
 
     }
 
@@ -617,13 +851,13 @@ double curTime = pros::millis();
     long double d1 = (x2 - x1) * (y1Other - y1) - (y2 - y1) * (x1Other - x1);
     if (d1 < 0)
       horizontalSign = -1;
-    cout << "D1: " << d1 << '\n';
+    //cout << "D1: " << d1 << '\n';
 
     // same for the vertical component
     long double d2 = (x - x1) * (y3Other - y1) - (y - y1) * (x3Other - x1);
     if (d2 < 0)
       verticalSign = -1;
-    cout << "D2: " << d2 << '\n';
+  //  cout << "D2: " << d2 << '\n';
 
     // with the intersection point and direction, we can now calculate the
     // Euclidean distance forwards relative to the robot's direction and
@@ -631,7 +865,7 @@ double curTime = pros::millis();
     // (errors) for our overall translation vector
     long double yComponent = abs(sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1))) * verticalSign;
     long double xComponent = abs(sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2))) * horizontalSign;
-    cout << "COMPONENT VECTORS: " << yComponent << ' ' << xComponent << '\n';
+  //  cout << "COMPONENT VECTORS: " << yComponent << ' ' << xComponent << '\n';
 
     // to send this information to the motors, we pass the original encoder
     // position, and the destination encoder position plus their respective
@@ -640,18 +874,18 @@ double curTime = pros::millis();
     long double leftDest = verticalEncoder1.get_value() + yComponent * (360 / (2.75 * pi));
     long double rightDest = verticalEncoder2.get_value() + yComponent * (360 / (2.75 * pi));
     long double horizontalDest = horizontalEncoder.get_value() + xComponent * (360 / (2.75 * pi));
-    cout << "DESTINATIONS: " << leftDest << ' ' << rightDest << ' ' << horizontalDest << '\n';
+  //  cout << "DESTINATIONS: " << leftDest << ' ' << rightDest << ' ' << horizontalDest << '\n';
 
     // begin PID controllers
 
     // [y component] forward backward (relative to heading) voltage output
     long double yVoltageLeft = leftdrivebasePIDController->update(leftDest, verticalEncoder1.get_value(), -1);
     long double yVoltageRight = rightdrivebasePIDController->update(rightDest, verticalEncoder2.get_value(), -1);
-    cout << "FB Volt: " << yVoltageLeft << ' ' << yVoltageRight << '\n';
+  //  cout << "FB Volt: " << yVoltageLeft << ' ' << yVoltageRight << '\n';
 
     // [x component] side to side (relative to heading) voltage output
     long double xVoltage = strafePIDController->update(horizontalDest, horizontalEncoder.get_value(), -1);
-    cout << "H Volt: " << xVoltage << '\n';
+  //  cout << "H Volt: " << xVoltage << '\n';
     pros::lcd::set_text(5, "lDest: " + to_string(leftDest));
     pros::lcd::set_text(6, "rDest: " + to_string(rightDest));
     pros::lcd::set_text(7, "hDest: " + to_string(horizontalDest));
@@ -659,7 +893,7 @@ double curTime = pros::millis();
     // [angle] angle heading correction with voltage output
     long double angleVoltageLeft = turningPIDController->update(heading, lastAngle, -1);
     long double angleVoltageRight = -turningPIDController->update(heading, lastAngle, -1);
-    cout << "Ang Volt: " << angleVoltageLeft << ' ' << angleVoltageRight << '\n';
+    //cout << "Ang Volt: " << angleVoltageLeft << ' ' << angleVoltageRight << '\n';
 
     /*
     To allow for a smoother acceleration gradient, time is considered in
@@ -696,12 +930,12 @@ double curTime = pros::millis();
       finalVoltageRightBack *= scaling;
     }
 
-    cout << "FINAL OUTPUT: " << finalVoltageLeftFront << ' ' << finalVoltageLeftBack << ' ' << finalVoltageRightFront << ' ' << finalVoltageRightBack << '\n';
+  //  cout << "FINAL OUTPUT: " << finalVoltageLeftFront << ' ' << finalVoltageLeftBack << ' ' << finalVoltageRightFront << ' ' << finalVoltageRightBack << '\n';
 
     // stop the robot if the maximum allocated time is exceeded
     if (pros::millis() - time >= timeAllocated)
     {
-      cout << "PID STOPPED" << '\n';
+    //  cout << "PID STOPPED" << '\n';
       leftFront.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
       rightFront.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
       leftBack.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
@@ -751,7 +985,7 @@ void turnPID(long double targetAngle, int time, int timeAllocated)
     long double angleVoltageLeft = pointTurnPIDController->update(targetAngle, lastAngle, -1);
     long double angleVoltageRight = pointTurnPIDController->update(targetAngle, lastAngle, -1);
 
-    pros::lcd::set_text(5, "Ang: " + to_string(lastAngle));
+    //pros::lcd::set_text(5, "Ang: " + to_string(lastAngle));
     leftFront.move_voltage(angleVoltageLeft);
     leftBack.move_voltage(angleVoltageLeft);
     rightFront.move_voltage(angleVoltageRight);
@@ -792,8 +1026,19 @@ void autonomous()
   // start by creating an odom instance
   pros::Task position_task(vector_tasks_fn, (void *)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT, "Print X and Y Task");
 
+<<<<<<< Updated upstream
+=======
+//translationPID(0, 24.0, 0, pros::millis(), 2000, true, false, 0, 0, 2, 1,12000);
+//pros::delay(100000);
+  /* while(true) {
+    ballDistro2(2, 1, 0);
+  pros::delay(2500);
+} */
+>>>>>>> Stashed changes
   // // begin run
+
   // turnPID(-pi / 2.0, pros::millis(), 700);
+<<<<<<< Updated upstream
 
   // ALLEN MOTION TEST
   translationPID(0.0, 48.0, lastAngle, pros::millis(), 4000, false, false, 0, 0, 0, 12000);
@@ -803,6 +1048,110 @@ void autonomous()
   translationPID(0.0, 0.0, 0.0, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
   translationPID(0.0, 24.0, 0.0, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
   translationPID(0.0, 0.0, 0.0, pros::millis(), 3000, false, false, 0, 0, 0, 12000);
+=======
+  //ballDistro(2,2,0);
+   deploy();
+  // ALLEN MOTION TEST
+//  while()
+//  *///while(true){ballDistro(2,2,0);
+    //pros::delay(850);}
+
+
+  translationPID(13.3, 0.0, 0, pros::millis(), 600, false, false, 0, 0, 0,0,12000);
+ translationPID(14.0, 32.0, -pi/3.6, pros::millis(), 1000, true, false, 0, 0, 0,2,12000);
+  translationPID(3.2, 42.2, -pi/4.0, pros::millis(), 730, false, false, 0, 0, 0,1,12000);
+  ballDistro(2,2,0);
+  translationPID(16.0, 26.0, -pi/2.5, pros::millis(), 460, false, false, 1, 0, 0,0,12000);
+  translationPID(18.0, 22.0, -pi/5.2, pros::millis(), 800, false, false, 0, 1, 0,0,12000);
+  translationPID(20.0, 42.0, pi/6.5, pros::millis(), 1290, true, false, 0, 0, 0,1,12000);
+  translationPID(39.0, 10.0, pi/2.0, pros::millis(), 1640, true, false, 0, 0, 0,1,12000);
+  translationPID(59.0, 10.0, pi/2.0, pros::millis(), 1500, true, false, 0, 0, 0,1,12000);
+  //translationPID(57.0, 33.0, pi/5.5, pros::millis(), 920, true, false, 0, 0, 0,1,12000);
+  turnPID(0.0, pros::millis(), 750, false);
+  translationPID(59.0, 33.0, 0, pros::millis(), 1220, true, false, 0, 0, 0,1,12000);
+  translationPID(59.0, 39.0, 0, pros::millis(), 500, false, false, 0, 0, 0,0,7000);
+
+  ballDistro(2,1,0);
+  translationPID(59.0, 34.0, 0, pros::millis(), 520, false, false, 1, 0, 0,0,12000);
+  translationPID(59.0, 30.0,-pi/5.0, pros::millis(), 720, false, false, 0, 1, 0,0,12000);
+  translationPID(59.0, 24.5, 0, pros::millis(), 800, true, false, 0, 0, 0,1,12000);
+  turnPID(pi/2.0, pros::millis(), 650, false);
+  translationPID(98.0, 24.5, pi/2.0, pros::millis(), 1450, true, false, 0, 0, 0,1,12000);
+  translationPID(95.0, 28.5, 0, pros::millis(), 900, true, false, 0, 0, 0,1,12000);
+  pros::delay(5000);
+  translationPID(57.0, 35.0, 0, pros::millis(), 500, false, false, 0, 0, 0,0,12000);
+  //pros::delay(230);
+
+  //translationPID(57.0, 40.0, -pi/2.0, pros::millis(), 720, false, false, 0, 0, 0,0,12000);
+  turnPID(-pi, pros::millis(), 800, false);
+
+  translationPID(60.0, 0.0, -pi, pros::millis(), 1820, true, false, 0, 0, 1,2,7000);
+  //ballDistro(1,3);
+  ballDistro(1,3,0);
+  translationPID(58.7, 14.0, -pi, pros::millis(), 820, false, true, 0, 0, 0,0,12000);
+  translationPID(58.7, 23.0, -pi, pros::millis(), 720, false, false, 0, 0, 0,0,12000);
+  turnPID(-pi-pi/2.0, pros::millis(), 600, false);
+  translationPID(106.7, 22.0, -pi-pi/1.60, pros::millis(), 1780, true, false, 0, 0, 2,1,12000);
+  //translationPID(109.7, 40.0, -pi-pi/2.0-pi/4.0, pros::millis(), 300, true, false, 0, 0, 0,1,12000);
+  translationPID(94.7, 36.0, -2*pi, pros::millis(), 1200, true, false, 0, 0, 0,2,12000);
+  translationPID(94.7, 44.0, -2*pi, pros::millis(), 800, true, false, 0, 0, 0,2,12000);
+  translationPID(107.7, 41.0, -pi-pi/2.0-pi/4.0, pros::millis(), 900, true, false, 0, 0, 0,1,12000);
+  translationPID(115.7, 48.0, -pi-pi/2.0-pi/3.7, pros::millis(), 900, false, false, 0, 0, 0,0,12000);
+  ballDistro(2,2,0);
+  translationPID(100.7, 30.0, -pi-pi/2.0, pros::millis(), 900, false, false, 0, 1, 0,0,12000);
+  turnPID(-pi+pi/4.0, pros::millis(), 600, false);
+  translationPID(88, -7.0, -pi, pros::millis(), 1500, true, false, 0, 0, 2,1,12000);
+  translationPID(94, -7.0, -pi-pi/2.0, pros::millis(), 1000, true, false, 0, 0, 0,1,12000);
+  translationPID(114, -8.5, -pi-pi/2.0, pros::millis(), 900, false, false, 0, 0, 0,0,12000);
+  ballDistro(1,1,0);
+  translationPID(105, -8.5, -pi-pi/2.0, pros::millis(), 700, false, false, 0, 0, 0,0,12000);
+  turnPID(-pi, pros::millis(), 600, false);
+  //translationPID(110, -10.5, -pi, pros::millis(), 600, true, false, 0, 0, 2,0,12000);
+  translationPID(110, -50.0, -pi, pros::millis(), 1100, true, false, 0, 0, 2,1,12000);
+  translationPID(100, -65.5, -pi, pros::millis(), 1100, true, false, 0, 0, 0,1,12000);
+  translationPID(104, -52.0, -pi-pi/3.95, pros::millis(), 800, true, false, 0, 0, 0,0,12000);
+  translationPID(120.5, -64.8, -pi-pi/3.95, pros::millis(), 1600, false, false, 0, 0, 0,0,12000);
+  ballDistro(2,2,0);
+  translationPID(104, -47.0, -pi, pros::millis(), 1100, false, false, 0, 1, 0,0,12000);
+  turnPID(-pi/2.0, pros::millis(), 600, false);
+  translationPID(62, -63.0, -pi/2.0, pros::millis(), 1200, true, false, 0, 0, 2,1,12000);
+  translationPID(62, -58.0, -pi, pros::millis(), 1000, true, false, 0, 0, 0,1,12000);
+  turnPID(-pi, pros::millis(), 200, false);
+  translationPID(64.4, -67.0, -pi, pros::millis(), 800, false, false, 0, 0, 0,0,12000);
+  ballDistro(1,0,0);
+  translationPID(65, -59.0, -pi/2.0, pros::millis(), 800, false, false, 0, 0, 1,0,12000);
+  translationPID(65, -59.0, 0.0, pros::millis(), 800, false, false, 0, 0, 2,0,12000);
+  translationPID(65, -42.0, 0, pros::millis(), 1000, true, false, 0, 0, 0,1,12000);
+  turnPID(-pi/4.0, pros::millis(), 500, false);
+  translationPID(43, -16.0, -pi/4.0, pros::millis(), 1600, true, false, 0, 0,1,2,12000);
+  translationPID(15, -17.0, -pi/2.0, pros::millis(), 1600, true, false, 0, 0, 0,2,12000);
+  translationPID(5, -17.0, -pi/2.0, pros::millis(), 900, true, false, 0, 0, 0,0,12000);
+  ballDistro(1,0,0);
+  translationPID(18, -15.0, -pi, pros::millis(), 900, false, false, 0, 0, 2,0,12000);
+  translationPID(7.2, -90.0, -pi, pros::millis(), 900, true, false, 0, 0, 0,1,12000);
+  turnPID(-pi+pi/4.0, pros::millis(), 500, false);
+  translationPID(5, -64.8, -pi+pi/4.0, pros::millis(), 900, false, false, 0, 0, 0,1,12000);
+  ballDistro(2,2,0);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> Stashed changes
 //   deploy();
 //   //
 //   // goal 1
