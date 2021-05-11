@@ -323,28 +323,48 @@ void shootingProcedure(bool slowrun)
 
 }*/
 
-/*
-<
-Pseudocode
 
+int ball_taken = 0;
+int ball_shot = 0;
+bool botCovered = true;
+bool topCovered = true;
+bool runTask = false;
+void countingProcess(void *param){
+    while(runTask){
+    if(line_tracker1.get_value() >= COUNTER_THRESHOLD && botCovered){
+      botCovered = false;
+    }
+    else if(line_tracker1.get_value() < COUNTER_THRESHOLD && !botCovered){
+      ball_taken++;
+      botCovered = true;
+    }
+    if(line_tracker2.get_value() >= INDEX_THRESHOLD && topCovered){
+      ball_shot++;
+      topCovered = false;
+    }
+    else if(line_tracker2.get_value() < INDEX_THRESHOLD && !topCovered){
+      topCovered = true;
+    }
+    pros::delay(10);
+    }
+}
 
-*/
 void ballDistro(int ballShoot, int ballGrab, bool corner){
   // you only want the 150ms delay after shooting after the last ball being shot, so that
   // conditional should only be run ONCE
   bool shotsDone = false;
-
-  int shot = 0;
-  int took = 0;
+   ball_shot = 0;
+   ball_taken = 0;
   int retainSpeed = 0;
+  bool keepIntake = true;
+  bool keepShoot = true;
   
-  bool botCovered; 
   if (line_tracker1.get_value() < COUNTER_THRESHOLD) {
    botCovered = true;
   } else {  
    botCovered = false;
   } 
-  bool topCovered = true;
+  topCovered = true;
   
    double timePrime = pros::millis();
    while(line_tracker2.get_value() >= INDEX_THRESHOLD  && pros::millis()- timePrime < 1800){
@@ -353,74 +373,81 @@ void ballDistro(int ballShoot, int ballGrab, bool corner){
    }
   
   // set the conveyor system to be running up initially
+  runTask = true;
   indexer.move_velocity(-200);
-  shooter.move_velocity(190);
   leftIntake.move_velocity(-200);
   rightIntake.move_velocity(200);
+  shooter.move_velocity(190);
   retainSpeed = 200;
 
-  while(took < ballGrab || shot < ballShoot){
-    pros::lcd::set_text(7, "RS " + to_string(retainSpeed));
-    pros::lcd::set_text(5, "BALLS " + to_string(took));
-    pros::lcd::set_text(4, "BALLS " + to_string(shot));
-    // counting
-    if(line_tracker1.get_value() >= COUNTER_THRESHOLD && botCovered){
-      botCovered = false;
-    }
-    else if(line_tracker1.get_value() < COUNTER_THRESHOLD_LOW && !botCovered){
-      took++;
-      botCovered = true;
-    }
-    if(line_tracker2.get_value() >= INDEX_THRESHOLD && topCovered){
-      shot++;
-      topCovered = false;
-    }
-    else if(line_tracker2.get_value() < INDEX_THRESHOLD_LOW && !topCovered){
-      topCovered = true;
-    }
-    
-    // stop conditions for intaking:
-    if(took>=ballGrab){
-      // DEBUG
-      if (took > ballGrab) {
-        // you better have terminal open 
-        cout << "Overintake ERR: " << "Balls taken: " << took << '\n';
-      }
-      leftIntake.move_velocity(0);
-      rightIntake.move_velocity(0);
-      indexer.move_velocity(0);
-      retainSpeed = 0;
-    }
-    // stop conditions for shooting
-    if(shotsDone) {
-      shooter.move_velocity(0);
-      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-      leftIntake.move_velocity(-retainSpeed);
-      rightIntake.move_velocity(retainSpeed);
-    }
-    if(shot>=ballShoot){
-      shotsDone = true; // so we don't delay 150ms more than once
-      // DEBUG
-      if (shot > ballShoot) {
-        // you better have terminal open 
-        cout << "Overshoot ERR: " << "Balls shot: " << shot << '\n';
-      }
-      // stop the intakes so it doesn't overintake
-      leftIntake.move_velocity(0);
-      rightIntake.move_velocity(0);
-      // 150ms delay to make sure ball leaves robot
-      double extraTime = pros::millis();
-      while(line_tracker2.get_value() >= INDEX_THRESHOLD && (pros::millis() - extraTime) < 150){
-        pros::delay(10);
-      }
-      leftIntake.move_velocity(-retainSpeed);
-      rightIntake.move_velocity(retainSpeed);
-      shooter.move_velocity(0);
-      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);  
-    }
-    pros::delay(10);
+  while(true){
+  if(ball_taken >= ballGrab && ball_shot >= ballShoot){
+    break;
   }
-}
+  else if(ball_taken >= ballGrab){
+    leftIntake.move_velocity(0);
+    rightIntake.move_velocity(0);
+  }
+  else{
+    shooter.move_velocity(190);
+    shooter.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+  }
+  pros::delay(10);
+
+  }
+  runTask = false;
+
+  
+
+  // while(ball_taken < ballGrab || ball_shot < ballShoot){
+  //   pros::lcd::set_text(7, "RS " + to_string(retainSpeed));
+  //   pros::lcd::set_text(5, "BALLS " + to_string(ball_taken));
+  //   pros::lcd::set_text(4, "BALLS " + to_string(ball_shot));
+  //   // counting
+    
+    
+  //   // stop conditions for intaking:
+  //   if(ball_taken>=ballGrab){
+  //     // DEBUG
+  //     if (ball_taken > ballGrab) {
+  //       // you better have terminal open 
+  //      // cout << "Overintake ERR: " << "Balls taken: " << took << '\n';
+  //     }
+  //     leftIntake.move_velocity(0);
+  //     rightIntake.move_velocity(0);
+  //     indexer.move_velocity(0);
+  //     retainSpeed = 0;
+  //   }
+  //   // stop conditions for shooting
+  //   if(shotsDone) {
+  //     shooter.move_velocity(0);
+  //     shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+  //     leftIntake.move_velocity(-retainSpeed);
+  //     rightIntake.move_velocity(retainSpeed);
+  //   }
+    // if(ball_shot>=ballShoot){
+    //   shotsDone = true; // so we don't delay 150ms more than once
+    //   // DEBUG
+    //   if (shot > ballShoot) {
+    //     // you better have terminal open 
+    //     cout << "Overshoot ERR: " << "Balls shot: " << shot << '\n';
+    //   }
+    //   // stop the intakes so it doesn't overintake
+    //   leftIntake.move_velocity(0);
+    //   rightIntake.move_velocity(0);
+    //   // 150ms delay to make sure ball leaves robot
+    //   double extraTime = pros::millis();
+    //   while(line_tracker2.get_value() >= INDEX_THRESHOLD && (pros::millis() - extraTime) < 150){
+    //     pros::delay(10);
+    //   }
+    //   leftIntake.move_velocity(-retainSpeed);
+    //   rightIntake.move_velocity(retainSpeed);
+    //   shooter.move_velocity(0);
+    //   shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);  
+    // }
+    // pros::delay(10);
+  }
+
 
 void ballDistro2(int ballShoot, int ballGrab, bool corner){
   int shot = 0;
@@ -928,7 +955,7 @@ void autonomous()
 
   // start by creating an odom instance
   pros::Task position_task(vector_tasks_fn, (void *)"PROS", TASK_PRIORITY_MAX, TASK_STACK_DEPTH_DEFAULT, "Print X and Y Task");
-
+  pros::Task counting_task(countingProcess, (void *)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Counting Balls");
 //translationPID(0, 24.0, 0, pros::millis(), 2000, true, false, 0, 0, 2, 1,12000);
 //pros::delay(100000);
   // while(true) {
@@ -936,16 +963,13 @@ void autonomous()
 ///   pros::delay(1000);
 //   }
   // // begin run
+  ballDistro(2,1,0);
 
   // turnPID(-pi / 2.0, pros::millis(), 700);
   //ballDistro(2,2,0);
+  //CODE FOR RUN -------- 
+  /*
   deploy();
-  // ALLEN MOTION TEST
-//  while()
-//  *///while(true){ballDistro(2,2,0);
-    //pros::delay(850);}
-
-
   translationPID(13.3, 0.0, 0, pros::millis(), 600, false, false, 0, 0, 0,0,12000);
  translationPID(14.0, 32.0, -pi/3.6, pros::millis(), 1000, true, false, 0, 0, 0,2,12000);
   translationPID(3.2, 42.2, -pi/4.0, pros::millis(), 730, false, false, 0, 0, 0,1,12000);
@@ -1021,6 +1045,7 @@ void autonomous()
   turnPID(-pi+pi/4.0, pros::millis(), 500, false);
   translationPID(5, -64.8, -pi+pi/4.0, pros::millis(), 900, false, false, 0, 0, 0,1,12000);
   ballDistro(2,2,0);
+  */
 
 
 
