@@ -69,6 +69,8 @@ int maxSpeed = 12000;
 // line sensor threshold, depending on ambient lighting conditions
 int INDEX_THRESHOLD = 2800;
 int COUNTER_THRESHOLD = 2700;
+int INDEX_THRESHOLD_LOW = 2500;
+int COUNTER_THRESHOLD_LOW = 2400;
 
 // epsilon, near zero value, to avoid zero division error
 const long double EPS = 1e-8;

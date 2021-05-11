@@ -17,6 +17,8 @@ extern int maxSpeed; // defining motion constants
 extern int indTime;
 extern int INDEX_THRESHOLD;
 extern int COUNTER_THRESHOLD;
+extern int INDEX_THRESHOLD_LOW;
+extern int COUNTER_THRESHOLD_LOW;
 extern long double ANGLE_Kp;
 extern long double STRAFE_Kp;
 extern long double accelerationTime;

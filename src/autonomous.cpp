@@ -322,10 +322,116 @@ void shootingProcedure(bool slowrun)
   int took = 0;
 
 }*/
+
+/*
+<
+Pseudocode
+
+
+*/
 void ballDistro(int ballShoot, int ballGrab, bool corner){
+  // you only want the 150ms delay after shooting after the last ball being shot, so that
+  // conditional should only be run ONCE
+  bool shotsDone = false;
+
   int shot = 0;
   int took = 0;
-  int booltToggle = false;
+  int retainSpeed = 0;
+  
+  bool botCovered; 
+  if (line_tracker1.get_value() < COUNTER_THRESHOLD) {
+   botCovered = true;
+  } else {  
+   botCovered = false;
+  } 
+  bool topCovered = true;
+  
+   double timePrime = pros::millis();
+   while(line_tracker2.get_value() >= INDEX_THRESHOLD  && pros::millis()- timePrime < 1800){
+   indexer.move_velocity(-200);
+   shooter.move_velocity(190);
+   }
+  
+  // set the conveyor system to be running up initially
+  indexer.move_velocity(-200);
+  shooter.move_velocity(190);
+  leftIntake.move_velocity(-200);
+  rightIntake.move_velocity(200);
+  retainSpeed = 200;
+
+  while(took < ballGrab || shot < ballShoot){
+    pros::lcd::set_text(7, "RS " + to_string(retainSpeed));
+    pros::lcd::set_text(5, "BALLS " + to_string(took));
+    pros::lcd::set_text(4, "BALLS " + to_string(shot));
+    // counting
+    if(line_tracker1.get_value() >= COUNTER_THRESHOLD && botCovered){
+      botCovered = false;
+    }
+    else if(line_tracker1.get_value() < COUNTER_THRESHOLD_LOW && !botCovered){
+      took++;
+      botCovered = true;
+    }
+    if(line_tracker2.get_value() >= INDEX_THRESHOLD && topCovered){
+      shot++;
+      topCovered = false;
+    }
+    else if(line_tracker2.get_value() < INDEX_THRESHOLD_LOW && !topCovered){
+      topCovered = true;
+    }
+    
+    // stop conditions for intaking:
+    if(took>=ballGrab){
+      // DEBUG
+      if (took > ballGrab) {
+        // you better have terminal open 
+        cout << "Overintake ERR: " << "Balls taken: " << took << '\n';
+      }
+      leftIntake.move_velocity(0);
+      rightIntake.move_velocity(0);
+      indexer.move_velocity(0);
+      retainSpeed = 0;
+    }
+    // stop conditions for shooting
+    if(shotsDone) {
+      shooter.move_velocity(0);
+      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+      leftIntake.move_velocity(-retainSpeed);
+      rightIntake.move_velocity(retainSpeed);
+    }
+    if(shot>=ballShoot){
+      shotsDone = true; // so we don't delay 150ms more than once
+      // DEBUG
+      if (shot > ballShoot) {
+        // you better have terminal open 
+        cout << "Overshoot ERR: " << "Balls shot: " << shot << '\n';
+      }
+      // stop the intakes so it doesn't overintake
+      leftIntake.move_velocity(0);
+      rightIntake.move_velocity(0);
+      // 150ms delay to make sure ball leaves robot
+      double extraTime = pros::millis();
+      while(line_tracker2.get_value() >= INDEX_THRESHOLD && (pros::millis() - extraTime) < 150){
+        pros::delay(10);
+      }
+      leftIntake.move_velocity(-retainSpeed);
+      rightIntake.move_velocity(retainSpeed);
+      shooter.move_velocity(0);
+      shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);  
+    }
+    pros::delay(10);
+  }
+}
+
+void ballDistro2(int ballShoot, int ballGrab, bool corner){
+  int shot = 0;
+  int took = 0;
+  int booltToggle;
+  if(line_tracker1.get_value() < COUNTER_THRESHOLD){
+    booltToggle = true;
+  }
+  else{
+    booltToggle = false;
+  }
   int boolsToggle = true;
   if(corner){
   leftFront.move_velocity(60);
@@ -344,9 +450,14 @@ double time = pros::millis();
   indexer.move_velocity(0);
   shooter.move_velocity(0);
   double timer = pros::millis();
+  
   while((shot!=ballShoot || took!=ballGrab) && pros::millis()-timer < 2500){
-    pros::lcd::set_text(7, "BALLS " + to_string(took));
-    indexer.move_velocity(-110);
+    pros::lcd::set_text(7, "BALLS " + to_string(shot));
+    if(took!=ballGrab){
+    indexer.move_velocity(-110);}
+    else{
+      indexer.move_velocity(0);
+    }
   if(shot!=ballShoot){
     shooter.move_velocity(200);
   }
@@ -362,18 +473,18 @@ double time = pros::millis();
     leftIntake.move_velocity(0);
     rightIntake.move_velocity(0);
   }
-  if(line_tracker1.get_value() < COUNTER_THRESHOLD && !boolsToggle){
+  if(line_tracker1.get_value() < COUNTER_THRESHOLD_LOW && !boolsToggle){
   took++;
-    boolsToggle = true;
+  boolsToggle = true;
   }
   if(line_tracker1.get_value() >= COUNTER_THRESHOLD && boolsToggle){
     boolsToggle = false;
   }
-  if(line_tracker2.get_value() < INDEX_THRESHOLD && !booltToggle){
+  if(line_tracker2.get_value() < INDEX_THRESHOLD_LOW && !booltToggle){
   //  shot++;
     booltToggle = true;
   }
-  if(line_tracker2.get_value()>= INDEX_THRESHOLD&&booltToggle == true){
+  if(line_tracker2.get_value()>= INDEX_THRESHOLD &&booltToggle == true){
     booltToggle = false;
     shot++;
 
@@ -382,6 +493,9 @@ double time = pros::millis();
       rightIntake.move_velocity(0);
       pros::delay(150);
     }
+    if(took == ballGrab){
+      indexer.move_velocity(0);
+    }
   }
 }
 indexer.move_velocity(0);
@@ -389,40 +503,6 @@ shooter.move_velocity(0);
 leftIntake.move_velocity(0);
 rightIntake.move_velocity(0);
 
-/*  while(shot < ballShoot){
-    while(line_tracker2.get_value() >= INDEX_THRESHOLD){
-      indexer.move_velocity(-200);
-      shooter.move_velocity(180);
-    }
-    indexer.move_velocity(0);
-    shooter.move_velocity(0);
-    while(line_tracker2.get_value()<INDEX_THRESHOLD){
-      indexer.move_velocity(-150);
-      shooter.move_velocity(200);
-    }
-    if(shot==ballShoot-1){
-    pros::delay(450);}
-    indexer.move_velocity(0);
-    shooter.move_velocity(0);
-    shot++;
-  }
-  while(took<ballGrab){
-    while(line_tracker1.get_value()>=INDEX_THRESHOLD){
-      leftIntake.move_velocity(-200);
-      rightIntake.move_velocity(200);
-    }
-    leftIntake.move_velocity(0);
-    rightIntake.move_velocity(0);
-    if(line_tracker1.get_value()<INDEX_THRESHOLD){
-    took++;}
-    if(took<ballGrab){
-    while(line_tracker1.get_value()<INDEX_THRESHOLD){
-      indexer.move_velocity(-190);
-    }}
-    pros::delay(100);
-    indexer.move_velocity(0);
-    shooter.move_velocity(0);
-  }*/
   if(took>ballGrab){
     pros::delay(10000);
   }
@@ -439,7 +519,7 @@ int translationPID(long double x2, long double y2, long double heading, int time
   int maxTime = 0;
   bool toggleBallUp = false;
   bool toggleBallsMax = false;
-  int ballstoReach = 0;
+  int ballstoReach = numGrab;
   int ballsinBot = 0;
   bool addActive = false;
   bool timeSet = false;
@@ -497,22 +577,26 @@ double curTime = pros::millis();
     long double coefTime = 1.0;
     if (runIntakes)
     {
+      if(ballstoReach>0){
       leftIntake.move_velocity(-200);
-      rightIntake.move_velocity(200);
+      rightIntake.move_velocity(200);}
+      else{
+        leftIntake.move_velocity(0);
+        rightIntake.move_velocity(0);
+      }
       if(line_tracker1.get_value() < COUNTER_THRESHOLD && !indStart){
         ballstoReach--;
         indStart = true;
         indTime = pros::millis()-time;
       }
-      if(indStart && (currentTime - indTime) < 260 && line_tracker2.get_value() >= INDEX_THRESHOLD){
+      if(indStart && (currentTime - indTime) < 315 && line_tracker2.get_value() >= INDEX_THRESHOLD){
         indexer.move_velocity(-200);
         if(!removeBalls)
         shooter.move_velocity(160);
-        else
-        shooter.move_velocity(-200);
-
-      }
-      else if(((currentTime - indTime) >= 260 && removeBalls==0) || line_tracker2.get_value() < INDEX_THRESHOLD){
+        else{
+        shooter.move_velocity(-150);
+      }}
+      else if(((currentTime - indTime) >= 315 && removeBalls==0) || line_tracker2.get_value() < INDEX_THRESHOLD){
         indStart = false;
         indexer.move_velocity(0);
         shooter.move_velocity(0);
@@ -529,9 +613,9 @@ double curTime = pros::millis();
         indStart = true;
         indTime = pros::millis()-time;
       }
-      if(indStart && (currentTime - indTime) < 700 && line_tracker2.get_value() >= INDEX_THRESHOLD){
-        indexer.move_velocity(80);
-      //  shooter.move_velocity(-160);
+      if(indStart && (currentTime - indTime) < 700){
+        indexer.move_velocity(140);
+        shooter.move_velocity(-130);
         leftIntake.move_velocity(155);
         rightIntake.move_velocity(-155);
       }
@@ -545,11 +629,8 @@ double curTime = pros::millis();
       rightIntake.move_velocity(-80);
     }
     else if(runIndexer){
-      indexer.move_velocity(27);
-      shooter.move_velocity(-50);
       if(pros::millis()-time <= 400){
-      leftIntake.move_velocity(110);
-      rightIntake.move_velocity(-110);}
+      indexer.move_velocity(-180);}
 
     }
 
@@ -851,10 +932,11 @@ void autonomous()
 //translationPID(0, 24.0, 0, pros::millis(), 2000, true, false, 0, 0, 2, 1,12000);
 //pros::delay(100000);
   // while(true) {
-  //   ballDistro(2, 2, 0);
-  //   pros::delay(1000);
-  // }
+  //  ballDistro(2, 1, 0);
+///   pros::delay(1000);
+//   }
   // // begin run
+
   // turnPID(-pi / 2.0, pros::millis(), 700);
   //ballDistro(2,2,0);
   deploy();
@@ -871,14 +953,21 @@ void autonomous()
   translationPID(16.0, 26.0, -pi/2.5, pros::millis(), 460, false, false, 1, 0, 0,0,12000);
   translationPID(18.0, 22.0, -pi/5.2, pros::millis(), 800, false, false, 0, 1, 0,0,12000);
   translationPID(20.0, 42.0, pi/6.5, pros::millis(), 1290, true, false, 0, 0, 0,1,12000);
-  translationPID(42.0, 10.0, pi/2.0, pros::millis(), 1240, true, false, 0, 0, 0,1,12000);
-  translationPID(46.0, 10.0, pi/2.0, pros::millis(), 5000, true, false, 0, 0, 0,1,12000);
+  translationPID(39.0, 10.0, pi/2.0, pros::millis(), 1640, true, false, 0, 0, 0,1,12000);
+  translationPID(59.0, 10.0, pi/2.0, pros::millis(), 1500, true, false, 0, 0, 0,1,12000);
+  //translationPID(57.0, 33.0, pi/5.5, pros::millis(), 920, true, false, 0, 0, 0,1,12000);
+  turnPID(0.0, pros::millis(), 750, false);
+  translationPID(59.0, 33.0, 0, pros::millis(), 1220, true, false, 0, 0, 0,1,12000);
+  translationPID(59.0, 39.0, 0, pros::millis(), 500, false, false, 0, 0, 0,0,7000);
 
-
-  translationPID(57.0, 33.0, pi/5.5, pros::millis(), 920, true, false, 0, 0, 0,1,12000);
-  turnPID(0.0, pros::millis(), 300, false);
-  translationPID(59.0, 45.0, 0, pros::millis(), 520, true, false, 0, 0, 0,1,12000);
   ballDistro(2,1,0);
+  translationPID(59.0, 34.0, 0, pros::millis(), 520, false, false, 1, 0, 0,0,12000);
+  translationPID(59.0, 30.0,-pi/5.0, pros::millis(), 720, false, false, 0, 1, 0,0,12000);
+  translationPID(59.0, 24.5, 0, pros::millis(), 800, true, false, 0, 0, 0,1,12000);
+  turnPID(pi/2.0, pros::millis(), 650, false);
+  translationPID(98.0, 24.5, pi/2.0, pros::millis(), 1450, true, false, 0, 0, 0,1,12000);
+  translationPID(95.0, 28.5, 0, pros::millis(), 900, true, false, 0, 0, 0,1,12000);
+  pros::delay(5000);
   translationPID(57.0, 35.0, 0, pros::millis(), 500, false, false, 0, 0, 0,0,12000);
   //pros::delay(230);
 
@@ -932,6 +1021,8 @@ void autonomous()
   turnPID(-pi+pi/4.0, pros::millis(), 500, false);
   translationPID(5, -64.8, -pi+pi/4.0, pros::millis(), 900, false, false, 0, 0, 0,1,12000);
   ballDistro(2,2,0);
+
+
 
 
 
