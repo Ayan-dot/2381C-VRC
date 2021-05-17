@@ -330,7 +330,13 @@ bool botCovered = true;
 bool topCovered = true;
 bool runTask = false;
 void countingProcess(void *param){
-    while(runTask){
+      //cout << "bruhment" << endl;
+    while(true){
+    //  cout << "HOLYYYYYY";
+      if(runTask){
+    //  cout << "HOLYYYYYY";
+      pros::lcd::set_text(5, "BALLS " + to_string(ball_shot));
+      pros::lcd::set_text(6, "BALLS " + to_string(ball_taken));
     if(line_tracker1.get_value() >= COUNTER_THRESHOLD && botCovered){
       botCovered = false;
     }
@@ -344,7 +350,7 @@ void countingProcess(void *param){
     }
     else if(line_tracker2.get_value() < INDEX_THRESHOLD && !topCovered){
       topCovered = true;
-    }
+    }}
     pros::delay(10);
     }
 }
@@ -358,59 +364,67 @@ void ballDistro(int ballShoot, int ballGrab, bool corner){
   int retainSpeed = 0;
   bool keepIntake = true;
   bool keepShoot = true;
-  
+
   if (line_tracker1.get_value() < COUNTER_THRESHOLD) {
    botCovered = true;
-  } else {  
+  } else {
    botCovered = false;
-  } 
+  }
   topCovered = true;
-  
+
    double timePrime = pros::millis();
    while(line_tracker2.get_value() >= INDEX_THRESHOLD  && pros::millis()- timePrime < 1800){
    indexer.move_velocity(-200);
    shooter.move_velocity(190);
    }
-  
+
   // set the conveyor system to be running up initially
   runTask = true;
-  indexer.move_velocity(-200);
+  indexer.move_velocity(-110);
   leftIntake.move_velocity(-200);
   rightIntake.move_velocity(200);
   shooter.move_velocity(190);
   retainSpeed = 200;
 
   while(true){
+  cout << "happening" << endl;
   if(ball_taken >= ballGrab && ball_shot >= ballShoot){
     break;
   }
   else if(ball_taken >= ballGrab){
+    indexer.move_velocity(0);
     leftIntake.move_velocity(0);
     rightIntake.move_velocity(0);
   }
-  else{
-    shooter.move_velocity(190);
-    shooter.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+  else if(ball_shot >= ballShoot){
+    shooter.move_velocity(0);
+    shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
   }
   pros::delay(10);
 
   }
+  indexer.move_velocity(0);
+  indexer.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+  leftIntake.move_velocity(0);
+  rightIntake.move_velocity(0);
+  shooter.move_velocity(0);
+  shooter.move_velocity(pros::E_MOTOR_BRAKE_HOLD);
   runTask = false;
 
-  
+
 
   // while(ball_taken < ballGrab || ball_shot < ballShoot){
   //   pros::lcd::set_text(7, "RS " + to_string(retainSpeed));
   //   pros::lcd::set_text(5, "BALLS " + to_string(ball_taken));
   //   pros::lcd::set_text(4, "BALLS " + to_string(ball_shot));
   //   // counting
-    
-    
+
+
   //   // stop conditions for intaking:
   //   if(ball_taken>=ballGrab){
   //     // DEBUG
   //     if (ball_taken > ballGrab) {
-  //       // you better have terminal open 
+  //       // you better have terminal open
   //      // cout << "Overintake ERR: " << "Balls taken: " << took << '\n';
   //     }
   //     leftIntake.move_velocity(0);
@@ -429,7 +443,7 @@ void ballDistro(int ballShoot, int ballGrab, bool corner){
     //   shotsDone = true; // so we don't delay 150ms more than once
     //   // DEBUG
     //   if (shot > ballShoot) {
-    //     // you better have terminal open 
+    //     // you better have terminal open
     //     cout << "Overshoot ERR: " << "Balls shot: " << shot << '\n';
     //   }
     //   // stop the intakes so it doesn't overintake
@@ -443,7 +457,7 @@ void ballDistro(int ballShoot, int ballGrab, bool corner){
     //   leftIntake.move_velocity(-retainSpeed);
     //   rightIntake.move_velocity(retainSpeed);
     //   shooter.move_velocity(0);
-    //   shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);  
+    //   shooter.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     // }
     // pros::delay(10);
   }
@@ -477,7 +491,7 @@ double time = pros::millis();
   indexer.move_velocity(0);
   shooter.move_velocity(0);
   double timer = pros::millis();
-  
+
   while((shot!=ballShoot || took!=ballGrab) && pros::millis()-timer < 2500){
     pros::lcd::set_text(7, "BALLS " + to_string(shot));
     if(took!=ballGrab){
@@ -963,12 +977,14 @@ void autonomous()
 ///   pros::delay(1000);
 //   }
   // // begin run
-  ballDistro(2,1,0);
+  //cout << "yo" << endl;
+//  ballDistro(3,2,0);
+
 
   // turnPID(-pi / 2.0, pros::millis(), 700);
   //ballDistro(2,2,0);
-  //CODE FOR RUN -------- 
-  /*
+  //CODE FOR RUN --------
+
   deploy();
   translationPID(13.3, 0.0, 0, pros::millis(), 600, false, false, 0, 0, 0,0,12000);
  translationPID(14.0, 32.0, -pi/3.6, pros::millis(), 1000, true, false, 0, 0, 0,2,12000);
@@ -1045,7 +1061,7 @@ void autonomous()
   turnPID(-pi+pi/4.0, pros::millis(), 500, false);
   translationPID(5, -64.8, -pi+pi/4.0, pros::millis(), 900, false, false, 0, 0, 0,1,12000);
   ballDistro(2,2,0);
-  */
+  
 
 
 
