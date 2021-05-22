@@ -7,7 +7,7 @@ This repository was created as part of the VEX VRC Change Up Competition for the
 
 The purpose of this project is to achieve the above criteria for the code successfully, which means to ensure reliability, simplicity and ensure that everything works well during the competition. This is the code that will be used by team 2381C for the competition season.
 
-This repository belongs to team 2381C from Colonel By Secondary School (Ottawa, Canada). If you have any questions or concerns, please feel free to contact our team captain, Allen Tao, at allentao7@gmail.com.
+This repository belongs to team 2381C from Colonel By Secondary School (Ottawa, Canada). If you have any questions or concerns regarding 2381C, please feel free to contact our team captain, Allen Tao, at allentao7@gmail.com. For information regarding the codebase itself, reach out to our lead developer, Ayan Hafeez at ayanhafeez34@gmail.com
 
 ## Table of Contents
 
