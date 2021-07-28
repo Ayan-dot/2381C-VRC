@@ -38,7 +38,7 @@ Team 2381C is a small team from Colonel By Secondary School, in Ottawa, Ontario.
 
 ## Theory
 
-All the mathematics behind our custom motion algorithm state function, as well as odometry, is documented in extensive detail in our [paper](docs/2381C_Robotics_Mathematics_Paper.pdf), located in the documentation folder, [`docs`](docs).
+All the mathematics behind our custom motion algorithm state function, as well as odometry, is documented in extensive detail in our [paper](docs/TAO_ALLEN_2381C-Motion-Algorithm-Paper.pdf), located in the documentation folder, [`docs`](docs).
 
 ## Odometry
 
